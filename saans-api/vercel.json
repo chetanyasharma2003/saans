@@ -3,22 +3,5 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": null,
-  "outputDirectory": "dist",
-  "env": [
-    {
-      "key": "DATABASE_URL",
-      "target": ["production"],
-      "configurable": true
-    },
-    {
-      "key": "JWT_SECRET",
-      "target": ["production"],
-      "configurable": true
-    },
-    {
-      "key": "CORS_ORIGIN",
-      "value": "https://saans-web.vercel.app",
-      "target": ["production"]
-    }
-  ]
+  "outputDirectory": "dist"
 }
