@@ -1,0 +1,189 @@
+{
+  "timestamp": "2026-08-11T15:06:37.353Z",
+  "totalTests": 22,
+  "passedTests": 0,
+  "failedTests": 22,
+  "testSuites": [
+    {
+      "name": "Location Filter Section",
+      "tests": [
+        {
+          "name": "Login successful",
+          "passed": false,
+          "error": "failed: 404",
+          "timestamp": "2026-08-11T15:06:39.664Z"
+        }
+      ]
+    },
+    {
+      "name": "Location Badges on Cards",
+      "tests": [
+        {
+          "name": "Therapist cards render",
+          "passed": false,
+          "error": "No therapist cards found",
+          "details": "Found 0 therapist cards",
+          "timestamp": "2026-08-11T15:06:44.616Z"
+        },
+        {
+          "name": "Rating badges visible",
+          "passed": false,
+          "error": "Rating badges (⭐) not visible",
+          "details": "Found 0 rating badges",
+          "timestamp": "2026-08-11T15:06:44.620Z"
+        },
+        {
+          "name": "Price badges visible",
+          "passed": false,
+          "error": "Price badges not visible",
+          "details": "Found 0 price badges",
+          "timestamp": "2026-08-11T15:06:44.624Z"
+        },
+        {
+          "name": "Language indicator (🌐) visible",
+          "passed": false,
+          "error": "Language indicator not visible",
+          "details": "Found 0 language indicators",
+          "timestamp": "2026-08-11T15:06:44.649Z"
+        },
+        {
+          "name": "Specialization tags visible",
+          "passed": false,
+          "error": "Specialization tags not visible",
+          "details": "Found 0 specialization tags",
+          "timestamp": "2026-08-11T15:06:44.673Z"
+        },
+        {
+          "name": "Price icon (💰) visible",
+          "passed": false,
+          "error": "Price icon not visible",
+          "details": "Found 0 price icons",
+          "timestamp": "2026-08-11T15:06:44.675Z"
+        }
+      ]
+    },
+    {
+      "name": "Sections Render",
+      "tests": [
+        {
+          "name": "Header section renders",
+          "passed": false,
+          "error": "Header not found",
+          "timestamp": "2026-08-11T15:06:49.147Z"
+        },
+        {
+          "name": "Search section renders",
+          "passed": false,
+          "error": "Search input not found",
+          "timestamp": "2026-08-11T15:06:49.154Z"
+        },
+        {
+          "name": "Filter sidebar renders",
+          "passed": false,
+          "error": "Filters header not found",
+          "timestamp": "2026-08-11T15:06:49.157Z"
+        },
+        {
+          "name": "Main content area renders",
+          "passed": false,
+          "error": "Main content area not found",
+          "timestamp": "2026-08-11T15:06:49.163Z"
+        },
+        {
+          "name": "Results counter displays",
+          "passed": false,
+          "error": "Results counter not visible",
+          "timestamp": "2026-08-11T15:06:49.172Z"
+        }
+      ]
+    },
+    {
+      "name": "Location Indicators Visibility",
+      "tests": [
+        {
+          "name": "Location filter visible in sidebar",
+          "passed": false,
+          "error": "Location filter not visible",
+          "timestamp": "2026-08-11T15:06:53.360Z"
+        },
+        {
+          "name": "Sort/filter controls visible",
+          "passed": false,
+          "error": "Sort controls not visible",
+          "details": "Found no select",
+          "timestamp": "2026-08-11T15:06:53.363Z"
+        }
+      ]
+    },
+    {
+      "name": "No Data Scenario",
+      "tests": [
+        {
+          "name": "Page structure intact after filtering",
+          "passed": false,
+          "error": "Page structure broken after filtering",
+          "timestamp": "2026-08-11T15:06:57.289Z"
+        },
+        {
+          "name": "Filters remain accessible after filtering",
+          "passed": false,
+          "error": "Filters not accessible",
+          "timestamp": "2026-08-11T15:06:57.291Z"
+        },
+        {
+          "name": "Clear filters option available",
+          "passed": false,
+          "error": "Clear filters button not visible",
+          "timestamp": "2026-08-11T15:06:57.301Z"
+        }
+      ]
+    },
+    {
+      "name": "Location Filter Interaction",
+      "tests": [
+        {
+          "name": "Location filter button clickable",
+          "passed": false,
+          "error": "Location filter button not found",
+          "timestamp": "2026-08-11T15:07:01.315Z"
+        }
+      ]
+    },
+    {
+      "name": "Responsive Layout",
+      "tests": [
+        {
+          "name": "Sidebar visible on desktop",
+          "passed": false,
+          "error": "Sidebar not visible on desktop",
+          "timestamp": "2026-08-11T15:07:04.542Z"
+        },
+        {
+          "name": "Header visible on mobile",
+          "passed": false,
+          "error": "Header not visible on mobile",
+          "timestamp": "2026-08-11T15:07:06.596Z"
+        },
+        {
+          "name": "Cards render on mobile",
+          "passed": false,
+          "error": "Cards not rendering on mobile",
+          "details": "Found 0 cards",
+          "timestamp": "2026-08-11T15:07:06.598Z"
+        }
+      ]
+    },
+    {
+      "name": "Accessibility",
+      "tests": [
+        {
+          "name": "Test execution",
+          "passed": false,
+          "error": "locator.getAttribute: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"Search\"]')\u001b[22m\n",
+          "timestamp": "2026-08-11T15:07:39.820Z"
+        }
+      ]
+    }
+  ],
+  "loginStatus": "failed: 404"
+}

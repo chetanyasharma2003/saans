@@ -1,0 +1,194 @@
+{
+  "testReport": {
+    "date": "2026-08-11",
+    "endpoint": "POST /api/payments/verify-payment",
+    "totalTests": 22,
+    "passed": 18,
+    "failed": 4,
+    "summary": "CRITICAL - Payment system has 3 security vulnerabilities and 1 idempotency issue"
+  },
+  "bugs": [
+    {
+      "id": 1,
+      "title": "Signature Verification - Tampered Order ID Accepted",
+      "severity": "CRITICAL",
+      "category": "Security - Broken Access Control",
+      "owasp": "A01:2021",
+      "status": "CONFIRMED",
+      "location": "/saans-api/src/services/paymentService.ts:144-173",
+      "description": "Endpoint does not validate that order IDs exist in the database or belong to the authenticated user. Attacker can send tampered order ID with valid signature.",
+      "rootCause": "verifyPaymentSignature() only checks if signature matches mathematical formula, not if order exists or belongs to user",
+      "impact": [
+        "Double payment: Same payment verified under different order IDs",
+        "Subscription bypass: Upgrade to premium without payment",
+        "Financial fraud: No proof payment from Razorpay"
+      ],
+      "testCase": "order_123 with signature for order_123 | send order_123XXX with same signature | should reject but doesn't",
+      "fixEstimate": "2 hours",
+      "requiredFix": [
+        "Verify order exists: prisma.order.findUnique({where: {id: orderId}})",
+        "Verify belongs to user: order.userId === userId",
+        "Verify order status is PENDING",
+        "Cross-check with Razorpay API: razorpay.payments.fetch(paymentId)"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Signature Verification - Tampered Payment ID Accepted",
+      "severity": "CRITICAL",
+      "category": "Security - Injection / API Misuse",
+      "owasp": "A03:2021",
+      "status": "CONFIRMED",
+      "location": "/saans-api/src/services/paymentService.ts:144-173",
+      "description": "Payment IDs are not validated against Razorpay system. Attacker can send fake payment ID or reuse existing payment ID.",
+      "rootCause": "No verification that payment_id is from Razorpay or that it matches the order",
+      "impact": [
+        "Subscription fraud: Upgrade without actual payment",
+        "Double charging: Same payment ID used multiple times",
+        "Replay attack: Reuse payment from previous transaction"
+      ],
+      "testCase": "pay_456 with valid signature | send pay_456XXX with same signature | should reject but accepts",
+      "fixEstimate": "3 hours",
+      "requiredFix": [
+        "Fetch from Razorpay: razorpay.payments.fetch(payment_id)",
+        "Verify status is 'captured' or 'authorized'",
+        "Check payment not already used: prisma.payment.findUnique({where: {transactionId}})",
+        "Verify payment_id matches order_id in Razorpay system"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Weak Secret Validation - Environment Variable Not Validated",
+      "severity": "CRITICAL",
+      "category": "Security - Cryptographic Failure",
+      "owasp": "A02:2021",
+      "status": "CONFIRMED",
+      "location": "/saans-api/src/services/paymentService.ts:152",
+      "description": "RAZORPAY_KEY_SECRET is used without validation. If missing or empty, signature verification becomes trivial to forge.",
+      "rootCause": "Code uses '|| empty string' fallback: createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || '')",
+      "impact": [
+        "Signature forgery: Empty secret means any signature is valid",
+        "Insecure defaults: Silent failure if secret not configured",
+        "No startup validation: Server starts even without credentials"
+      ],
+      "testCase": "RAZORPAY_KEY_SECRET=undefined | any signature calculation uses empty string | forge any signature",
+      "fixEstimate": "1 hour",
+      "requiredFix": [
+        "Validate at startup: if (!process.env.RAZORPAY_KEY_SECRET) throw Error()",
+        "Check length: if (secret.length < 20) throw Error('invalid')",
+        "No fallback to empty string",
+        "Add warning logs if secret looks wrong"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Idempotency Issue - Duplicate Requests Return Different Status",
+      "severity": "HIGH",
+      "category": "Data Consistency - Race Condition",
+      "owasp": "A04:2021",
+      "status": "CONFIRMED",
+      "location": "/saans-api/src/services/paymentService.ts:178-248",
+      "description": "Sending the same payment verification request twice returns different responses: first 200 OK, second 400 Error.",
+      "rootCause": "No idempotency key mechanism. Creates subscription with UPSERT but then always creates new payment record which fails on duplicate transactionId.",
+      "impact": [
+        "Network issues: Retries fail even though original succeeded",
+        "Webhook replays: Razorpay webhook replays cause failures",
+        "User confusion: First attempt succeeds then fails",
+        "Inconsistent state: Payment not recorded if retry fails"
+      ],
+      "testCase": "Send {order_id, pay_id, signature} | 200 OK | Send same request again | 400 Error (different response)",
+      "fixEstimate": "4 hours",
+      "requiredFix": [
+        "Require X-Idempotency-Key header",
+        "Store idempotency key with payment",
+        "Return cached response on duplicate",
+        "Use database transactions: prisma.$transaction()",
+        "Add unique constraint on payment.transactionId"
+      ]
+    }
+  ],
+  "testResults": {
+    "passingTests": [
+      "Valid Razorpay signature accepted",
+      "Missing order ID rejected (400)",
+      "Missing payment ID rejected (400)",
+      "Missing signature rejected (400)",
+      "Missing plan type rejected (400)",
+      "Invalid plan type rejected (400)",
+      "Non-string order ID rejected",
+      "Null values rejected",
+      "Empty strings rejected",
+      "No authentication returns 401",
+      "Invalid token returns 401",
+      "SQL injection attempt rejected",
+      "Extra fields don't override user context",
+      "Invalid signature format rejected",
+      "Error messages are present",
+      "No sensitive information leaked",
+      "Rate limiting configured",
+      "Consistent error on duplicate"
+    ],
+    "failingTests": [
+      "Tampered order ID properly rejected",
+      "Tampered payment ID properly rejected",
+      "Wrong secret rejected",
+      "Idempotency consistency"
+    ]
+  },
+  "affectedFiles": [
+    {
+      "file": "/saans-api/src/services/paymentService.ts",
+      "priority": "CRITICAL",
+      "lines": "144-173 (verification), 178-248 (update subscription)"
+    },
+    {
+      "file": "/saans-api/src/controllers/paymentController.ts",
+      "priority": "MEDIUM",
+      "lines": "81-193 (verifyPayment method)"
+    },
+    {
+      "file": "Database Schema (Prisma)",
+      "priority": "CRITICAL",
+      "issue": "Missing unique constraint on Payment.transactionId, missing IdempotentPayment table"
+    }
+  ],
+  "recommendations": {
+    "phase1_critical": {
+      "timeEstimate": "2-3 hours",
+      "description": "MUST FIX BEFORE ANY PAYMENTS",
+      "tasks": [
+        "Add database validation for order existence and ownership",
+        "Add Razorpay API verification",
+        "Add secret validation on startup",
+        "Add unique constraint on transactionId"
+      ]
+    },
+    "phase2_high": {
+      "timeEstimate": "4-6 hours",
+      "description": "Do within 1 week",
+      "tasks": [
+        "Implement idempotency keys",
+        "Use database transactions",
+        "Add error logging and alerts",
+        "Add per-user rate limiting"
+      ]
+    },
+    "phase3_medium": {
+      "timeEstimate": "8-12 hours",
+      "description": "Do within 1 month",
+      "tasks": [
+        "Migrate to Razorpay webhooks",
+        "Implement request signing on client",
+        "Add secret rotation",
+        "Add comprehensive monitoring"
+      ]
+    }
+  },
+  "riskAssessment": {
+    "productionReady": false,
+    "explanation": "UNSAFE - Critical vulnerabilities allow payment bypass and fraud",
+    "likelihood": "HIGH - Vulnerabilities are easily exploitable",
+    "impact": "CRITICAL - Complete payment bypass, double-charging, fraud",
+    "recommendation": "DO NOT PROCESS REAL PAYMENTS until CRITICAL bugs fixed"
+  }
+}

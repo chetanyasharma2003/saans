@@ -1,0 +1,85 @@
+name: 🔧 Auto-Fix Issues
+
+on:
+  workflow_run:
+    workflows: ["🚀 Auto Deploy & Test", "🧪 Automated Testing"]
+    types: [completed]
+
+jobs:
+  fix-code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          cd saans-web && npm install && cd ..
+          cd saans-api && npm install && cd ..
+
+      - name: 🔧 Fix Frontend Issues
+        run: |
+          cd saans-web
+          npm run lint -- --fix 2>&1 || true
+          npm run format 2>&1 || true
+          cd ..
+
+      - name: 🔧 Fix Backend Issues
+        run: |
+          cd saans-api
+          npm run lint -- --fix 2>&1 || true
+          npm run format 2>&1 || true
+          cd ..
+
+      - name: 📝 Commit & Push Fixes
+        run: |
+          git config user.name "SAANS AutoFix Bot"
+          git config user.email "autofix@saans.com"
+
+          if git diff --quiet; then
+            echo "✅ No changes needed"
+          else
+            git add -A
+            git commit -m "🔧 Auto-fix: Code quality improvements"
+            git push
+          fi
+
+  create-pr-for-fixes:
+    runs-on: ubuntu-latest
+    if: failure()
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create PR for Manual Review
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: '🤖 Auto-fix: Issues detected and fixes suggested'
+          title: '🤖 Auto-Review: Issues Detected'
+          body: |
+            ## 🔍 Automated Review Found Issues
+
+            The automated testing pipeline detected potential issues:
+
+            - Type checking warnings
+            - Linting issues
+            - Code quality concerns
+
+            **Action Required:** Please review and merge if fixes are correct.
+
+            ---
+            *This PR was automatically created by SAANS CI/CD*
+          branch: autofix/review-${{ github.run_number }}
+          delete-branch: true

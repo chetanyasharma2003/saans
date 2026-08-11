@@ -1,0 +1,24 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "vite",
+  "projectSettings": {
+    "framework": null,
+    "nodeVersion": "18.x"
+  },
+  "env": [
+    {
+      "key": "VITE_API_URL",
+      "value": "https://saans-api.vercel.app",
+      "target": ["production", "preview"]
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "develop": true,
+      "master": true
+    }
+  }
+}

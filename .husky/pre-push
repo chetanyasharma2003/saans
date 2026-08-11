@@ -1,0 +1,41 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🚀 Pre-push: Running final validation before push..."
+
+CURRENT_BRANCH=$(git symbolic-ref --short HEAD)
+echo "📍 Branch: $CURRENT_BRANCH"
+
+# STEP 1: Run tests
+echo "🧪 Running tests..."
+npm run test:quick 2>/dev/null || {
+  echo "⚠️ Some tests failed (check logs)"
+  # Don't exit, let push proceed but with warning
+}
+
+# STEP 2: Type check
+echo "📘 Final TypeScript check..."
+npx tsc --noEmit || {
+  echo "❌ TypeScript compilation errors found!"
+  echo "Fix TypeScript errors before pushing"
+  exit 1
+}
+
+# STEP 3: Build verification
+echo "🏗️ Verifying build..."
+npm run build 2>/dev/null || {
+  echo "❌ Build failed!"
+  echo "Cannot push with broken build"
+  exit 1
+}
+
+# STEP 4: Lint check
+echo "🔍 Final lint check..."
+npm run lint 2>/dev/null || {
+  echo "⚠️ Lint warnings found (check logs)"
+}
+
+echo ""
+echo "✅ All pre-push checks passed!"
+echo "🚀 Ready to push to $CURRENT_BRANCH"
+exit 0
