@@ -1,0 +1,962 @@
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import AppointmentModal from '../components/AppointmentModal';
+
+// Types
+interface Therapist {
+  id: string;
+  name: string;
+  specialty: string[];
+  rating: number;
+  reviews: number;
+  price: number;
+  languages: string[];
+  availability: string[];
+  image: string;
+  bio: string;
+  experience: number;
+  certifications: string[];
+  reviews_list: Review[];
+  city?: string;
+  state?: string;
+  cityMatch?: 'same-city' | 'nearby' | null;
+}
+
+interface Review {
+  id: string;
+  author: string;
+  rating: number;
+  text: string;
+  date: string;
+}
+
+// Mock Therapist Data
+const THERAPISTS_DATA: Therapist[] = [
+  {
+    id: '1',
+    name: 'Dr. Sarah Johnson',
+    specialty: ['Anxiety', 'Depression', 'Stress Management'],
+    rating: 4.9,
+    reviews: 156,
+    price: 80,
+    languages: ['English', 'Spanish'],
+    availability: ['Mon-Fri 9AM-5PM', 'Evening slots'],
+    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
+    bio: 'Specializing in cognitive behavioral therapy with 12+ years of experience. Passionate about helping clients overcome anxiety and build resilience.',
+    experience: 12,
+    certifications: ['PhD Psychology', 'CBT Certified', 'Licensed Clinical Psychologist'],
+    city: 'New Delhi',
+    state: 'Delhi',
+    reviews_list: [
+      { id: '1', author: 'Alex M.', rating: 5, text: 'Incredibly supportive and professional. Highly recommended!', date: '2026-08-01' },
+      { id: '2', author: 'Jordan K.', rating: 5, text: 'Best therapist I\'ve worked with. Life-changing sessions.', date: '2026-07-28' },
+      { id: '3', author: 'Casey P.', rating: 4, text: 'Very helpful, great techniques for managing anxiety.', date: '2026-07-20' }
+    ]
+  },
+  {
+    id: '2',
+    name: 'Dr. Michael Chen',
+    specialty: ['Trauma', 'PTSD', 'Grief Counseling'],
+    rating: 4.8,
+    reviews: 142,
+    price: 85,
+    languages: ['English', 'Mandarin', 'Cantonese'],
+    availability: ['Weekdays', 'Saturday mornings'],
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
+    bio: 'Trauma-focused therapist with expertise in EMDR and somatic therapies. Dedicated to facilitating deep healing.',
+    experience: 15,
+    certifications: ['MA Counseling', 'EMDR Certified', 'Trauma Specialist'],
+    city: 'Gurgaon',
+    state: 'Haryana',
+    reviews_list: [
+      { id: '1', author: 'Morgan L.', rating: 5, text: 'Helped me process trauma I thought I\'d never heal from.', date: '2026-08-02' },
+      { id: '2', author: 'Riley T.', rating: 5, text: 'Compassionate, skilled, and truly cares about clients.', date: '2026-07-25' },
+      { id: '3', author: 'Jamie N.', rating: 4, text: 'Professional and supportive environment.', date: '2026-07-15' }
+    ]
+  },
+  {
+    id: '3',
+    name: 'Emily Rodriguez',
+    specialty: ['Relationship Issues', 'Couples Therapy', 'Communication'],
+    rating: 4.7,
+    reviews: 128,
+    price: 75,
+    languages: ['English', 'Spanish', 'Portuguese'],
+    availability: ['Mon-Sat 10AM-6PM', 'Evening appointments'],
+    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop',
+    bio: 'Specializes in couples and relationship counseling. Believes in building stronger connections through effective communication.',
+    experience: 10,
+    certifications: ['MA Clinical Counseling', 'Couples Therapy Specialist', 'NCC'],
+    city: 'Mumbai',
+    state: 'Maharashtra',
+    reviews_list: [
+      { id: '1', author: 'David & Lisa', rating: 5, text: 'Saved our marriage. Emily is amazing!', date: '2026-08-03' },
+      { id: '2', author: 'Chris H.', rating: 5, text: 'Helped us communicate better than ever before.', date: '2026-07-30' },
+      { id: '3', author: 'Sage A.', rating: 4, text: 'Very knowledgeable in relationship dynamics.', date: '2026-07-10' }
+    ]
+  },
+  {
+    id: '4',
+    name: 'Dr. James Wilson',
+    specialty: ['Depression', 'Bipolar Disorder', 'Medication Management'],
+    rating: 4.9,
+    reviews: 167,
+    price: 90,
+    languages: ['English', 'French'],
+    availability: ['Weekdays 8AM-4PM', 'Virtual appointments'],
+    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
+    bio: 'Board-certified psychiatrist offering comprehensive mental health treatment including medication management and psychotherapy.',
+    experience: 18,
+    certifications: ['MD Psychiatry', 'Board Certified', 'Addiction Specialist'],
+    city: 'Noida',
+    state: 'Uttar Pradesh',
+    reviews_list: [
+      { id: '1', author: 'Patricia M.', rating: 5, text: 'Excellent care and genuinely interested in my wellbeing.', date: '2026-08-04' },
+      { id: '2', author: 'Robert D.', rating: 5, text: 'Professional, caring, and very competent.', date: '2026-07-29' },
+      { id: '3', author: 'Susan K.', rating: 4, text: 'Great at finding the right treatment approach.', date: '2026-07-08' }
+    ]
+  },
+  {
+    id: '5',
+    name: 'Dr. Priya Patel',
+    specialty: ['Eating Disorders', 'Body Image', 'Women\'s Health'],
+    rating: 4.8,
+    reviews: 139,
+    price: 80,
+    languages: ['English', 'Hindi', 'Gujarati'],
+    availability: ['Tue-Sat 11AM-7PM', 'Sunday afternoons'],
+    image: 'https://images.unsplash.com/photo-1494761681033-6461ffad8d80?w=400&h=400&fit=crop',
+    bio: 'Compassionate therapist specializing in eating disorders and body image issues. Integrates mindfulness and acceptance approaches.',
+    experience: 11,
+    certifications: ['MA Counseling', 'Eating Disorder Specialist', 'DBT Certified'],
+    city: 'Bangalore',
+    state: 'Karnataka',
+    reviews_list: [
+      { id: '1', author: 'Natalie S.', rating: 5, text: 'Finally someone who understands my struggles with body image.', date: '2026-08-02' },
+      { id: '2', author: 'Emma W.', rating: 5, text: 'Incredible support and practical strategies.', date: '2026-07-26' },
+      { id: '3', author: 'Olivia B.', rating: 4, text: 'Knowledgeable and very supportive therapist.', date: '2026-07-12' }
+    ]
+  },
+  {
+    id: '6',
+    name: 'Dr. Marcus Thompson',
+    specialty: ['Addiction', 'Substance Abuse', 'Recovery'],
+    rating: 4.7,
+    reviews: 145,
+    price: 85,
+    languages: ['English', 'Creole'],
+    availability: ['Mon-Fri 9AM-6PM', 'Emergency support available'],
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
+    bio: 'Dedicated addiction counselor with personal recovery experience. Offers evidence-based treatment and unwavering support.',
+    experience: 14,
+    certifications: ['MA Addiction Counseling', 'Certified Addiction Specialist', 'LCSW'],
+    city: 'New Delhi',
+    state: 'Delhi',
+    reviews_list: [
+      { id: '1', author: 'Tony R.', rating: 5, text: 'Helped me turn my life around. Changed everything for me.', date: '2026-08-01' },
+      { id: '2', author: 'Nicole G.', rating: 5, text: 'Compassionate, knowledgeable, and truly cares.', date: '2026-07-27' },
+      { id: '3', author: 'Derek F.', rating: 4, text: 'Great support for recovery journey.', date: '2026-07-14' }
+    ]
+  },
+  {
+    id: '7',
+    name: 'Dr. Lisa Chen',
+    specialty: ['ADHD', 'Learning Disorders', 'Child Psychology'],
+    rating: 4.9,
+    reviews: 178,
+    price: 75,
+    languages: ['English', 'Mandarin'],
+    availability: ['After-school hours', 'Saturday sessions'],
+    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop',
+    bio: 'Child and adolescent psychologist with specialized training in ADHD and neurodevelopmental disorders. Makes learning enjoyable.',
+    experience: 13,
+    certifications: ['PhD Child Psychology', 'ADHD Specialist', 'Board Certified'],
+    city: 'Pune',
+    state: 'Maharashtra',
+    reviews_list: [
+      { id: '1', author: 'Parent - Jennifer', rating: 5, text: 'Dr. Chen helped my child finally understand their ADHD.', date: '2026-08-03' },
+      { id: '2', author: 'Parent - Kevin', rating: 5, text: 'Amazing with kids, very professional and warm.', date: '2026-07-31' },
+      { id: '3', author: 'Teacher - Maria', rating: 5, text: 'Great insights and helpful strategies.', date: '2026-07-22' }
+    ]
+  }
+];
+
+// Autocomplete Component
+function SearchAutocomplete({ value, onChange, suggestions }: {
+  value: string;
+  onChange: (val: string) => void;
+  suggestions: string[];
+}) {
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  return (
+    <div className="relative w-full">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setShowSuggestions(true);
+        }}
+        onFocus={() => setShowSuggestions(true)}
+        placeholder="Search therapists by name, specialty..."
+        className="w-full px-6 py-4 bg-white/10 border-2 border-white/20 rounded-2xl text-white placeholder-gray-300 focus:outline-none focus:border-teal-500 focus:bg-white/15 transition-all duration-300 backdrop-blur-sm"
+      />
+      {showSuggestions && suggestions.length > 0 && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-white/10 rounded-lg shadow-2xl z-50 max-h-48 overflow-y-auto">
+          {suggestions.map((suggestion, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                onChange(suggestion);
+                setShowSuggestions(false);
+              }}
+              className="w-full text-left px-4 py-2 text-white hover:bg-teal-600/50 transition-colors text-sm"
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Filter Component
+function FilterSection({ label, options, selectedValues, onChange }: {
+  label: string;
+  options: string[];
+  selectedValues: string[];
+  onChange: (values: string[]) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition-colors duration-200"
+      >
+        <span className="font-medium text-sm">{label}</span>
+        <span className={`text-lg transition-transform duration-300 ${isOpen ? 'rotate-180 inline-block' : ''}`}>▼</span>
+      </button>
+
+      {isOpen && (
+        <div className="ml-2 flex flex-col gap-2 animate-fadeIn">
+          {options.map((option) => (
+            <label key={option} className="flex items-center gap-2 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={selectedValues.includes(option)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    onChange([...selectedValues, option]);
+                  } else {
+                    onChange(selectedValues.filter(v => v !== option));
+                  }
+                }}
+                className="w-4 h-4 rounded bg-teal-600 border-0 cursor-pointer"
+              />
+              <span className="text-white text-sm group-hover:text-teal-300 transition-colors">{option}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Therapist Card Component
+function TherapistCard({ therapist, onViewDetails }: {
+  therapist: Therapist;
+  onViewDetails: (therapist: Therapist) => void;
+}) {
+  const getLocationBadge = () => {
+    if (therapist.cityMatch === 'same-city') {
+      return { text: 'In Your City', color: 'bg-green-500/90', icon: '📍' };
+    } else if (therapist.cityMatch === 'nearby') {
+      return { text: 'Nearby', color: 'bg-blue-500/90', icon: '📍' };
+    }
+    return null;
+  };
+
+  const locationBadge = getLocationBadge();
+
+  return (
+    <div className="group relative bg-gradient-to-br from-slate-800/40 to-slate-900/40 border border-white/10 rounded-2xl overflow-hidden hover:border-teal-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-teal-500/20 backdrop-blur-xl">
+      {/* Gradient Overlay on Hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-teal-500/10 to-cyan-500/10" />
+
+      {/* Image Section */}
+      <div className="relative h-48 overflow-hidden bg-gradient-to-b from-teal-600 to-cyan-600">
+        <img
+          src={therapist.image}
+          alt={therapist.name}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+        <div className="absolute top-3 right-3 bg-teal-500/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1">
+          <span className="text-white text-sm">⭐</span>
+          <span className="text-white text-sm font-bold">{therapist.rating}</span>
+        </div>
+        {locationBadge && (
+          <div className={`absolute top-3 left-3 ${locationBadge.color} backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1`}>
+            <span className="text-white text-sm">{locationBadge.icon}</span>
+            <span className="text-white text-xs font-semibold">{locationBadge.text}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Content Section */}
+      <div className="relative p-6 space-y-4">
+        <div>
+          <h3 className="text-xl font-bold text-white group-hover:text-teal-300 transition-colors">{therapist.name}</h3>
+          <p className="text-teal-300 text-sm mt-1">{therapist.specialty[0]}</p>
+        </div>
+
+        {/* Review Stats */}
+        <div className="flex items-center gap-2 text-gray-400 text-sm">
+          <span className="flex items-center gap-1">
+            ⭐ {therapist.reviews} reviews
+          </span>
+        </div>
+
+        {/* Specialties Tags */}
+        <div className="flex flex-wrap gap-2">
+          {therapist.specialty.slice(0, 2).map((spec) => (
+            <span key={spec} className="text-xs bg-teal-500/20 text-teal-300 px-3 py-1 rounded-full border border-teal-500/30">
+              {spec}
+            </span>
+          ))}
+        </div>
+
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
+          <div className="flex items-center gap-2">
+            <span>💰</span>
+            <span className="text-white text-sm">${therapist.price}/session</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span>🌐</span>
+            <span className="text-white text-sm">{therapist.languages[0]}</span>
+          </div>
+          <div className="flex items-center gap-2 col-span-2">
+            <span>🕐</span>
+            <span className="text-white text-sm">{therapist.availability[0]}</span>
+          </div>
+          {therapist.city && (
+            <div className="flex items-center gap-2 col-span-2">
+              <span>📍</span>
+              <span className="text-white text-sm">{therapist.city}, {therapist.state}</span>
+            </div>
+          )}
+        </div>
+
+        {/* View Details Button */}
+        <button
+          onClick={() => onViewDetails(therapist)}
+          className="w-full mt-4 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-semibold py-3 rounded-xl transition-all duration-300 transform group-hover:scale-105 shadow-lg hover:shadow-teal-500/50"
+        >
+          View Profile & Book
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Calendar Picker Component
+function CalendarPicker({ onSelect, onClose }: {
+  onSelect: (date: string) => void;
+  onClose: () => void;
+}) {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  const getDaysInMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  };
+
+  const days = [];
+  const daysInMonth = getDaysInMonth(currentMonth);
+  const firstDay = getFirstDayOfMonth(currentMonth);
+
+  for (let i = 0; i < firstDay; i++) {
+    days.push(null);
+  }
+  for (let i = 1; i <= daysInMonth; i++) {
+    days.push(i);
+  }
+
+  const handleDateSelect = (day: number) => {
+    const selected = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    onSelect(selected.toISOString().split('T')[0]);
+  };
+
+  return (
+    <div className="bg-slate-800 rounded-xl p-6 border border-white/10">
+      <div className="flex justify-between items-center mb-6">
+        <button
+          onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
+          className="text-white hover:text-teal-400 transition-colors"
+        >
+          ←
+        </button>
+        <h3 className="text-white font-bold">
+          {currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
+        </h3>
+        <button
+          onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
+          className="text-white hover:text-teal-400 transition-colors"
+        >
+          →
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 gap-2 mb-4">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+          <div key={day} className="text-center text-teal-400 text-xs font-bold">
+            {day}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-2 mb-6">
+        {days.map((day, idx) => (
+          <button
+            key={idx}
+            onClick={() => day && handleDateSelect(day)}
+            disabled={!day}
+            className={`aspect-square rounded-lg text-sm font-medium transition-all duration-200 ${
+              day
+                ? 'bg-teal-600/50 text-white hover:bg-teal-500 hover:shadow-lg hover:shadow-teal-500/50 cursor-pointer'
+                : 'bg-transparent text-transparent'
+            }`}
+          >
+            {day}
+          </button>
+        ))}
+      </div>
+
+      <button
+        onClick={onClose}
+        className="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg transition-colors"
+      >
+        Close
+      </button>
+    </div>
+  );
+}
+
+// Therapist Details Modal
+function TherapistModal({ therapist, onClose }: {
+  therapist: Therapist | null;
+  onClose: () => void;
+}) {
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [bookingStep, setBookingStep] = useState<'info' | 'booking' | 'confirmed'>('info');
+
+  if (!therapist) return null;
+
+  const timeSlots = ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM'];
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl border border-white/10 w-full max-w-2xl shadow-2xl">
+        {/* Header */}
+        <div className="relative h-64 bg-gradient-to-r from-teal-600 to-cyan-600 overflow-hidden">
+          <img src={therapist.image} alt={therapist.name} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 bg-red-500/80 hover:bg-red-600 text-white p-2 rounded-full transition-colors"
+          >
+            <span>✕</span>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-8 space-y-6">
+          {bookingStep === 'info' ? (
+            <>
+              {/* Therapist Info */}
+              <div>
+                <h2 className="text-3xl font-bold text-white mb-2">{therapist.name}</h2>
+                <p className="text-teal-300 text-lg font-semibold mb-4">{therapist.specialty.join(', ')}</p>
+
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex items-center gap-2">
+                    <span>⭐</span>
+                    <span className="text-white font-bold">{therapist.rating}</span>
+                    <span className="text-gray-400">({therapist.reviews} reviews)</span>
+                  </div>
+                  <div className="text-white">
+                    <span>💰</span>
+                    <span className="font-bold">${therapist.price}</span>/session
+                  </div>
+                </div>
+
+                <p className="text-gray-300 text-base leading-relaxed mb-6">{therapist.bio}</p>
+
+                {/* Experience & Certifications */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6 border-y border-white/10">
+                  <div>
+                    <h4 className="text-teal-300 font-semibold mb-2">Experience</h4>
+                    <p className="text-white">{therapist.experience}+ years in practice</p>
+                  </div>
+                  <div>
+                    <h4 className="text-teal-300 font-semibold mb-2">Languages</h4>
+                    <p className="text-white">{therapist.languages.join(', ')}</p>
+                  </div>
+                </div>
+
+                {/* Certifications */}
+                <div className="mt-6">
+                  <h4 className="text-teal-300 font-semibold mb-3">Certifications</h4>
+                  <div className="space-y-2">
+                    {therapist.certifications.map((cert, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-white">
+                        <span>✅</span>
+                        <span>{cert}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Reviews Section */}
+              <div className="border-t border-white/10 pt-6">
+                <h3 className="text-xl font-bold text-white mb-4">Client Reviews</h3>
+                <div className="space-y-4">
+                  {therapist.reviews_list.map((review) => (
+                    <div key={review.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-white font-semibold">{review.author}</span>
+                        <div className="flex gap-1">
+                          {[...Array(review.rating)].map((_, i) => (
+                            <span key={i}>⭐</span>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-gray-300 text-sm">{review.text}</p>
+                      <p className="text-gray-500 text-xs mt-2">{review.date}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Book Session Button */}
+              <button
+                onClick={() => setBookingStep('booking')}
+                className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
+                Book a Session
+              </button>
+            </>
+          ) : bookingStep === 'booking' ? (
+            <>
+              <h3 className="text-2xl font-bold text-white">Book Your Session</h3>
+
+              <div className="space-y-6">
+                {/* Date Selection */}
+                <div>
+                  <label className="block text-teal-300 font-semibold mb-3">Select Date</label>
+                  {showCalendar ? (
+                    <CalendarPicker
+                      onSelect={(date) => {
+                        setSelectedDate(date);
+                        setShowCalendar(false);
+                      }}
+                      onClose={() => setShowCalendar(false)}
+                    />
+                  ) : (
+                    <button
+                      onClick={() => setShowCalendar(true)}
+                      className="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-xl text-white hover:border-teal-500 hover:bg-white/15 transition-all duration-300 flex items-center gap-2"
+                    >
+                      <span>📅</span>
+                      {selectedDate || 'Choose a date'}
+                    </button>
+                  )}
+                </div>
+
+                {/* Time Selection */}
+                {selectedDate && (
+                  <div>
+                    <label className="block text-teal-300 font-semibold mb-3">Select Time</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {timeSlots.map((time) => (
+                        <button
+                          key={time}
+                          onClick={() => setSelectedTime(time)}
+                          className={`py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+                            selectedTime === time
+                              ? 'bg-teal-600 text-white border-teal-400 border-2'
+                              : 'bg-white/5 text-white border border-white/10 hover:bg-white/10'
+                          }`}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Booking Summary */}
+                {selectedDate && selectedTime && (
+                  <div className="bg-teal-600/20 border border-teal-500/30 rounded-xl p-4 space-y-2">
+                    <p className="text-white"><span className="text-teal-300 font-semibold">Therapist:</span> {therapist.name}</p>
+                    <p className="text-white"><span className="text-teal-300 font-semibold">Date:</span> {new Date(selectedDate).toLocaleDateString()}</p>
+                    <p className="text-white"><span className="text-teal-300 font-semibold">Time:</span> {selectedTime}</p>
+                    <p className="text-white"><span className="text-teal-300 font-semibold">Price:</span> ${therapist.price}</p>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setBookingStep('info')}
+                    className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 rounded-xl transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (selectedDate && selectedTime) {
+                        setBookingStep('confirmed');
+                      }
+                    }}
+                    disabled={!selectedDate || !selectedTime}
+                    className="flex-1 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-300"
+                  >
+                    Confirm Booking
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Confirmation Screen */}
+              <div className="text-center space-y-6 py-8">
+                <div className="flex justify-center">
+                  <div className="bg-green-500/20 border border-green-500/50 rounded-full p-6">
+                    <span className="text-4xl">✅</span>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-2">Booking Confirmed!</h3>
+                  <p className="text-gray-300">Your session with {therapist.name} has been scheduled.</p>
+                </div>
+                <div className="bg-teal-600/20 border border-teal-500/30 rounded-xl p-4 space-y-2 text-left">
+                  <p className="text-white"><span className="text-teal-300 font-semibold">Confirmation #:</span> THR-{Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
+                  <p className="text-white"><span className="text-teal-300 font-semibold">Date:</span> {selectedDate && new Date(selectedDate).toLocaleDateString()}</p>
+                  <p className="text-white"><span className="text-teal-300 font-semibold">Time:</span> {selectedTime}</p>
+                  <p className="text-gray-400 text-sm mt-4">A confirmation email has been sent to your registered email address. You'll receive a meeting link 24 hours before your session.</p>
+                </div>
+                <button
+                  onClick={onClose}
+                  className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-bold py-3 rounded-xl transition-all duration-300"
+                >
+                  Close
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main Page Component
+export function FindTherapistPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 150]);
+  const [selectedTherapist, setSelectedTherapist] = useState<Therapist | null>(null);
+
+  // Get user from Redux
+  const auth = useSelector((state: any) => state.auth);
+  const userCity = auth?.user?.city;
+
+  // Get all unique values
+  const allSpecialties = Array.from(new Set(THERAPISTS_DATA.flatMap(t => t.specialty)));
+  const allLanguages = Array.from(new Set(THERAPISTS_DATA.flatMap(t => t.languages)));
+
+  // Autocomplete suggestions
+  const suggestions = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    return THERAPISTS_DATA
+      .filter(t => t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                   t.specialty.some(s => s.toLowerCase().includes(searchQuery.toLowerCase())))
+      .map(t => t.name)
+      .filter((v, i, a) => a.indexOf(v) === i)
+      .slice(0, 5);
+  }, [searchQuery]);
+
+  // Filter and organize therapists by location
+  const { sameCityTherapists, nearbyCityTherapists, otherTherapists } = useMemo(() => {
+    const filtered = THERAPISTS_DATA.filter(therapist => {
+      const matchesSearch = therapist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           therapist.specialty.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      const matchesSpecialties = selectedSpecialties.length === 0 ||
+                                selectedSpecialties.some(s => therapist.specialty.includes(s));
+
+      const matchesLanguages = selectedLanguages.length === 0 ||
+                              selectedLanguages.some(l => therapist.languages.includes(l));
+
+      const matchesPrice = therapist.price >= priceRange[0] && therapist.price <= priceRange[1];
+
+      return matchesSearch && matchesSpecialties && matchesLanguages && matchesPrice;
+    });
+
+    // If user has a city, organize by location
+    if (userCity) {
+      const same: Therapist[] = [];
+      const nearby: Therapist[] = [];
+      const other: Therapist[] = [];
+
+      filtered.forEach(t => {
+        // Assign city match for display
+        if (t.city?.toLowerCase() === userCity.toLowerCase()) {
+          same.push({ ...t, cityMatch: 'same-city' });
+        } else {
+          // Simplified nearby logic - can be enhanced
+          nearby.push({ ...t, cityMatch: 'nearby' });
+        }
+      });
+
+      return { sameCityTherapists: same, nearbyCityTherapists: nearby, otherTherapists: other };
+    }
+
+    return { sameCityTherapists: [], nearbyCityTherapists: filtered, otherTherapists: [] };
+  }, [searchQuery, selectedSpecialties, selectedLanguages, priceRange, userCity]);
+
+  const filteredTherapists = [...sameCityTherapists, ...nearbyCityTherapists, ...otherTherapists];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-12">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-gradient-to-r from-slate-800/80 to-slate-800/40 backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-4xl">🔍</span>
+            <div>
+              <h1 className="text-3xl font-bold text-white">Find Your Therapist</h1>
+              <p className="text-teal-300 text-sm">Connect with qualified mental health professionals</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Search Bar */}
+        <div className="mb-8">
+          <SearchAutocomplete
+            value={searchQuery}
+            onChange={setSearchQuery}
+            suggestions={suggestions}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Filters Sidebar */}
+          <aside className="lg:sticky lg:top-24 h-fit space-y-6">
+            <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
+              <h2 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                <span>🔽</span> Filters
+              </h2>
+
+              {/* Specialty Filter */}
+              <FilterSection
+                label="Specialty"
+                options={allSpecialties.slice(0, 8)}
+                selectedValues={selectedSpecialties}
+                onChange={setSelectedSpecialties}
+              />
+
+              {/* Language Filter */}
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <FilterSection
+                  label="Languages"
+                  options={allLanguages}
+                  selectedValues={selectedLanguages}
+                  onChange={setSelectedLanguages}
+                />
+              </div>
+
+              {/* Price Range Filter */}
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <label className="block text-white font-medium text-sm mb-3">Price Range</label>
+                <div className="space-y-3">
+                  <div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="150"
+                      value={priceRange[0]}
+                      onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
+                      className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="150"
+                      value={priceRange[1]}
+                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                      className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                    />
+                  </div>
+                  <div className="text-teal-300 text-sm font-medium">
+                    ${priceRange[0]} - ${priceRange[1]} per session
+                  </div>
+                </div>
+              </div>
+
+              {/* Clear Filters */}
+              {(selectedSpecialties.length > 0 || selectedLanguages.length > 0) && (
+                <button
+                  onClick={() => {
+                    setSelectedSpecialties([]);
+                    setSelectedLanguages([]);
+                    setPriceRange([0, 150]);
+                    setSearchQuery('');
+                  }}
+                  className="w-full mt-6 py-2 bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Clear All Filters
+                </button>
+              )}
+            </div>
+          </aside>
+
+          {/* Therapist Grid */}
+          <div className="lg:col-span-3">
+            {/* Results Count */}
+            <div className="mb-6 text-teal-300 font-semibold">
+              Showing {filteredTherapists.length} therapist{filteredTherapists.length !== 1 ? 's' : ''}
+              {userCity && ` near ${userCity}`}
+            </div>
+
+            {filteredTherapists.length > 0 ? (
+              <div className="space-y-8">
+                {/* Same City Therapists Section */}
+                {sameCityTherapists.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10">
+                      <span className="text-2xl">📍</span>
+                      <h2 className="text-xl font-bold text-white">
+                        Therapists in {userCity}
+                      </h2>
+                      <span className="ml-auto text-sm text-teal-300">
+                        {sameCityTherapists.length} available
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {sameCityTherapists.map((therapist) => (
+                        <TherapistCard
+                          key={therapist.id}
+                          therapist={therapist}
+                          onViewDetails={setSelectedTherapist}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Nearby Cities Therapists Section */}
+                {nearbyCityTherapists.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10">
+                      <span className="text-2xl">🌍</span>
+                      <h2 className="text-xl font-bold text-white">
+                        Therapists Nearby
+                      </h2>
+                      <span className="ml-auto text-sm text-teal-300">
+                        {nearbyCityTherapists.length} available
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {nearbyCityTherapists.map((therapist) => (
+                        <TherapistCard
+                          key={therapist.id}
+                          therapist={therapist}
+                          onViewDetails={setSelectedTherapist}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Other Therapists Section */}
+                {otherTherapists.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10">
+                      <span className="text-2xl">🌐</span>
+                      <h2 className="text-xl font-bold text-white">
+                        Other Therapists
+                      </h2>
+                      <span className="ml-auto text-sm text-teal-300">
+                        {otherTherapists.length} available
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {otherTherapists.map((therapist) => (
+                        <TherapistCard
+                          key={therapist.id}
+                          therapist={therapist}
+                          onViewDetails={setSelectedTherapist}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-400 text-lg">No therapists found matching your criteria.</p>
+                <button
+                  onClick={() => {
+                    setSelectedSpecialties([]);
+                    setSelectedLanguages([]);
+                    setPriceRange([0, 150]);
+                    setSearchQuery('');
+                  }}
+                  className="mt-4 text-teal-400 hover:text-teal-300 font-semibold"
+                >
+                  Reset filters and try again
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+
+      {/* Appointment Booking Modal */}
+      <AppointmentModal
+        therapist={selectedTherapist ? {
+          id: selectedTherapist.id,
+          name: selectedTherapist.name,
+          price: selectedTherapist.price,
+          image: selectedTherapist.image,
+        } : null}
+        onClose={() => setSelectedTherapist(null)}
+        onBookingSuccess={() => {
+          setSelectedTherapist(null);
+          // Optionally trigger refresh of appointments
+        }}
+      />
+    </div>
+  );
+}
+
+export default FindTherapistPage;

@@ -1,0 +1,25 @@
+FROM node:24-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY saans-web/package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source
+COPY saans-web/src ./src
+COPY saans-web/public ./public
+COPY saans-web/vite.config.ts ./
+COPY saans-web/tsconfig.json ./
+
+# Build
+RUN npm run build
+
+# Production stage
+FROM node:24-alpine
+WORKDIR /app
+COPY --from=0 /app/dist ./dist
+EXPOSE 3000
+CMD ["npm", "run", "preview"]

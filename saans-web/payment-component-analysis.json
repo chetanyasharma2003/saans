@@ -1,0 +1,173 @@
+{
+  "timestamp": "2026-08-11T17:03:25.473Z",
+  "tests": [
+    {
+      "name": "PaymentModal Component File",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.476Z",
+      "path": "/Users/chetanya/Documents/SAANS_MENTAL_HEALTH_PLATFORM/saans-web/src/components/PaymentModal.tsx",
+      "size": 11216
+    },
+    {
+      "name": "PaymentModal Component Analysis",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.477Z",
+      "checksCompleted": 17,
+      "checksPassed": 16,
+      "coverage": "94%",
+      "details": "hasRazorpayIntegration: YES, hasOrderCreation: YES, hasPaymentVerification: YES, hasErrorHandling: YES, hasLoadingState: YES, hasSuccessState: YES, hasPlanType: YES, hasPlanName: YES, hasPrice: YES, hasFeatures: YES, hasModalUI: YES, hasCloseButton: YES, hasProceedButton: YES, hasCancelButton: YES, hasTermsLinks: YES, hasBillingInfo: YES, hasFeaturesList: NO"
+    },
+    {
+      "name": "PaymentModal Completeness",
+      "status": "warning",
+      "timestamp": "2026-08-11T17:03:25.477Z",
+      "message": "1 expected features missing",
+      "missingFeatures": [
+        "hasFeaturesList"
+      ]
+    },
+    {
+      "name": "MyProfilePage Integration",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.477Z",
+      "checksCompleted": 14,
+      "checksPassed": 14,
+      "coverage": "100%"
+    },
+    {
+      "name": "Subscription Plans Data",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.477Z",
+      "plansFound": [
+        "BASIC",
+        "PREMIUM",
+        "PLUS"
+      ]
+    },
+    {
+      "name": "API Endpoints Integration",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.477Z",
+      "endpointsConfigured": 3,
+      "details": [
+        "createOrder: configured",
+        "verifyPayment: configured",
+        "subscriptionStatus: configured"
+      ]
+    },
+    {
+      "name": "Razorpay Configuration",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.477Z",
+      "configsSet": 4,
+      "checklist": [
+        "hasKeyId: yes",
+        "loadsScript: yes",
+        "configuresOptions: yes",
+        "hasHandler: yes"
+      ]
+    },
+    {
+      "name": "Error Handling",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.477Z",
+      "checksImplemented": 3
+    },
+    {
+      "name": "Success State",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.477Z",
+      "checksImplemented": 4
+    },
+    {
+      "name": "Payment Flow Steps",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.478Z",
+      "stepsImplemented": 3,
+      "steps": [
+        "detailsStep",
+        "processingStep",
+        "successStep"
+      ]
+    },
+    {
+      "name": "UI Components",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.478Z",
+      "componentsFound": 6
+    },
+    {
+      "name": "Pricing Display",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.478Z",
+      "elementsShown": 2
+    },
+    {
+      "name": "Features Display",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.478Z",
+      "elementsImplemented": 3
+    },
+    {
+      "name": "Comparison Table",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.478Z",
+      "componentParts": 3
+    },
+    {
+      "name": "Responsive Design",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.478Z",
+      "techniquesUsed": 4
+    },
+    {
+      "name": "Accessibility",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.478Z",
+      "featuresImplemented": 3,
+      "message": "Consider adding more accessibility features"
+    },
+    {
+      "name": "Authentication Integration",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.478Z",
+      "methodsImplemented": 3
+    },
+    {
+      "name": "State Management",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.478Z",
+      "patternsUsed": 3
+    },
+    {
+      "name": "TypeScript Types",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.478Z",
+      "typeDefinitions": 2
+    },
+    {
+      "name": "Code Quality",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.478Z",
+      "qualityMetrics": 3
+    },
+    {
+      "name": "Environment Variables",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:03:25.479Z",
+      "configured": 3
+    }
+  ],
+  "summary": {
+    "passed": 20,
+    "failed": 0,
+    "warnings": 1,
+    "total": 21
+  },
+  "issues": [
+    {
+      "test": "PaymentModal Completeness",
+      "warning": "1 expected features missing"
+    }
+  ]
+}

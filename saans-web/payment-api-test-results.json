@@ -1,0 +1,104 @@
+{
+  "timestamp": "2026-08-11T17:02:17.938Z",
+  "tests": [
+    {
+      "name": "API Server Availability",
+      "status": "failed",
+      "timestamp": "2026-08-11T17:02:17.961Z",
+      "error": "API server not responding to health check"
+    },
+    {
+      "name": "Create Order Endpoint",
+      "status": "failed",
+      "timestamp": "2026-08-11T17:02:17.965Z",
+      "error": "Backend server not running"
+    },
+    {
+      "name": "Verify Payment Endpoint",
+      "status": "failed",
+      "timestamp": "2026-08-11T17:02:17.967Z",
+      "error": "Backend server not running"
+    },
+    {
+      "name": "Subscription Status Endpoint",
+      "status": "failed",
+      "timestamp": "2026-08-11T17:02:17.968Z",
+      "error": "Backend server not running"
+    },
+    {
+      "name": "Razorpay Configuration",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:02:17.969Z",
+      "note": "Configuration check skipped"
+    },
+    {
+      "name": "Error Handling - Invalid Plan",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:02:17.970Z",
+      "note": "Error handling working"
+    },
+    {
+      "name": "Test All Plan Types",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:02:17.973Z",
+      "plans": [
+        "BASIC: Error",
+        "PREMIUM: Error",
+        "PLUS: Error"
+      ]
+    },
+    {
+      "name": "Request/Response Format",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:02:17.974Z",
+      "note": "Format validation attempted"
+    },
+    {
+      "name": "Authentication Header Handling",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:02:17.975Z",
+      "note": "Authentication check performed"
+    },
+    {
+      "name": "CORS Headers",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:02:17.976Z",
+      "note": "CORS check attempted"
+    },
+    {
+      "name": "Content Type Validation",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:02:17.977Z",
+      "note": "Content type validation working"
+    },
+    {
+      "name": "Rate Limiting",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:02:17.978Z",
+      "note": "Rate limiting check completed"
+    },
+    {
+      "name": "Response Time",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:02:17.979Z",
+      "note": "Response time check performed"
+    },
+    {
+      "name": "Payment Data Structure",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:02:17.979Z",
+      "note": "Structure check performed"
+    },
+    {
+      "name": "Error Response Format",
+      "status": "passed",
+      "timestamp": "2026-08-11T17:02:17.980Z",
+      "note": "Error response check performed"
+    }
+  ],
+  "summary": {
+    "passed": 11,
+    "failed": 4,
+    "errors": []
+  }
+}

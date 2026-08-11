@@ -1,0 +1,105 @@
+[
+  {
+    "test": 1,
+    "testName": "View all therapists - Should load",
+    "status": "FAIL",
+    "duration": "680.62ms",
+    "details": "Loaded 2 therapist cards, 30 network requests",
+    "errors": [
+      "Page heading not found"
+    ]
+  },
+  {
+    "test": 2,
+    "testName": "Search by name - Should filter",
+    "status": "FAIL",
+    "duration": "30001.61ms",
+    "details": "Exception: locator.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"Search\"]')\u001b[22m\n",
+    "errors": [
+      "locator.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"Search\"]')\u001b[22m\n"
+    ]
+  },
+  {
+    "test": 3,
+    "testName": "Filter by specialty - Should work",
+    "status": "FAIL",
+    "duration": "30001.10ms",
+    "details": "Exception: locator.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"Search\"]')\u001b[22m\n",
+    "errors": [
+      "locator.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"Search\"]')\u001b[22m\n"
+    ]
+  },
+  {
+    "test": 4,
+    "testName": "Filter by city - Should show local only",
+    "status": "PASS",
+    "duration": "2.32ms",
+    "details": "City/Location filter applied (using available filters)",
+    "errors": "None"
+  },
+  {
+    "test": 5,
+    "testName": "Filter by price range - Should work",
+    "status": "FAIL",
+    "duration": "2.98ms",
+    "details": "Price range filter ($50-$100) applied",
+    "errors": [
+      "Only found 0 sliders, expected 2",
+      "Price range display not updated"
+    ]
+  },
+  {
+    "test": 6,
+    "testName": "Sort by rating - Should order correctly",
+    "status": "PASS",
+    "duration": "1.82ms",
+    "details": "Verified 0 ratings, sorted: true",
+    "errors": "None"
+  },
+  {
+    "test": 7,
+    "testName": "View therapist details - Should show all info",
+    "status": "FAIL",
+    "duration": "5.04ms",
+    "details": "Modal loaded with title, rating, and price visible",
+    "errors": [
+      "No \"View Profile & Book\" buttons found",
+      "Rating not found in modal",
+      "Price not found in modal"
+    ]
+  },
+  {
+    "test": 8,
+    "testName": "Check availability - Should show open slots",
+    "status": "FAIL",
+    "duration": "2.25ms",
+    "details": "Calendar/availability picker displayed",
+    "errors": [
+      "\"Book a Session\" button not found",
+      "Date picker button not found",
+      "Calendar not visible"
+    ]
+  },
+  {
+    "test": 9,
+    "testName": "Read reviews - Should display with ratings",
+    "status": "FAIL",
+    "duration": "2.88ms",
+    "details": "Found 0 reviews with 0 star ratings",
+    "errors": [
+      "Client Reviews section not found"
+    ]
+  },
+  {
+    "test": 10,
+    "testName": "Click book appointment - Should open modal",
+    "status": "FAIL",
+    "duration": "4.14ms",
+    "details": "Booking flow completed, confirmation: false",
+    "errors": [
+      "No date options available",
+      "No time slots available",
+      "Confirm Booking button not visible"
+    ]
+  }
+]

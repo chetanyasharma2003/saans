@@ -1,0 +1,566 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============== USER MODELS ===============
+
+model User {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  password            String
+  name                String
+  role                Role      @default(PATIENT)
+  profileImage        String?
+  phoneNumber         String?   @unique
+  gender              String?
+  dateOfBirth         DateTime?
+
+  // Subscription
+  subscription        Subscription?
+  subscriptionEndDate DateTime?
+  isPremium           Boolean   @default(false)
+
+  // Profile
+  bio                 String?
+  city                String?
+  state               String?
+
+  // Status
+  isVerified          Boolean   @default(false)
+  isActive            Boolean   @default(true)
+  lastLoginAt         DateTime?
+
+  // Relations
+  therapistProfile    Therapist?
+  moodEntries         MoodEntry[]
+  chatSessions        ChatSession[]
+  therapyBookings     TherapyBooking[]
+  crisisIncidents     CrisisIncident[]
+  payments            Payment[]
+  reviews             Review[]
+  notifications       Notification[]
+  emergencyContacts   EmergencyContact[]
+
+  // Community Relations
+  communityGroupMemberships CommunityGroupMember[]
+  communityPosts      CommunityPost[]
+  communityComments   CommunityComment[]
+  communityPostLikes  CommunityPostLike[]
+  communityCommentLikes CommunityCommentLike[]
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([email])
+  @@index([role])
+}
+
+model Therapist {
+  id                  String    @id @default(cuid())
+  userId              String    @unique
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // License & Credentials
+  licenseNumber       String    @unique
+  licenseVerifiedAt   DateTime?
+  specialization      String[]
+  certifications      String[]
+  yearsOfExperience   Int
+
+  // Availability
+  availableSlots      AvailabilitySlot[]
+
+  // Rating & Reviews
+  averageRating       Float     @default(0)
+  totalReviews        Int       @default(0)
+
+  // Relations
+  therapyBookings     TherapyBooking[]
+  sessions            SessionRecord[]
+  reviews             Review[]
+
+  isAvailable         Boolean   @default(true)
+  hourlyRate          Float     @default(500)
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([specialization])
+}
+
+// =============== CHAT & MOOD MODELS ===============
+
+model ChatSession {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type                ChatType
+  therapistId         String?
+
+  messages            ChatMessage[]
+
+  moodAtStart         String?
+  moodAtEnd           String?
+
+  isActive            Boolean   @default(true)
+  startedAt           DateTime  @default(now())
+  endedAt             DateTime?
+
+  @@index([userId])
+  @@index([type])
+}
+
+model ChatMessage {
+  id                  String    @id @default(cuid())
+  conversationId      String
+  chatSession         ChatSession @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  content             String
+  sender              MessageSender
+
+  // AI Analysis
+  detectedMood        String?
+  topics              String[]
+  sentiment           Float?
+  requiresFollowup    Boolean @default(false)
+
+  metadata            Json?
+
+  createdAt           DateTime  @default(now())
+
+  @@index([conversationId])
+  @@index([sender])
+}
+
+model MoodEntry {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  moodScore           Int
+  moodCategory        String
+  symptoms            String[]
+
+  triggers            String[]
+  notes               String?
+
+  location            String?
+  weather             String?
+
+  createdAt           DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([moodScore])
+}
+
+// =============== THERAPY MODELS ===============
+
+model TherapyBooking {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  therapistId         String
+  therapist           Therapist @relation(fields: [therapistId], references: [id], onDelete: Restrict)
+
+  scheduledAt         DateTime
+  duration            Int
+  status              BookingStatus @default(SCHEDULED)
+
+  sessionRecord       SessionRecord?
+  meetingUrl          String?
+
+  price               Float
+  paymentId           String?
+
+  notes               String?
+  cancelledAt         DateTime?
+  cancelReason        String?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([therapistId])
+  @@index([scheduledAt])
+}
+
+model SessionRecord {
+  id                  String    @id @default(cuid())
+  bookingId           String    @unique
+  booking             TherapyBooking @relation(fields: [bookingId], references: [id])
+
+  therapistId         String
+  therapist           Therapist @relation(fields: [therapistId], references: [id])
+
+  duration            Int
+  status              String
+  topics              String[]
+  exercises           String[]
+  homeAssignments     String[]
+
+  therapistNotes      String?
+  moodBefore          String?
+  moodAfter           String?
+  progressRating      Int?
+
+  recordingUrl        String?
+  transcriptUrl       String?
+
+  nextSessionDate     DateTime?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([therapistId])
+  @@index([bookingId])
+}
+
+model AvailabilitySlot {
+  id                  String    @id @default(cuid())
+  therapistId         String
+  therapist           Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+
+  dayOfWeek           Int
+  startTime           String
+  endTime             String
+
+  isBooked            Boolean   @default(false)
+  bookedDate          DateTime?
+
+  createdAt           DateTime  @default(now())
+
+  @@index([therapistId, dayOfWeek])
+}
+
+// =============== CRISIS MODELS ===============
+
+model CrisisIncident {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  level               CrisisLevel
+  content             String
+
+  status              String
+  handledBy           String?
+  responseTime        Int?
+  resolution          String?
+
+  requiresFollowup    Boolean   @default(false)
+  followupScheduled   DateTime?
+  followupCompleted   DateTime?
+
+  emergencyAlertSent  Boolean   @default(false)
+  emergencyContactId  String?
+
+  detectedAt          DateTime  @default(now())
+  resolvedAt          DateTime?
+
+  @@index([userId, level])
+  @@index([status])
+}
+
+// =============== PAYMENT MODELS ===============
+
+model Payment {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  amount              Float
+  currency            String    @default("INR")
+
+  subscriptionType    SubscriptionPlan
+  billingCycle        String
+
+  status              PaymentStatus
+  gateway             String
+  transactionId       String    @unique
+
+  refundAmount        Float?
+  refundedAt          DateTime?
+
+  invoiceUrl          String?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Subscription {
+  id                  String    @id @default(cuid())
+  userId              String    @unique
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type                SubscriptionPlan
+
+  startDate           DateTime  @default(now())
+  endDate             DateTime
+  autoRenewal         Boolean   @default(true)
+
+  features            String[]
+
+  aiChatLimit         Int       @default(-1)
+  aiChatsUsed         Int       @default(0)
+  therapySessionLimit Int       @default(4)
+  therapySessionsUsed Int       @default(0)
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([type])
+}
+
+// =============== REVIEW & FEEDBACK MODELS ===============
+
+model Review {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  therapistId         String
+  therapist           Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+
+  rating              Int
+  content             String?
+
+  helpful             Int       @default(0)
+  unhelpful           Int       @default(0)
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([userId, therapistId])
+  @@index([therapistId])
+}
+
+// =============== NOTIFICATION MODELS ===============
+
+model Notification {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type                String
+  title               String
+  message             String
+
+  isRead              Boolean   @default(false)
+  readAt              DateTime?
+
+  data                Json?
+
+  createdAt           DateTime  @default(now())
+
+  @@index([userId, isRead])
+  @@index([type])
+}
+
+// =============== EMERGENCY CONTACT ===============
+
+model EmergencyContact {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name                String
+  relationship        String
+  phoneNumber         String
+  email               String?
+
+  alertOnCrisis       Boolean   @default(true)
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+// =============== COMMUNITY MODELS ===============
+
+model CommunityGroup {
+  id                  String    @id @default(cuid())
+  name                String    @unique
+  description         String
+  icon                String    @default("👥")
+  category            String    @default("General")
+
+  // Statistics
+  memberCount         Int       @default(0)
+  postCount           Int       @default(0)
+
+  // Relations
+  members             CommunityGroupMember[]
+  posts               CommunityPost[]
+
+  isActive            Boolean   @default(true)
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model CommunityGroupMember {
+  id                  String    @id @default(cuid())
+  groupId             String
+  group               CommunityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  role                String    @default("MEMBER")
+  joinedAt            DateTime  @default(now())
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+model CommunityPost {
+  id                  String    @id @default(cuid())
+  groupId             String
+  group               CommunityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  userId              String
+  author              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title               String
+  content             String
+  category            String?
+
+  // Statistics
+  likeCount           Int       @default(0)
+  commentCount        Int       @default(0)
+
+  // Relations
+  likes               CommunityPostLike[]
+  comments            CommunityComment[]
+
+  isActive            Boolean   @default(true)
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([groupId])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([isActive])
+}
+
+model CommunityPostLike {
+  id                  String    @id @default(cuid())
+  postId              String
+  post                CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt           DateTime  @default(now())
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model CommunityComment {
+  id                  String    @id @default(cuid())
+  postId              String
+  post                CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  userId              String
+  author              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content             String
+  parentCommentId     String?
+  parentComment       CommunityComment? @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies             CommunityComment[] @relation("CommentReplies")
+
+  // Statistics
+  likeCount           Int       @default(0)
+  likes               CommunityCommentLike[]
+
+  isActive            Boolean   @default(true)
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([postId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model CommunityCommentLike {
+  id                  String    @id @default(cuid())
+  commentId           String
+  comment             CommunityComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt           DateTime  @default(now())
+
+  @@unique([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
+}
+
+// =============== ENUMS ===============
+
+enum Role {
+  PATIENT
+  THERAPIST
+  ADMIN
+  MODERATOR
+}
+
+enum ChatType {
+  AI
+  THERAPIST
+}
+
+enum MessageSender {
+  USER
+  AI
+  THERAPIST
+}
+
+enum BookingStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum CrisisLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum SubscriptionPlan {
+  FREE
+  BASIC
+  PREMIUM
+  PLUS
+}

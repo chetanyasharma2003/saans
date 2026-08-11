@@ -1,0 +1,136 @@
+{
+  "summary": {
+    "totalTests": 25,
+    "passed": 25,
+    "failed": 0,
+    "skipped": 0
+  },
+  "tests": [
+    {
+      "name": "Page renders successfully",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:25.763Z"
+    },
+    {
+      "name": "City dropdown exists and is visible",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:25.780Z"
+    },
+    {
+      "name": "City dropdown has correct label",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:25.782Z"
+    },
+    {
+      "name": "City dropdown has placeholder option",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:25.785Z"
+    },
+    {
+      "name": "City dropdown contains all 20 cities",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:25.787Z"
+    },
+    {
+      "name": "City dropdown contains expected cities",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:25.789Z"
+    },
+    {
+      "name": "Selecting a city updates form state",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:25.797Z"
+    },
+    {
+      "name": "Multiple city selections work correctly",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:25.812Z"
+    },
+    {
+      "name": "Form validation - city is required",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:26.444Z"
+    },
+    {
+      "name": "City dropdown has focus styling",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:26.755Z"
+    },
+    {
+      "name": "City dropdown has required attribute",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:26.756Z"
+    },
+    {
+      "name": "Helper text is present for city selection",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:26.757Z"
+    },
+    {
+      "name": "Mobile: Page renders on mobile viewport",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:27.472Z"
+    },
+    {
+      "name": "Mobile: City dropdown is accessible on mobile",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:27.495Z"
+    },
+    {
+      "name": "Mobile: City selection works on mobile",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:27.508Z"
+    },
+    {
+      "name": "Mobile: Form fields are properly sized on mobile",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:27.513Z"
+    },
+    {
+      "name": "Mobile: Text is readable on mobile",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:27.518Z"
+    },
+    {
+      "name": "Tablet: Page renders on tablet viewport",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:28.385Z"
+    },
+    {
+      "name": "Form state persists when switching between fields",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:28.982Z"
+    },
+    {
+      "name": "City selection can be changed after initial selection",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:28.996Z"
+    },
+    {
+      "name": "City can be reset to placeholder",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:29.011Z"
+    },
+    {
+      "name": "City dropdown is keyboard navigable",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:29.811Z"
+    },
+    {
+      "name": "Label is properly associated with city dropdown",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:29.820Z"
+    },
+    {
+      "name": "City dropdown styling matches other form fields",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:29.827Z"
+    },
+    {
+      "name": "City dropdown has proper spacing and padding",
+      "status": "PASSED",
+      "timestamp": "2026-08-11T15:02:29.830Z"
+    }
+  ],
+  "errors": []
+}

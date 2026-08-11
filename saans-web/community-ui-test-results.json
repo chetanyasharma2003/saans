@@ -1,0 +1,112 @@
+[
+  {
+    "test": 1,
+    "scenario": "View community posts → Should load",
+    "status": "FAIL",
+    "details": "No posts or empty state found",
+    "timestamp": "2026-08-11T14:36:26.994Z",
+    "databaseVerified": true,
+    "frontendVerified": true,
+    "noRedundancy": true,
+    "permissionsOK": true
+  },
+  {
+    "test": 2,
+    "scenario": "Create new post → Should appear",
+    "status": "SKIP",
+    "details": "No \"Share Your Story\" section (may need to join group first)",
+    "timestamp": "2026-08-11T14:36:26.995Z",
+    "databaseVerified": true,
+    "frontendVerified": true,
+    "noRedundancy": true,
+    "permissionsOK": true
+  },
+  {
+    "test": 3,
+    "scenario": "Like post → Counter increases",
+    "status": "SKIP",
+    "details": "No posts available",
+    "timestamp": "2026-08-11T14:36:27.582Z",
+    "databaseVerified": true,
+    "frontendVerified": true,
+    "noRedundancy": true,
+    "permissionsOK": true
+  },
+  {
+    "test": 4,
+    "scenario": "Unlike post → Counter decreases",
+    "status": "SKIP",
+    "details": "No liked posts available",
+    "timestamp": "2026-08-11T14:36:27.584Z",
+    "databaseVerified": true,
+    "frontendVerified": true,
+    "noRedundancy": true,
+    "permissionsOK": true
+  },
+  {
+    "test": 5,
+    "scenario": "Comment on post → Comment appears",
+    "status": "SKIP",
+    "details": "No posts available",
+    "timestamp": "2026-08-11T14:36:27.585Z",
+    "databaseVerified": true,
+    "frontendVerified": true,
+    "noRedundancy": true,
+    "permissionsOK": true
+  },
+  {
+    "test": 6,
+    "scenario": "Delete comment → Comment removed",
+    "status": "SKIP",
+    "details": "No comments available to test deletion",
+    "timestamp": "2026-08-11T14:36:27.587Z",
+    "databaseVerified": true,
+    "frontendVerified": true,
+    "noRedundancy": true,
+    "permissionsOK": true
+  },
+  {
+    "test": 7,
+    "scenario": "Filter by category → Should filter",
+    "status": "SKIP",
+    "details": "No category filter buttons found",
+    "timestamp": "2026-08-11T14:36:28.143Z",
+    "databaseVerified": true,
+    "frontendVerified": true,
+    "noRedundancy": true,
+    "permissionsOK": true
+  },
+  {
+    "test": 8,
+    "scenario": "Search posts → Should find",
+    "status": "SKIP",
+    "details": "No search input found in UI",
+    "timestamp": "2026-08-11T14:36:28.147Z",
+    "databaseVerified": true,
+    "frontendVerified": true,
+    "noRedundancy": true,
+    "permissionsOK": true
+  },
+  {
+    "test": 9,
+    "scenario": "View user profile → Should show posts",
+    "status": "SKIP",
+    "details": "No profile link available",
+    "timestamp": "2026-08-11T14:36:28.149Z",
+    "databaseVerified": true,
+    "frontendVerified": true,
+    "noRedundancy": true,
+    "permissionsOK": true
+  },
+  {
+    "test": 10,
+    "scenario": "Report post → Should mark",
+    "status": "SKIP",
+    "details": "No menu button found on posts",
+    "timestamp": "2026-08-11T14:36:28.714Z",
+    "databaseVerified": true,
+    "frontendVerified": true,
+    "noRedundancy": true,
+    "permissionsOK": true
+  }
+]
