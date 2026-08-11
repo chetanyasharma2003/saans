@@ -4,10 +4,6 @@
   "installCommand": "npm install",
   "framework": null,
   "outputDirectory": "dist",
-  "nodeVersion": "18.x",
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/dist/index.js" }
-  ],
   "env": [
     {
       "key": "DATABASE_URL",
@@ -24,12 +20,5 @@
       "value": "https://saans-web.vercel.app",
       "target": ["production"]
     }
-  ],
-  "git": {
-    "deploymentEnabled": {
-      "main": true,
-      "develop": true,
-      "master": true
-    }
-  }
+  ]
 }
