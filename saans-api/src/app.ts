@@ -105,10 +105,12 @@ app.use(csrfTokenMiddleware);
 // Sanitize input to prevent injection attacks
 app.use(sanitizeInputMiddleware);
 
-// Rate limiting - configurable via environment
-const rateLimitWindowMs = Number(process.env.RATE_LIMIT_WINDOW_MS) || 60000;
-const rateLimitMaxRequests = Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100;
-app.use(rateLimitMiddleware(rateLimitWindowMs, rateLimitMaxRequests));
+// Rate limiting - disabled in development, configurable via environment
+if (process.env.NODE_ENV === 'production') {
+  const rateLimitWindowMs = Number(process.env.RATE_LIMIT_WINDOW_MS) || 60000;
+  const rateLimitMaxRequests = Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100;
+  app.use(rateLimitMiddleware(rateLimitWindowMs, rateLimitMaxRequests));
+}
 
 // =============== CSRF VERIFICATION FOR STATE-CHANGING REQUESTS ===============
 

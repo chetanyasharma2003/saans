@@ -13,7 +13,7 @@ export class AuthController {
   async register(req: Request, res: Response, next: NextFunction) {
     const requestId = req.headers['x-request-id'] as string;
     try {
-      const { email, password, name, role } = req.body;
+      const { email, password, name, role, city } = req.body;
 
       logger.debug('Register attempt', { email: email || 'unknown' }, undefined, requestId);
 
@@ -54,6 +54,7 @@ export class AuthController {
         password,
         name,
         role: role || 'PATIENT',
+        city,
       });
 
       logger.info('User registered successfully', { email }, undefined, requestId);

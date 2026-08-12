@@ -11,9 +11,13 @@ import {
 
 const router = Router();
 
-// Public routes with rate limiting
-router.post('/register', registrationLimiter, (req, res, next) => authController.register(req, res, next));
-router.post('/login', loginLimiter, (req, res, next) => authController.login(req, res, next));
+// Public routes with rate limiting (disabled in development)
+const useRateLimiting = process.env.NODE_ENV === 'production';
+const regLimiter = useRateLimiting ? registrationLimiter : (req: any, res: any, next: any) => next();
+const logLimiter = useRateLimiting ? loginLimiter : (req: any, res: any, next: any) => next();
+
+router.post('/register', regLimiter, (req, res, next) => authController.register(req, res, next));
+router.post('/login', logLimiter, (req, res, next) => authController.login(req, res, next));
 router.post('/refresh-token', (req, res, next) => authController.refreshToken(req, res, next));
 router.post('/logout', (req, res, next) => authController.logout(req, res, next));
 

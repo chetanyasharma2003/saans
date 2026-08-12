@@ -1,14 +1,15 @@
 import jwt from 'jsonwebtoken';
 import bcryptjs from 'bcryptjs';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient as PrismaClientImport } from '@prisma/client';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClientImport();
 
 interface RegisterInput {
   email: string;
   password: string;
   name: string;
   role?: 'PATIENT' | 'THERAPIST' | 'ADMIN';
+  city?: string;
 }
 
 interface LoginInput {
@@ -78,6 +79,7 @@ export class AuthService {
         password: hashedPassword,
         name: input.name,
         role: input.role || 'PATIENT',
+        city: input.city,
         isVerified: false,
       },
     });
@@ -91,6 +93,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        city: user.city,
       },
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
