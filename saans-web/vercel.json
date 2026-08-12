@@ -7,13 +7,9 @@
     "framework": null,
     "nodeVersion": "18.x"
   },
-  "env": [
-    {
-      "key": "VITE_API_URL",
-      "value": "https://saans-api.vercel.app",
-      "target": ["production", "preview"]
-    }
-  ],
+  "env": {
+    "VITE_API_URL": "https://saans-qi7w69jep-chetanya-s-projects.vercel.app"
+  },
   "git": {
     "deploymentEnabled": {
       "main": true,
