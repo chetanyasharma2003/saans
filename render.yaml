@@ -3,8 +3,10 @@ services:
     name: saans-web
     runtime: node
     rootDir: saans-web
-    buildCommand: npm install && npm run build
-    startCommand: npm run preview
+    buildCommand: cd saans-web && npm install && npm run build
+    startCommand: cd saans-web && npx serve -l 0.0.0.0:8080 -s dist
     envVars:
       - key: VITE_API_URL
         value: https://saans-api.onrender.com
+      - key: PORT
+        value: 8080
