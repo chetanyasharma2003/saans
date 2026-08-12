@@ -59,7 +59,7 @@ export function MoodTrackerPage() {
       setError(null);
 
       // Get auth token from localStorage
-      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
       if (!token) {
         setError('No authentication token found. Please log in.');
         setIsLoading(false);

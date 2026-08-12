@@ -23,7 +23,7 @@ export const communityApi = {
    * Get all community groups
    */
   async getGroups(params?: PaginationParams) {
-    return apiClient.get('/community/groups', {
+    return apiClient.get('/api/community/groups', {
       params,
     });
   },
@@ -32,21 +32,21 @@ export const communityApi = {
    * Get single group by ID
    */
   async getGroup(groupId: string) {
-    return apiClient.get(`/community/groups/${groupId}`);
+    return apiClient.get(`/api/community/groups/${groupId}`);
   },
 
   /**
    * Join a community group
    */
   async joinGroup(groupId: string) {
-    return apiClient.post(`/community/groups/${groupId}/join`, {});
+    return apiClient.post(`/api/community/groups/${groupId}/join`, {});
   },
 
   /**
    * Leave a community group
    */
   async leaveGroup(groupId: string) {
-    return apiClient.post(`/community/groups/${groupId}/leave`, {});
+    return apiClient.post(`/api/community/groups/${groupId}/leave`, {});
   },
 
   // =============== POST OPERATIONS ===============
@@ -55,7 +55,7 @@ export const communityApi = {
    * Get all posts (optionally filtered by category)
    */
   async getAllPosts(category?: string, params?: PaginationParams) {
-    return apiClient.get('/community/posts', {
+    return apiClient.get('/api/community/posts', {
       params: {
         category,
         ...params,
@@ -67,14 +67,14 @@ export const communityApi = {
    * Get single post
    */
   async getPost(postId: string) {
-    return apiClient.get(`/community/posts/${postId}`);
+    return apiClient.get(`/api/community/posts/${postId}`);
   },
 
   /**
    * Get posts for a specific group
    */
   async getGroupPosts(groupId: string, params?: PaginationParams) {
-    return apiClient.get(`/community/groups/${groupId}/posts`, {
+    return apiClient.get(`/api/community/groups/${groupId}/posts`, {
       params,
     });
   },
@@ -83,14 +83,14 @@ export const communityApi = {
    * Create a post in a group
    */
   async createPost(groupId: string, payload: CreatePostPayload) {
-    return apiClient.post(`/community/groups/${groupId}/posts`, payload);
+    return apiClient.post(`/api/community/groups/${groupId}/posts`, payload);
   },
 
   /**
    * Like/unlike a post
    */
   async togglePostLike(postId: string) {
-    return apiClient.post(`/community/posts/${postId}/like`, {});
+    return apiClient.post(`/api/community/posts/${postId}/like`, {});
   },
 
   // =============== COMMENT OPERATIONS ===============
@@ -99,7 +99,7 @@ export const communityApi = {
    * Get comments for a post
    */
   async getPostComments(postId: string, params?: PaginationParams) {
-    return apiClient.get(`/community/posts/${postId}/comments`, {
+    return apiClient.get(`/api/community/posts/${postId}/comments`, {
       params,
     });
   },
@@ -108,14 +108,14 @@ export const communityApi = {
    * Add a comment to a post
    */
   async addComment(postId: string, payload: CreateCommentPayload) {
-    return apiClient.post(`/community/posts/${postId}/comments`, payload);
+    return apiClient.post(`/api/community/posts/${postId}/comments`, payload);
   },
 
   /**
    * Like/unlike a comment
    */
   async toggleCommentLike(commentId: string) {
-    return apiClient.post(`/community/comments/${commentId}/like`, {});
+    return apiClient.post(`/api/community/comments/${commentId}/like`, {});
   },
 };
 

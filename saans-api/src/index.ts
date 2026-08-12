@@ -67,8 +67,8 @@ async function start() {
     // Check database
     await checkDatabase();
 
-    // Initialize Redis
-    await initializeRedis();
+    // Initialize Redis (non-blocking)
+    initializeRedis().catch(() => console.warn('⚠️ Redis not available - caching disabled'));
 
     // Start appointment reminder jobs
     stopReminderJob = AppointmentReminderJob.startPeriodicJob(30 * 60 * 1000); // Every 30 minutes
