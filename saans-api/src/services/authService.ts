@@ -23,6 +23,7 @@ interface AuthResponse {
     email: string;
     name: string;
     role: string;
+    city?: string;
   };
   accessToken: string;
   refreshToken: string;
