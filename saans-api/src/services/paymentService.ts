@@ -4,11 +4,17 @@ import { PrismaClient, SubscriptionPlan } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Initialize Razorpay instance
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || '',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || '',
-});
+// Initialize Razorpay instance (lazy load to prevent crash if credentials missing)
+let razorpay: any;
+const initRazorpay = () => {
+  if (!razorpay && process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+    razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+  }
+  return razorpay;
+};
 
 // Subscription plan pricing in rupees
 const SUBSCRIPTION_PLANS: Record<SubscriptionPlan, { price: number; features: string[] }> = {
@@ -120,7 +126,11 @@ export class PaymentService {
         },
       };
 
-      const order = await razorpay.orders.create(orderData);
+      const razorpayInstance = initRazorpay();
+      if (!razorpayInstance) {
+        throw new Error('Razorpay credentials not configured');
+      }
+      const order = await razorpayInstance.orders.create(orderData);
 
       // Verify order creation
       if (!order.id) {
