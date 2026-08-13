@@ -46,18 +46,19 @@ io.on('connection', (socket) => {
 
 // Database connection check
 async function checkDatabase() {
+  // Skip if no DATABASE_URL configured
+  if (!process.env.DATABASE_URL) {
+    console.warn('⚠️  DATABASE_URL not configured - running without database');
+    return;
+  }
+
   try {
     // Try to count users as a safer test
     await prisma.user.count();
     console.log('✅ Database connected');
   } catch (error: any) {
-    // If it's a permission error but tables exist, continue anyway
-    if (error.code === 'P1010' || error.message.includes('denied access')) {
-      console.warn('⚠️  Database permission limited, but continuing with existing schema...');
-    } else {
-      console.error('❌ Database connection failed:', error);
-      process.exit(1);
-    }
+    console.warn('⚠️  Database connection failed, but continuing anyway:', error.message);
+    // Don't exit - let the app start anyway
   }
 }
 
