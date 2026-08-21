@@ -35,8 +35,24 @@ model User {
 
   // Status
   isVerified          Boolean   @default(false)
+  emailVerified       Boolean   @default(false)
   isActive            Boolean   @default(true)
   lastLoginAt         DateTime?
+
+  // Email Verification
+  emailVerificationToken  String?
+  emailVerificationExpiry DateTime?
+  emailVerificationSentAt DateTime?
+
+  // Password Reset
+  passwordResetToken  String?
+  passwordResetExpiry DateTime?
+
+  // Two-Factor Authentication
+  twoFactorEnabled    Boolean   @default(false)
+  twoFactorSecret     String?
+  twoFactorBackupCodes TwoFactorBackupCode[]
+  twoFactorSessions   TwoFactorSession[]
 
   // Relations
   therapistProfile    Therapist?
@@ -368,6 +384,40 @@ model Notification {
 
   @@index([userId, isRead])
   @@index([type])
+}
+
+// =============== TWO-FACTOR AUTHENTICATION ===============
+
+model TwoFactorBackupCode {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  code                String    @unique
+  isUsed              Boolean   @default(false)
+  usedAt              DateTime?
+
+  createdAt           DateTime  @default(now())
+
+  @@index([userId])
+  @@index([isUsed])
+}
+
+model TwoFactorSession {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  sessionToken        String    @unique
+  expiresAt           DateTime
+  isUsed              Boolean   @default(false)
+  usedAt              DateTime?
+
+  createdAt           DateTime  @default(now())
+
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([expiresAt])
 }
 
 // =============== EMERGENCY CONTACT ===============

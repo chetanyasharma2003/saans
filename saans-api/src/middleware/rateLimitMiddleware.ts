@@ -290,6 +290,44 @@ export const paymentLimiter = createRateLimiter({
   backoffMultiplier: 2,
 });
 
+/**
+ * 2FA verification rate limiter: 5 attempts per minute per session/IP
+ * Strict rate limiting for security
+ */
+export const twoFactorLimiter = createRateLimiter({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5,
+  statusCode: 429,
+  message: 'Too many 2FA verification attempts. Please try again in a few minutes.',
+  keyGenerator: (req: Request) => {
+    // Use session token or IP as fallback
+    const sessionToken = req.body?.sessionToken;
+    if (sessionToken) {
+      return `2fa:${sessionToken}`;
+    }
+    return `2fa:${getClientIP(req)}`;
+  },
+  backoffMultiplier: 3,
+});
+
+/**
+ * 2FA setup rate limiter: 3 attempts per hour per user
+ */
+export const twoFactorSetupLimiter = createRateLimiter({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3,
+  statusCode: 429,
+  message: 'Too many 2FA setup attempts. Please try again later.',
+  keyGenerator: (req: Request) => {
+    const userId = (req as any).userId;
+    if (!userId) {
+      return `2fa:setup:${getClientIP(req)}`;
+    }
+    return `2fa:setup:${userId}`;
+  },
+  backoffMultiplier: 2,
+});
+
 // ==================== UTILITY FUNCTIONS ====================
 
 /**

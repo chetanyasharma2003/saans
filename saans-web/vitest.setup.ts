@@ -1,10 +1,39 @@
 import '@testing-library/jest-dom';
-import { expect, afterEach, vi } from 'vitest';
+import { expect, afterEach, beforeEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
+
+// Setup localStorage mock
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value.toString();
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+  };
+})();
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+});
+
+// Setup sessionStorage mock
+Object.defineProperty(window, 'sessionStorage', {
+  value: localStorageMock,
+});
 
 // Cleanup after each test
 afterEach(() => {
   cleanup();
+  localStorage.clear();
+  sessionStorage.clear();
 });
 
 // Mock window.matchMedia
@@ -28,3 +57,39 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   unobserve: vi.fn(),
   disconnect: vi.fn(),
 })) as any;
+
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+})) as any;
+
+// Mock Razorpay
+(window as any).Razorpay = vi.fn().mockImplementation((options: any) => ({
+  open: vi.fn(() => {
+    if (options.handler) {
+      options.handler({
+        razorpay_payment_id: 'pay_mock_123',
+        razorpay_order_id: 'order_mock_123',
+        razorpay_signature: 'sig_mock_123',
+      });
+    }
+  }),
+  close: vi.fn(),
+}));
+
+// Mock fetch (if not already available)
+if (!globalThis.fetch) {
+  globalThis.fetch = vi.fn();
+}
+
+// Suppress console errors in tests (optional)
+const originalError = console.error;
+beforeEach(() => {
+  console.error = vi.fn();
+});
+
+afterEach(() => {
+  console.error = originalError;
+});

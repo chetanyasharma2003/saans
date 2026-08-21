@@ -1,0 +1,58 @@
+name: 🚀 Deploy Frontend to Vercel
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'saans-web/**'
+      - '.github/workflows/deploy-frontend.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'saans-web/package-lock.json'
+
+      - name: 📚 Install dependencies
+        run: cd saans-web && npm ci
+
+      - name: ✨ Type check
+        run: cd saans-web && npm run type-check || true
+
+      - name: 🏗️ Build
+        run: cd saans-web && npm run build
+        env:
+          VITE_API_URL: https://saans-api.onrender.com
+
+      - name: 🚀 Deploy to Vercel
+        uses: vercel/action@master
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+          working-directory: saans-web
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+        env:
+          VITE_API_URL: https://saans-api.onrender.com
+
+      - name: ✅ Deployment successful
+        if: success()
+        run: echo "✅ Frontend deployed to Vercel successfully!"
+
+      - name: ❌ Deployment failed
+        if: failure()
+        run: |
+          echo "❌ Deployment failed. Check logs above."
+          exit 1

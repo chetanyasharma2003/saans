@@ -38,14 +38,14 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 // App Routes
 function AppRoutes() {
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (token && !isAuthenticated) {
       // Token exists but not in Redux (page refresh)
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
