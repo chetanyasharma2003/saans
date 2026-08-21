@@ -64,9 +64,28 @@ app.use(
 
 // =============== CORS ===============
 
+const corsOrigin = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+  // Allow all localhost origins in development
+  if (process.env.NODE_ENV !== 'production') {
+    if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all in dev
+    }
+  } else {
+    // Production: use env var
+    const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(o => o.trim());
+    if (allowedOrigins.includes(origin || '')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+};
+
 app.use(
   cors({
-    origin: (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(o => o.trim()),
+    origin: corsOrigin,
     credentials: true,
     optionsSuccessStatus: 200,
     allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Request-ID'],
@@ -130,6 +149,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   });
   next();
 });
+
+// =============== SWAGGER DOCUMENTATION ===============
 
 // =============== ROUTES ===============
 

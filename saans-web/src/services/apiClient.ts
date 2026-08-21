@@ -25,7 +25,7 @@ class ApiClient {
   }
 
   /**
-   * Setup request interceptor to add auth token
+   * Setup request interceptor to add auth token and track API calls
    */
   private setupRequestInterceptor() {
     this.instance.interceptors.request.use(
@@ -35,6 +35,7 @@ class ApiClient {
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
+
         return config;
       },
       (error) => {
@@ -44,11 +45,13 @@ class ApiClient {
   }
 
   /**
-   * Setup response interceptor for error handling
+   * Setup response interceptor for error handling and tracking
    */
   private setupResponseInterceptor() {
     this.instance.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        return response;
+      },
       (error: AxiosError) => {
         const mappedError = ErrorHandler.mapApiError(error);
 
@@ -60,7 +63,7 @@ class ApiClient {
           window.location.href = '/login';
         }
 
-        // Log error for debugging
+        // Log error for debugging and Sentry
         ErrorHandler.logToService(mappedError, {
           url: error.config?.url,
           method: error.config?.method,

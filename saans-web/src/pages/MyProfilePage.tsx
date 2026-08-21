@@ -5,6 +5,12 @@ import axios from 'axios';
 import { logout, setUser } from '../redux/slices/authSlice';
 import { RootState } from '../redux/store';
 import PaymentModal from '../components/PaymentModal';
+import ProfileHeader from '../components/Profile/ProfileHeader';
+import ProfileForm from '../components/Profile/ProfileForm';
+import SubscriptionCard from '../components/Profile/SubscriptionCard';
+import SubscriptionPlans from '../components/Profile/SubscriptionPlans';
+import ChangePasswordForm from '../components/Profile/ChangePasswordForm';
+import SettingsMenu from '../components/Profile/SettingsMenu';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -343,61 +349,14 @@ export function MyProfilePage() {
           {/* Profile Card Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
-              {/* Profile Card */}
-              <div className="bg-gradient-to-br from-slate-800/80 to-slate-700/80 border border-indigo-400/30 rounded-3xl p-8 backdrop-blur-xl text-center hover:border-indigo-400/60 transition duration-300 shadow-2xl">
-                {/* Avatar */}
-                <div className={`bg-gradient-to-br ${avatarColors[avatarColor as keyof typeof avatarColors]} w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center text-5xl shadow-lg transform hover:scale-110 transition duration-300`}>
-                  👤
-                </div>
-
-                <h2 className="text-2xl font-bold text-white mb-2">{formData.name}</h2>
-                <p className="text-indigo-300 text-sm mb-1">{formData.email}</p>
-                <p className="text-indigo-400/70 text-xs mb-6">Premium Member since Aug 2026</p>
-
-                <div className="space-y-3">
-                  <button
-                    onClick={() => setEditMode(!editMode)}
-                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 rounded-xl transition duration-300 transform hover:scale-105 shadow-lg"
-                  >
-                    {editMode ? 'Cancel Edit' : 'Edit Profile'}
-                  </button>
-                  <button className="w-full bg-slate-700/60 hover:bg-slate-700/80 text-indigo-200 font-bold py-3 rounded-xl transition duration-300">
-                    Change Avatar
-                  </button>
-                </div>
-
-                {/* Avatar Color Selector */}
-                <div className="mt-6 pt-6 border-t border-indigo-400/20">
-                  <p className="text-indigo-300 text-xs font-semibold mb-3 uppercase">Avatar Color</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {Object.keys(avatarColors).map((color) => (
-                      <button
-                        key={color}
-                        onClick={() => setAvatarColor(color)}
-                        className={`w-8 h-8 rounded-full bg-gradient-to-br ${avatarColors[color as keyof typeof avatarColors]} border-2 transition ${
-                          avatarColor === color ? 'border-white shadow-lg' : 'border-transparent'
-                        }`}
-                      ></button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Quick Stats */}
-                <div className="mt-6 pt-6 border-t border-indigo-400/20 space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-indigo-300 text-sm">Sessions</span>
-                    <span className="text-white font-bold">12</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-indigo-300 text-sm">Streak</span>
-                    <span className="text-white font-bold">5 days</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-indigo-300 text-sm">Level</span>
-                    <span className="text-white font-bold">Pro 🏆</span>
-                  </div>
-                </div>
-              </div>
+              <ProfileHeader
+                name={formData.name}
+                email={formData.email}
+                avatarColor={avatarColor}
+                avatarColors={avatarColors}
+                onEditClick={() => setEditMode(!editMode)}
+                onAvatarColorChange={setAvatarColor}
+              />
 
               {/* Membership Status */}
               <div className="bg-gradient-to-br from-green-600/30 to-emerald-600/30 border border-green-400/40 rounded-2xl p-6 backdrop-blur-xl">
@@ -430,90 +389,16 @@ export function MyProfilePage() {
 
             {/* Profile Tab */}
             {activeTab === 'profile' && (
-              <div className="bg-gradient-to-br from-slate-800/80 to-slate-700/80 border border-indigo-400/30 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
-                {editMode ? (
-                  <div className="space-y-6">
-                    <h3 className="text-2xl font-bold text-white mb-6">Edit Your Profile</h3>
-
-                    <div>
-                      <label className="text-indigo-200 font-semibold mb-3 block">Full Name</label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 bg-slate-700/50 border border-indigo-400/30 rounded-xl text-white focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/50 transition duration-300 placeholder-slate-400"
-                        placeholder="Enter your full name"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-indigo-200 font-semibold mb-3 block">Email Address</label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 bg-slate-700/50 border border-indigo-400/30 rounded-xl text-white focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/50 transition duration-300 placeholder-slate-400"
-                        placeholder="Enter your email"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-indigo-200 font-semibold mb-3 block">Bio</label>
-                      <textarea
-                        name="bio"
-                        value={formData.bio}
-                        onChange={handleChange}
-                        rows={4}
-                        className="w-full px-4 py-3 bg-slate-700/50 border border-indigo-400/30 rounded-xl text-white focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/50 transition duration-300 resize-none placeholder-slate-400"
-                        placeholder="Tell us about yourself"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="text-indigo-200 font-semibold mb-3 block">Phone Number</label>
-                        <input
-                          type="tel"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          className="w-full px-4 py-3 bg-slate-700/50 border border-indigo-400/30 rounded-xl text-white focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/50 transition duration-300 placeholder-slate-400"
-                          placeholder="Enter your phone"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-indigo-200 font-semibold mb-3 block">City</label>
-                        <input
-                          type="text"
-                          name="city"
-                          value={formData.city}
-                          onChange={handleChange}
-                          className="w-full px-4 py-3 bg-slate-700/50 border border-indigo-400/30 rounded-xl text-white focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/50 transition duration-300 placeholder-slate-400"
-                          placeholder="Enter your city"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex gap-4 pt-6">
-                      <button
-                        onClick={handleSaveProfile}
-                        disabled={loading}
-                        className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 rounded-xl transition duration-300 transform hover:scale-105 disabled:opacity-50 shadow-lg"
-                      >
-                        {loading ? 'Saving...' : 'Save Changes'}
-                      </button>
-                      <button
-                        onClick={() => setEditMode(false)}
-                        className="flex-1 bg-slate-700/60 hover:bg-slate-700/80 text-indigo-200 font-bold py-3 rounded-xl transition duration-300"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
+              editMode ? (
+                <ProfileForm
+                  formData={formData}
+                  loading={loading}
+                  onFieldChange={handleChange}
+                  onSave={handleSaveProfile}
+                  onCancel={() => setEditMode(false)}
+                />
+              ) : (
+                <div className="bg-gradient-to-br from-slate-800/80 to-slate-700/80 border border-indigo-400/30 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
                   <div className="space-y-8">
                     <h3 className="text-2xl font-bold text-white mb-6">Profile Information</h3>
 
@@ -544,440 +429,47 @@ export function MyProfilePage() {
                       </div>
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )
             )}
 
             {/* Settings Tab */}
             {activeTab === 'settings' && (
-              <div className="bg-gradient-to-br from-slate-800/80 to-slate-700/80 border border-indigo-400/30 rounded-3xl overflow-hidden backdrop-blur-xl shadow-2xl">
-                {/* Settings Sub-tabs */}
-                <div className="flex gap-1 bg-slate-700/50 border-b border-indigo-400/20 p-2 overflow-x-auto">
-                  {settingsTabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveSettingsTab(tab.id)}
-                      className={`px-5 py-2 rounded-lg font-semibold transition duration-300 whitespace-nowrap flex items-center gap-2 text-sm ${
-                        activeSettingsTab === tab.id
-                          ? 'bg-indigo-600 text-white'
-                          : 'text-indigo-200 hover:text-white'
-                      }`}
-                    >
-                      <span>{tab.icon}</span>
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="p-8">
-                  {/* Security Settings */}
-                  {activeSettingsTab === 'security' && (
-                    <div className="space-y-6">
-                      <h3 className="text-2xl font-bold text-white mb-8">Security Settings</h3>
-
-                      {/* Password Change */}
-                      <div className="bg-slate-700/30 border border-indigo-400/20 rounded-xl p-6 flex justify-between items-start hover:border-indigo-400/40 transition duration-300">
-                        <div>
-                          <p className="text-white font-bold text-lg">Change Password</p>
-                          <p className="text-indigo-300 text-sm mt-2">Update your password regularly for better security</p>
-                        </div>
-                        <button
-                          onClick={() => setShowPasswordModal(true)}
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition duration-300 transform hover:scale-105 whitespace-nowrap"
-                        >
-                          Change
-                        </button>
-                      </div>
-
-                      {/* Two-Factor Authentication */}
-                      <div className="bg-slate-700/30 border border-indigo-400/20 rounded-xl p-6 flex justify-between items-start hover:border-indigo-400/40 transition duration-300">
-                        <div>
-                          <p className="text-white font-bold text-lg">Two-Factor Authentication</p>
-                          <p className="text-indigo-300 text-sm mt-2">Add an extra layer of security to your account</p>
-                          {twoFAEnabled && <p className="text-green-400 text-sm mt-1 font-semibold">✓ Enabled</p>}
-                        </div>
-                        <button
-                          onClick={() => setShow2FAModal(true)}
-                          className={`px-6 py-2 rounded-lg transition duration-300 transform hover:scale-105 whitespace-nowrap font-semibold ${
-                            twoFAEnabled
-                              ? 'bg-red-600 hover:bg-red-700 text-white'
-                              : 'bg-green-600 hover:bg-green-700 text-white'
-                          }`}
-                        >
-                          {twoFAEnabled ? 'Disable' : 'Enable'}
-                        </button>
-                      </div>
-
-                      {/* Login Sessions */}
-                      <div className="bg-slate-700/30 border border-indigo-400/20 rounded-xl p-6 hover:border-indigo-400/40 transition duration-300">
-                        <p className="text-white font-bold text-lg mb-4">Active Sessions</p>
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center pb-3 border-b border-indigo-400/20">
-                            <div>
-                              <p className="text-indigo-200 font-semibold">Current Session</p>
-                              <p className="text-indigo-400 text-sm">macOS Safari</p>
-                            </div>
-                            <span className="text-green-400 text-sm font-bold">Active Now</span>
-                          </div>
-                          <div className="flex justify-between items-center pb-3 border-b border-indigo-400/20">
-                            <div>
-                              <p className="text-indigo-200 font-semibold">Mobile Session</p>
-                              <p className="text-indigo-400 text-sm">iPhone Safari</p>
-                            </div>
-                            <button className="text-red-400 hover:text-red-300 text-sm font-semibold">Logout</button>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Security Score */}
-                      <div className="bg-gradient-to-br from-indigo-600/30 to-purple-600/30 border border-indigo-400/40 rounded-xl p-6">
-                        <p className="text-indigo-200 font-semibold mb-3">Security Score</p>
-                        <div className="flex items-center gap-4">
-                          <div className="flex-1 bg-slate-700/50 rounded-full h-3 overflow-hidden">
-                            <div className="bg-gradient-to-r from-green-400 to-emerald-400 h-full w-5/6"></div>
-                          </div>
-                          <span className="text-white font-bold text-lg">83/100</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Privacy Settings */}
-                  {activeSettingsTab === 'privacy' && (
-                    <div className="space-y-6">
-                      <h3 className="text-2xl font-bold text-white mb-8">Privacy Settings</h3>
-
-                      <div className="bg-slate-700/30 border border-indigo-400/20 rounded-xl p-6 flex justify-between items-center hover:border-indigo-400/40 transition duration-300">
-                        <div>
-                          <p className="text-white font-bold">Profile Visibility</p>
-                          <p className="text-indigo-300 text-sm mt-1">Who can see your profile</p>
-                        </div>
-                        <select
-                          value={profileSettings.profileVisibility}
-                          onChange={(e) => handleProfileSettingsChange('profileVisibility', e.target.value)}
-                          className="bg-slate-700/50 border border-indigo-400/30 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-400"
-                        >
-                          <option value="private">Private</option>
-                          <option value="friends">Friends Only</option>
-                          <option value="public">Public</option>
-                        </select>
-                      </div>
-
-                      <div className="bg-slate-700/30 border border-indigo-400/20 rounded-xl p-6 flex justify-between items-center hover:border-indigo-400/40 transition duration-300">
-                        <div>
-                          <p className="text-white font-bold">Show Activity Status</p>
-                          <p className="text-indigo-300 text-sm mt-1">Others can see when you're online</p>
-                        </div>
-                        <input
-                          type="checkbox"
-                          checked={profileSettings.showActivity}
-                          onChange={(e) => handleProfileSettingsChange('showActivity', e.target.checked)}
-                          className="w-6 h-6 cursor-pointer accent-indigo-600"
-                        />
-                      </div>
-
-                      <div className="bg-slate-700/30 border border-indigo-400/20 rounded-xl p-6 flex justify-between items-center hover:border-indigo-400/40 transition duration-300">
-                        <div>
-                          <p className="text-white font-bold">Allow Messages from Strangers</p>
-                          <p className="text-indigo-300 text-sm mt-1">Control who can message you</p>
-                        </div>
-                        <input
-                          type="checkbox"
-                          checked={profileSettings.allowMessagesFromStrangers}
-                          onChange={(e) => handleProfileSettingsChange('allowMessagesFromStrangers', e.target.checked)}
-                          className="w-6 h-6 cursor-pointer accent-indigo-600"
-                        />
-                      </div>
-
-                      <div className="bg-slate-700/30 border border-indigo-400/20 rounded-xl p-6 flex justify-between items-center hover:border-indigo-400/40 transition duration-300">
-                        <div>
-                          <p className="text-white font-bold">Data Collection</p>
-                          <p className="text-indigo-300 text-sm mt-1">Help us improve by sharing usage data</p>
-                        </div>
-                        <input
-                          type="checkbox"
-                          checked={profileSettings.dataCollection}
-                          onChange={(e) => handleProfileSettingsChange('dataCollection', e.target.checked)}
-                          className="w-6 h-6 cursor-pointer accent-indigo-600"
-                        />
-                      </div>
-
-                      <div className="bg-gradient-to-br from-red-600/20 to-rose-600/20 border border-red-400/40 rounded-xl p-6 mt-8">
-                        <p className="text-red-200 font-semibold mb-3">Danger Zone</p>
-                        <p className="text-red-100 text-sm mb-4">Permanently delete your account and all associated data</p>
-                        <button
-                          onClick={() => setShowDeleteModal(true)}
-                          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition duration-300 font-semibold"
-                        >
-                          Delete Account
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Notification Settings */}
-                  {activeSettingsTab === 'notifications' && (
-                    <div className="space-y-6">
-                      <h3 className="text-2xl font-bold text-white mb-8">Notification Settings</h3>
-
-                      <div className="bg-slate-700/30 border border-indigo-400/20 rounded-xl p-6 flex justify-between items-center hover:border-indigo-400/40 transition duration-300">
-                        <div>
-                          <p className="text-white font-bold">Email Notifications</p>
-                          <p className="text-indigo-300 text-sm mt-1">Get updates about your sessions and progress</p>
-                        </div>
-                        <input
-                          type="checkbox"
-                          checked={emailNotifications}
-                          onChange={(e) => setEmailNotifications(e.target.checked)}
-                          className="w-6 h-6 cursor-pointer accent-indigo-600"
-                        />
-                      </div>
-
-                      <div className="bg-slate-700/30 border border-indigo-400/20 rounded-xl p-6 flex justify-between items-center hover:border-indigo-400/40 transition duration-300">
-                        <div>
-                          <p className="text-white font-bold">Push Notifications</p>
-                          <p className="text-indigo-300 text-sm mt-1">Get real-time alerts on your device</p>
-                        </div>
-                        <input
-                          type="checkbox"
-                          checked={pushNotifications}
-                          onChange={(e) => setPushNotifications(e.target.checked)}
-                          className="w-6 h-6 cursor-pointer accent-indigo-600"
-                        />
-                      </div>
-
-                      <div className="bg-slate-700/30 border border-indigo-400/20 rounded-xl p-6 flex justify-between items-center hover:border-indigo-400/40 transition duration-300">
-                        <div>
-                          <p className="text-white font-bold">Session Reminders</p>
-                          <p className="text-indigo-300 text-sm mt-1">Reminders for your scheduled therapy sessions</p>
-                        </div>
-                        <input type="checkbox" defaultChecked className="w-6 h-6 cursor-pointer accent-indigo-600" />
-                      </div>
-
-                      <div className="bg-slate-700/30 border border-indigo-400/20 rounded-xl p-6 flex justify-between items-center hover:border-indigo-400/40 transition duration-300">
-                        <div>
-                          <p className="text-white font-bold">Mood Check-in</p>
-                          <p className="text-indigo-300 text-sm mt-1">Daily mood tracking reminders</p>
-                        </div>
-                        <input type="checkbox" defaultChecked className="w-6 h-6 cursor-pointer accent-indigo-600" />
-                      </div>
-
-                      <div className="bg-slate-700/30 border border-indigo-400/20 rounded-xl p-6 flex justify-between items-center hover:border-indigo-400/40 transition duration-300">
-                        <div>
-                          <p className="text-white font-bold">Community Updates</p>
-                          <p className="text-indigo-300 text-sm mt-1">News and updates from the community</p>
-                        </div>
-                        <input type="checkbox" className="w-6 h-6 cursor-pointer accent-indigo-600" />
-                      </div>
-
-                      <button className="w-full mt-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 rounded-xl transition duration-300 transform hover:scale-105">
-                        Save Preferences
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <SettingsMenu
+                activeSettingsTab={activeSettingsTab}
+                onTabChange={setActiveSettingsTab}
+                profileSettings={profileSettings}
+                twoFAEnabled={twoFAEnabled}
+                emailNotifications={emailNotifications}
+                pushNotifications={pushNotifications}
+                onPasswordChange={() => setShowPasswordModal(true)}
+                on2FAChange={() => setShow2FAModal(true)}
+                onProfileSettingsChange={handleProfileSettingsChange}
+                onEmailNotificationsChange={setEmailNotifications}
+                onPushNotificationsChange={setPushNotifications}
+                onDeleteAccount={() => setShowDeleteModal(true)}
+              />
             )}
 
             {/* Subscription Tab */}
             {activeTab === 'subscription' && (
               <div className="space-y-8">
                 {/* Current Subscription Status */}
-                {subscriptionStatus?.isActive && subscriptionStatus?.subscription && (
-                  <div className="bg-gradient-to-br from-green-600/30 to-emerald-600/30 border border-green-400/40 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
-                    <h3 className="text-2xl font-bold text-white mb-8">Current Subscription</h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      <div>
-                        <p className="text-green-300 text-sm font-semibold mb-2 uppercase">Active Plan</p>
-                        <div className="flex items-baseline gap-2">
-                          <h4 className="text-4xl font-bold text-white">
-                            {subscriptionStatus.subscription.type}
-                          </h4>
-                          <div className="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold">
-                            ✓ Active
-                          </div>
-                        </div>
-                        <p className="text-green-200 text-lg mt-2">
-                          ₹{subscriptionPlans.find(p => p.id === subscriptionStatus.subscription.type)?.price || 0}/month
-                        </p>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div className="bg-slate-700/30 border border-green-400/20 rounded-lg p-4">
-                          <p className="text-green-300 text-sm">Days Remaining</p>
-                          <p className="text-white font-bold text-lg">
-                            {subscriptionStatus.daysRemaining || 30} days
-                          </p>
-                        </div>
-                        <div className="bg-slate-700/30 border border-green-400/20 rounded-lg p-4">
-                          <p className="text-green-300 text-sm">Renewal Date</p>
-                          <p className="text-white font-bold text-lg">
-                            {new Date(Date.now() + (subscriptionStatus.daysRemaining || 30) * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            })}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Current Plan Features */}
-                    <div className="bg-slate-700/20 border border-green-400/20 rounded-xl p-6 mb-6">
-                      <p className="text-green-300 text-sm font-semibold mb-4 uppercase">Included Features</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {subscriptionStatus.subscription.features?.map((feature: string, idx: number) => (
-                          <div key={idx} className="flex items-start gap-3">
-                            <span className="text-green-400 flex-shrink-0 mt-1">✓</span>
-                            <span className="text-green-100">{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => setActiveTab('activity')}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition duration-300 transform hover:scale-105"
-                    >
-                      View Usage & Activity
-                    </button>
-                  </div>
-                )}
-
-                {/* No Active Subscription */}
-                {!subscriptionStatus?.isActive && (
-                  <div className="bg-gradient-to-br from-indigo-600/20 to-purple-600/20 border border-indigo-400/30 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
-                    <div className="text-center mb-8">
-                      <div className="text-6xl mb-4">🎯</div>
-                      <h4 className="text-2xl font-bold text-white mb-2">No Active Subscription</h4>
-                      <p className="text-indigo-200">Upgrade to a premium plan to unlock unlimited features and enhance your wellness journey</p>
-                    </div>
-                  </div>
-                )}
+                <SubscriptionCard
+                  isActive={subscriptionStatus?.isActive || false}
+                  subscriptionType={subscriptionStatus?.subscription?.type}
+                  daysRemaining={subscriptionStatus?.daysRemaining}
+                  price={subscriptionPlans.find(p => p.id === subscriptionStatus?.subscription?.type)?.price || 0}
+                  features={subscriptionStatus?.subscription?.features}
+                  onViewActivity={() => setActiveTab('activity')}
+                />
 
                 {/* Available Plans Section */}
-                <div className="bg-gradient-to-br from-slate-800/80 to-slate-700/80 border border-indigo-400/30 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
-                  <h3 className="text-2xl font-bold text-white mb-2">Upgrade Your Plan</h3>
-                  <p className="text-indigo-200 mb-8">Choose the perfect plan for your mental health journey</p>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    {subscriptionPlans.map((plan) => (
-                      <div
-                        key={plan.id}
-                        className={`relative rounded-2xl backdrop-blur-xl transition duration-300 transform hover:scale-105 ${
-                          plan.highlighted
-                            ? 'bg-gradient-to-br from-indigo-600/40 to-purple-600/40 border-2 border-indigo-400 shadow-2xl'
-                            : 'bg-gradient-to-br from-slate-700/60 to-slate-700/40 border border-indigo-400/30 hover:border-indigo-400/60'
-                        }`}
-                      >
-                        {plan.highlighted && (
-                          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
-                              Most Popular
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="p-8">
-                          {/* Plan Header */}
-                          <div className="mb-6">
-                            <h4 className="text-2xl font-bold text-white mb-2">{plan.name}</h4>
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-4xl font-bold text-indigo-300">₹{plan.price}</span>
-                              <span className="text-indigo-200 text-sm">/month</span>
-                            </div>
-                          </div>
-
-                          {/* Features List */}
-                          <div className="space-y-3 mb-8 pb-8 border-b border-indigo-400/20">
-                            {plan.features.map((feature, idx) => (
-                              <div key={idx} className="flex items-start gap-3">
-                                <span className="text-green-400 flex-shrink-0 mt-0.5">✓</span>
-                                <span className="text-indigo-100 text-sm">{feature}</span>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Current Plan Indicator */}
-                          {subscriptionStatus?.isActive &&
-                            subscriptionStatus?.subscription?.type === plan.id && (
-                              <div className="mb-4 p-3 bg-green-600/20 border border-green-400/40 rounded-lg">
-                                <p className="text-green-300 font-semibold text-sm text-center">
-                                  ✓ Your Current Plan
-                                </p>
-                              </div>
-                            )}
-
-                          {/* Action Button */}
-                          <button
-                            onClick={() => handlePlanSelect(plan.id as any)}
-                            disabled={
-                              subscriptionStatus?.isActive &&
-                              subscriptionStatus?.subscription?.type === plan.id
-                            }
-                            className={`w-full font-bold py-3 px-6 rounded-lg transition duration-300 transform hover:scale-105 ${
-                              subscriptionStatus?.isActive &&
-                              subscriptionStatus?.subscription?.type === plan.id
-                                ? 'bg-slate-600/50 text-slate-300 cursor-not-allowed'
-                                : plan.highlighted
-                                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg'
-                                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                            }`}
-                          >
-                            {subscriptionStatus?.isActive &&
-                            subscriptionStatus?.subscription?.type === plan.id
-                              ? 'Current Plan'
-                              : 'Select Plan'}
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Plan Comparison */}
-                  <div className="bg-slate-700/30 border border-indigo-400/20 rounded-xl p-6">
-                    <h4 className="text-white font-bold mb-4">Plan Comparison</h4>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-indigo-400/20">
-                            <th className="text-left py-2 px-4 text-indigo-200 font-semibold">Features</th>
-                            <th className="text-center py-2 px-4 text-indigo-200 font-semibold">Basic</th>
-                            <th className="text-center py-2 px-4 text-indigo-200 font-semibold">Premium</th>
-                            <th className="text-center py-2 px-4 text-indigo-200 font-semibold">Plus</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr className="border-b border-indigo-400/10">
-                            <td className="py-2 px-4 text-indigo-100">AI Chat</td>
-                            <td className="text-center py-2 px-4 text-green-400">Unlimited</td>
-                            <td className="text-center py-2 px-4 text-green-400">Unlimited</td>
-                            <td className="text-center py-2 px-4 text-green-400">Unlimited</td>
-                          </tr>
-                          <tr className="border-b border-indigo-400/10">
-                            <td className="py-2 px-4 text-indigo-100">Therapy Sessions</td>
-                            <td className="text-center py-2 px-4 text-indigo-300">2/month</td>
-                            <td className="text-center py-2 px-4 text-indigo-300">4/month</td>
-                            <td className="text-center py-2 px-4 text-green-400">Unlimited</td>
-                          </tr>
-                          <tr className="border-b border-indigo-400/10">
-                            <td className="py-2 px-4 text-indigo-100">Priority Support</td>
-                            <td className="text-center py-2 px-4 text-red-400">✗</td>
-                            <td className="text-center py-2 px-4 text-green-400">✓</td>
-                            <td className="text-center py-2 px-4 text-green-400">24/7</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 px-4 text-indigo-100">Analytics</td>
-                            <td className="text-center py-2 px-4 text-indigo-300">Basic</td>
-                            <td className="text-center py-2 px-4 text-indigo-300">Advanced</td>
-                            <td className="text-center py-2 px-4 text-green-400">Full</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
+                <SubscriptionPlans
+                  plans={subscriptionPlans}
+                  currentPlanId={subscriptionStatus?.subscription?.type}
+                  onPlanSelect={handlePlanSelect}
+                />
 
                 {/* Payment History */}
                 <div className="bg-gradient-to-br from-slate-800/80 to-slate-700/80 border border-indigo-400/30 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
@@ -1150,67 +642,14 @@ export function MyProfilePage() {
       </div>
 
       {/* Password Change Modal */}
-      {showPasswordModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-slate-800/95 to-slate-700/95 border border-indigo-400/40 rounded-3xl p-8 max-w-md w-full backdrop-blur-xl shadow-2xl animate-in fade-in scale-95 transition duration-300">
-            <h3 className="text-2xl font-bold text-white mb-6">Change Password</h3>
-
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="text-indigo-200 font-semibold mb-2 block text-sm">Current Password</label>
-                <input
-                  type="password"
-                  name="currentPassword"
-                  value={passwordForm.currentPassword}
-                  onChange={handlePasswordChange}
-                  className="w-full px-4 py-2 bg-slate-700/50 border border-indigo-400/30 rounded-lg text-white focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/50 transition duration-300"
-                  placeholder="Enter current password"
-                />
-              </div>
-
-              <div>
-                <label className="text-indigo-200 font-semibold mb-2 block text-sm">New Password</label>
-                <input
-                  type="password"
-                  name="newPassword"
-                  value={passwordForm.newPassword}
-                  onChange={handlePasswordChange}
-                  className="w-full px-4 py-2 bg-slate-700/50 border border-indigo-400/30 rounded-lg text-white focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/50 transition duration-300"
-                  placeholder="Enter new password"
-                />
-              </div>
-
-              <div>
-                <label className="text-indigo-200 font-semibold mb-2 block text-sm">Confirm Password</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={passwordForm.confirmPassword}
-                  onChange={handlePasswordChange}
-                  className="w-full px-4 py-2 bg-slate-700/50 border border-indigo-400/30 rounded-lg text-white focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/50 transition duration-300"
-                  placeholder="Confirm new password"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleChangePassword}
-                disabled={loading}
-                className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-2 rounded-lg transition duration-300 disabled:opacity-50"
-              >
-                {loading ? 'Updating...' : 'Change Password'}
-              </button>
-              <button
-                onClick={() => setShowPasswordModal(false)}
-                className="flex-1 bg-slate-700/60 hover:bg-slate-700/80 text-indigo-200 font-bold py-2 rounded-lg transition duration-300"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ChangePasswordForm
+        isOpen={showPasswordModal}
+        passwordForm={passwordForm}
+        loading={loading}
+        onPasswordChange={handlePasswordChange}
+        onSubmit={handleChangePassword}
+        onClose={() => setShowPasswordModal(false)}
+      />
 
       {/* 2FA Modal */}
       {show2FAModal && (

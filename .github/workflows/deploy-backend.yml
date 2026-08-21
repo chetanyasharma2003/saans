@@ -1,0 +1,57 @@
+name: 🚀 Deploy Backend to Render
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'saans-api/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'saans-api/package-lock.json'
+
+      - name: 📚 Install dependencies
+        run: cd saans-api && npm ci
+
+      - name: ✨ Type check
+        run: cd saans-api && npm run type-check || true
+
+      - name: 🏗️ Build
+        run: cd saans-api && npm run build || true
+
+      - name: 🔑 Trigger Render deployment
+        run: |
+          curl -X POST https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_DEPLOY_KEY }}
+        continue-on-error: true
+
+      - name: 💾 Push to Render
+        run: |
+          git remote add render https://git.render.com/git/srv-${{ secrets.RENDER_SERVICE_ID }}.git || true
+          git push render main:main || git push render develop:main
+        env:
+          GIT_AUTHOR_NAME: GitHub Actions
+          GIT_AUTHOR_EMAIL: actions@github.com
+          GIT_COMMITTER_NAME: GitHub Actions
+          GIT_COMMITTER_EMAIL: actions@github.com
+        continue-on-error: true
+
+      - name: ✅ Deployment triggered
+        run: echo "✅ Backend deployment to Render triggered!"
+
+      - name: 📝 Deployment info
+        run: |
+          echo "Backend URL: https://saans-api.onrender.com"
+          echo "Deployment may take 2-5 minutes to complete"

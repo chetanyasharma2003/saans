@@ -154,10 +154,7 @@ class ErrorHandler {
    * Log error to external service (Sentry, LogRocket, etc.)
    */
   static logToService(error: MappedError, context?: Record<string, any>): void {
-    // Implement your error tracking service here
-    // Example: Sentry.captureException(error, { contexts: { custom: context } });
-
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.group('Error Log');
       console.error('Status:', error.status);
       console.error('Message:', error.message);
