@@ -3,18 +3,12 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "vite",
-  "projectSettings": {
-    "framework": null,
-    "nodeVersion": "18.x"
-  },
   "env": {
-    "VITE_API_URL": "https://saans-qi7w69jep-chetanya-s-projects.vercel.app"
+    "VITE_API_URL": "https://saans-api.onrender.com"
   },
   "git": {
     "deploymentEnabled": {
-      "main": true,
-      "develop": true,
-      "master": true
+      "main": true
     }
   }
 }
