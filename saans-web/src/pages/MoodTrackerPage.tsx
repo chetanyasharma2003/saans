@@ -67,7 +67,8 @@ export function MoodTrackerPage() {
       }
 
       // Fetch mood history
-      const historyResponse = await fetch('/api/moods/my-moods?limit=30', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const historyResponse = await fetch(`${apiUrl}/api/moods/my-moods?limit=30`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -82,7 +83,7 @@ export function MoodTrackerPage() {
       setMoodEntries(historyData.data || []);
 
       // Fetch analytics
-      const analyticsResponse = await fetch('/api/moods/analytics', {
+      const analyticsResponse = await fetch(`${apiUrl}/api/moods/analytics`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -108,15 +109,16 @@ export function MoodTrackerPage() {
       setIsSaving(true);
       setError(null);
 
-      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
       if (!token) {
         setError('No authentication token found. Please log in.');
         return;
       }
 
       const moodCategory = moodConfigs[selectedMood].label;
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-      const response = await fetch('/api/moods/track', {
+      const response = await fetch(`${apiUrl}/api/moods/track`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -157,10 +159,11 @@ export function MoodTrackerPage() {
 
   const loadAnalytics = async () => {
     try {
-      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
       if (!token) return;
 
-      const response = await fetch('/api/moods/analytics', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/api/moods/analytics`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
