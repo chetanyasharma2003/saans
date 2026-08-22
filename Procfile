@@ -1,1 +1,1 @@
-web: node saans-api/dist/index.js
+web: cd saans-api && npm run migrate:prod || true && npm start
