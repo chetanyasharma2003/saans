@@ -1,1 +1,2 @@
 .vercel
+*.d.ts.map
