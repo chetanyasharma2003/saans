@@ -3,10 +3,9 @@ import { Server as SocketIOServer } from 'socket.io';
 import app from './app.js';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import { initializeRedis } from './utils/redis.js';
 
 dotenv.config();
-import { PrismaClient } from '@prisma/client';
-import { initializeRedis } from './utils/redis.js';
 import AppointmentReminderJob from './jobs/appointmentReminder.js';
 
 const prisma = new PrismaClient();
@@ -127,9 +126,6 @@ process.on('SIGINT', async () => {
   }
 
   await prisma.$disconnect();
-
-  // Flush Sentry events before shutdown
-  await flushSentry();
 
   server.close(() => {
     console.log('✅ Server closed');
