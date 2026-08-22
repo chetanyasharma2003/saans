@@ -6,6 +6,12 @@
   "env": {
     "VITE_API_URL": "https://saans-production-023e.up.railway.app"
   },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
   "git": {
     "deploymentEnabled": {
       "main": true
