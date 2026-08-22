@@ -2,5 +2,8 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "nixpacks"
+  },
+  "deploy": {
+    "startCommand": "cd saans-api && npm run migrate:prod || true && npm start"
   }
 }
