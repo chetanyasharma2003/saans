@@ -12,6 +12,9 @@
     "prettier": "^3.9.6"
   },
   "scripts": {
+    "install": "cd saans-web && npm install && cd ../saans-api && npm install && cd ..",
+    "build": "cd saans-api && npm run build && cd ..",
+    "start": "node saans-api/dist/index.js",
     "lint": "eslint 'src/**/*.{ts,tsx,js}' --fix",
     "format": "prettier --write 'src/**/*.{ts,tsx,js,json}'",
     "type-check": "tsc --noEmit",
