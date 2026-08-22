@@ -4,7 +4,7 @@
   "installCommand": "npm install",
   "framework": "vite",
   "env": {
-    "VITE_API_URL": "https://saans-api.railway.app"
+    "VITE_API_URL": "https://saans-production-023e.up.railway.app"
   },
   "git": {
     "deploymentEnabled": {
