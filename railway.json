@@ -4,6 +4,6 @@
     "builder": "nixpacks"
   },
   "deploy": {
-    "startCommand": "cd saans-api && npm run migrate:prod || true && npm start"
+    "startCommand": "npm start"
   }
 }
