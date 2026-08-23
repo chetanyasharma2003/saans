@@ -131,20 +131,13 @@ cd saans-web && npm run dev
 
 ## CRITICAL NOTES 🚨
 
-1. **GitHub PAT in Remote URL**
-   - Current: `<REDACTED_TOKEN>`
-   - ⚠️ This token is exposed in the origin URL
-   - Should be rotated (create new PAT, delete old one)
-   - Update: `git remote set-url origin https://github.com/chetanyasharma2003/saans.git`
-   - Then add token via GitHub CLI: `gh auth login`
-
-2. **JWT Secrets in Production**
+1. **JWT Secrets in Production**
    - Change from defaults in Railway Variables:
    - `JWT_SECRET` → Random 32+ char string
    - `JWT_REFRESH_SECRET` → Random 32+ char string
    - Generate: `openssl rand -base64 32`
 
-3. **API Rate Limiting**
+2. **API Rate Limiting**
    - Enabled: 100 requests/minute per IP
    - Adjust in Railway if needed: `RATE_LIMIT_MAX_REQUESTS`
 
