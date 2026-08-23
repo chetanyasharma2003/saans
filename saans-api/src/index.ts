@@ -3,6 +3,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import app from './app.js';
 import dotenv from 'dotenv';
 import { initializeRedis } from './utils/redis.js';
+import { AppointmentReminderJob } from './jobs/appointmentReminder.js';
 
 dotenv.config();
 
