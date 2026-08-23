@@ -1,14 +1,13 @@
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import app from './app.js';
-import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import { initializeRedis } from './utils/redis.js';
 
 dotenv.config();
-import AppointmentReminderJob from './jobs/appointmentReminder.js';
 
-const prisma = new PrismaClient();
+let prisma: any = null;
+
 const PORT = parseInt(process.env.API_PORT || '3000', 10);
 const HOST = process.env.API_HOST || '0.0.0.0';
 
@@ -53,11 +52,18 @@ async function checkDatabase() {
   }
 
   try {
+    // Lazy initialize Prisma
+    if (!prisma) {
+      const { PrismaClient } = await import('@prisma/client');
+      prisma = new PrismaClient();
+    }
+
     // Try to count users as a safer test
     await prisma.user.count();
     console.log('✅ Database connected');
   } catch (error: any) {
     console.warn('⚠️  Database connection failed, but continuing anyway:', error.message);
+    prisma = null; // Reset on failure
     // Don't exit - let the app start anyway
   }
 }
