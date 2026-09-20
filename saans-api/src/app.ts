@@ -77,17 +77,17 @@ const corsOrigin = (origin: string | undefined, callback: (err: Error | null, al
   if (process.env.NODE_ENV !== 'production') {
     callback(null, true);
   } else {
-    // Production: Allow frontend + CORS_ORIGIN env var
-    const allowedOrigins = [
-      'https://saans-mental-health.vercel.app', // Production frontend
-      'https://saans-mental-health-6qh01dqe9-chetanya-s-projects.vercel.app', // Vercel preview
-      ...(process.env.CORS_ORIGIN || '').split(',').map(o => o.trim()).filter(o => o)
-    ];
-
-    if (!origin || allowedOrigins.some(allowed => origin.includes(allowed))) {
+    // Production: Allow Vercel frontend URLs (any preview or production)
+    if (!origin || origin.includes('vercel.app') || origin.includes('localhost')) {
       callback(null, true);
     } else {
-      callback(null, true); // Allow by default to prevent total blockage
+      // Also check CORS_ORIGIN env var
+      const corsOriginEnv = process.env.CORS_ORIGIN || '';
+      if (corsOriginEnv && origin.includes(corsOriginEnv)) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Allow by default in production
+      }
     }
   }
 };
