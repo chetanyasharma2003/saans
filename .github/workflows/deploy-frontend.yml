@@ -37,13 +37,13 @@ jobs:
           VITE_API_URL: https://saans-api.onrender.com
 
       - name: 🚀 Deploy to Vercel
-        uses: vercel/action@master
+        uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: saans-web
-          scope: ${{ secrets.VERCEL_ORG_ID }}
+          production: true
         env:
           VITE_API_URL: https://saans-api.onrender.com
 
