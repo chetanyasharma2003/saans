@@ -1,0 +1,246 @@
+/* SAANS v2.0 - Genuine Mental Health Platform Color System */
+/* Colors designed for trust, calm, and healing */
+
+:root {
+  /* Primary - Soft Teal (Trust, Calm, Healing) */
+  --color-primary: #2D6A6A;
+  --color-primary-light: #4A9191;
+  --color-primary-lighter: #7BA99C;
+  --color-primary-lightest: #B8D4D0;
+
+  /* Secondary - Warm Beige (Safety, Warmth) */
+  --color-secondary: #D4C5B9;
+  --color-secondary-light: #E8DFD8;
+  --color-secondary-lighter: #F3EDE8;
+
+  /* Accent - Soft Green (Growth, Wellness) */
+  --color-accent: #7BA99C;
+  --color-accent-light: #A8C8C0;
+  --color-accent-lighter: #D5E4E0;
+
+  /* Backgrounds */
+  --color-bg-primary: #F7F5F3;
+  --color-bg-secondary: #FFFFFF;
+  --color-bg-tertiary: #F0EDED;
+  --color-bg-overlay: rgba(45, 106, 106, 0.05);
+
+  /* Text Colors */
+  --color-text-primary: #2D3E3E;
+  --color-text-secondary: #5A6B6B;
+  --color-text-tertiary: #8B9B9B;
+  --color-text-light: #FFFFFF;
+
+  /* Status Colors */
+  --color-success: #5A9E8F;
+  --color-warning: #D4A574;
+  --color-error: #C97C7C;
+  --color-info: #7BA99C;
+
+  /* Neutral Grays */
+  --color-gray-50: #F9F8F7;
+  --color-gray-100: #F3F1F0;
+  --color-gray-200: #E8E5E2;
+  --color-gray-300: #DCDAD7;
+  --color-gray-400: #C8C3BE;
+  --color-gray-500: #A8A09A;
+  --color-gray-600: #8B8078;
+  --color-gray-700: #6D6158;
+  --color-gray-800: #4A423C;
+  --color-gray-900: #2D3E3E;
+
+  /* Shadows - Soft and warm */
+  --shadow-xs: 0 1px 2px rgba(45, 106, 106, 0.05);
+  --shadow-sm: 0 1px 3px rgba(45, 106, 106, 0.1), 0 1px 2px rgba(45, 106, 106, 0.06);
+  --shadow-md: 0 4px 6px rgba(45, 106, 106, 0.1), 0 2px 4px rgba(45, 106, 106, 0.06);
+  --shadow-lg: 0 10px 15px rgba(45, 106, 106, 0.1), 0 4px 6px rgba(45, 106, 106, 0.05);
+  --shadow-xl: 0 20px 25px rgba(45, 106, 106, 0.15), 0 10px 10px rgba(45, 106, 106, 0.05);
+
+  /* Border Radius - Rounded for softness */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  /* Spacing - Generous whitespace */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  --space-4xl: 64px;
+
+  /* Typography */
+  --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-serif: Georgia, 'Times New Roman', serif;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-primary: #1A2626;
+    --color-bg-secondary: #232E2E;
+    --color-bg-tertiary: #2D3E3E;
+    --color-text-primary: #EDF0F0;
+    --color-text-secondary: #B8D4D0;
+    --color-text-tertiary: #8B9B9B;
+  }
+}
+
+/* Base styles */
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
+}
+
+/* Breathing animation for anxious users */
+@keyframes breathe {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.animate-breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+/* Gentle pulse animation */
+@keyframes gentle-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-gentle-pulse {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+/* Soft fade in */
+@keyframes soft-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-soft-fade-in {
+  animation: soft-fade-in 0.5s ease-out;
+}
+
+/* Utility classes for trust badges and components */
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: var(--color-accent-lighter);
+  color: var(--color-primary);
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.verification-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-accent);
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 0.75rem;
+}
+
+/* Soft button styles */
+.btn-gentle {
+  padding: 10px 20px;
+  border-radius: var(--radius-lg);
+  border: none;
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-gentle:hover {
+  background-color: var(--color-primary-light);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-gentle-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+}
+
+.btn-gentle-secondary:hover {
+  background-color: var(--color-secondary-light);
+}
+
+/* Card styles */
+.card-genuine {
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-gray-200);
+  transition: all var(--transition-base);
+}
+
+.card-genuine:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Safe space - calm background */
+.safe-space {
+  background: linear-gradient(135deg, var(--color-primary-lightest) 0%, var(--color-accent-lighter) 100%);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+}
+
+/* Crisis button - prominent but compassionate */
+.btn-crisis-sos {
+  background-color: var(--color-error);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--radius-lg);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  animation: gentle-pulse 2s ease-in-out infinite;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+.btn-crisis-sos:hover {
+  background-color: #A96A6A;
+  box-shadow: var(--shadow-lg);
+  transform: scale(1.05);
+}
