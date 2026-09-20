@@ -37,6 +37,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: |
+            ./saans-api/package-lock.json
+            ./saans-web/package-lock.json
 
       - name: Install dependencies (Backend)
         run: cd saans-api && npm install

@@ -22,6 +22,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+          cache-dependency-path: |
+            ./saans-api/package-lock.json
+            ./saans-web/package-lock.json
 
       - name: Frontend Tests
         run: |
