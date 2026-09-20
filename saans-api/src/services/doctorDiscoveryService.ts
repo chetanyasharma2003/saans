@@ -1,6 +1,5 @@
-import { PrismaClient, Therapist, Prisma } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { Therapist, Prisma } from '@prisma/client';
+import { prisma } from '../utils/prismaClient';
 
 export interface DoctorFilterOptions {
   specialization?: string;
