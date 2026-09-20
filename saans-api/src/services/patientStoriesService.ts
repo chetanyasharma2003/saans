@@ -1,5 +1,5 @@
 import { PatientStory, StoryMilestone, Prisma } from '@prisma/client';
-import { prisma } from '../utils/prismaClient';
+import { prisma } from '../utils/prismaClient.js';
 
 export interface CreateStoryInput {
   title: string;

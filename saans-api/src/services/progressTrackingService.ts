@@ -1,4 +1,4 @@
-import { prisma } from '../utils/prismaClient';
+import { prisma } from '../utils/prismaClient.js';
 
 class ProgressTrackingService {
   // Add progress metric

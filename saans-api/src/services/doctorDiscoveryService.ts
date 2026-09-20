@@ -1,5 +1,5 @@
 import { Therapist, Prisma } from '@prisma/client';
-import { prisma } from '../utils/prismaClient';
+import { prisma } from '../utils/prismaClient.js';
 
 export interface DoctorFilterOptions {
   specialization?: string;
