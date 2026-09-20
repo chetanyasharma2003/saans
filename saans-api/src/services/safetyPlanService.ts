@@ -14,7 +14,7 @@ class SafetyPlanService {
       if (!plan) {
         plan = await prisma.safetyPlan.create({
           data: { userId },
-          include: { contacts: true },
+          include: { contacts: true, therapist: true },
         });
       }
 

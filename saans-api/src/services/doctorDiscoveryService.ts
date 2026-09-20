@@ -1,5 +1,6 @@
-import { prisma } from '../utils/prismaClient';
-import { Therapist, Prisma } from '@prisma/client';
+import { PrismaClient, Therapist, Prisma } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export interface DoctorFilterOptions {
   specialization?: string;
@@ -93,14 +94,14 @@ export class DoctorDiscoveryService {
             return {
               ...therapist,
               distance,
-            };
+            } as NearbyDoctorResult;
           }
           return null;
         })
-        .filter((t): t is NearbyDoctorResult => t !== null)
-        .sort((a, b) => (a.distance || 0) - (b.distance || 0));
+        .filter((t) => t !== null)
+        .sort((a, b) => (a!.distance || 0) - (b!.distance || 0));
 
-      return nearbyTherapists;
+      return nearbyTherapists as NearbyDoctorResult[];
     } catch (error) {
       console.error('Error finding nearby doctors:', error);
       throw new Error('Failed to find nearby doctors');

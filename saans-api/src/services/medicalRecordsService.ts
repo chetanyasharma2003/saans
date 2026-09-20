@@ -27,6 +27,11 @@ class MedicalRecordsService {
             currentMedications: true,
             medicationHistory: true,
             diagnosisHistory: true,
+            therapyNotes: {
+              include: { therapist: true },
+            },
+            consentLogs: true,
+            accessLogs: true,
           },
         });
       }
