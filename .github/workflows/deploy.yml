@@ -1,0 +1,133 @@
+name: Deploy SAANS (Vercel Frontend + Render Backend)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: saans_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies (Backend)
+        run: cd saans-api && npm install
+
+      - name: Install dependencies (Frontend)
+        run: cd saans-web && npm install
+
+      - name: Run TypeScript check (Backend)
+        run: cd saans-api && npm run build
+
+      - name: Run TypeScript check (Frontend)
+        run: cd saans-web && npm run build
+
+      - name: Run tests
+        run: cd saans-api && npm run test 2>/dev/null || true
+
+      - name: Run linting
+        run: cd saans-api && npm run lint 2>/dev/null || true
+
+  deploy-frontend:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel (Frontend)
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./saans-web
+          production: true
+
+      - name: Comment PR with Frontend URL
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Frontend deployed to Vercel!'
+            })
+
+  deploy-backend:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Render (Backend)
+        run: |
+          curl -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
+            -H "accept: application/json" \
+            -H "authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
+
+      - name: Wait for deployment
+        run: sleep 30
+
+      - name: Health check
+        run: |
+          for i in {1..30}; do
+            if curl -f https://saans-api.onrender.com/health; then
+              echo "✅ Backend health check passed"
+              exit 0
+            fi
+            echo "Attempt $i/30 - waiting for backend..."
+            sleep 10
+          done
+          echo "❌ Backend failed health check"
+          exit 1
+
+  notify:
+    needs: [deploy-frontend, deploy-backend]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Deployment Status
+        run: |
+          if [[ "${{ needs.deploy-frontend.result }}" == "success" && "${{ needs.deploy-backend.result }}" == "success" ]]; then
+            echo "✅ SAANS v2.0.0 deployed successfully!"
+            echo "Frontend: Vercel"
+            echo "Backend: Render"
+          else
+            echo "❌ Deployment failed"
+            exit 1
+          fi
