@@ -28,6 +28,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: |
+            ./saans-api/package-lock.json
+            ./saans-web/package-lock.json
 
       # FRONTEND QUALITY CHECKS
       - name: 🎨 Frontend - Install dependencies
@@ -97,6 +100,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: |
+            ./saans-api/package-lock.json
+            ./saans-web/package-lock.json
 
       # FRONTEND TESTS
       - name: 🧪 Frontend - Install dependencies
@@ -148,6 +154,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: |
+            ./saans-api/package-lock.json
+            ./saans-web/package-lock.json
 
       # FRONTEND BUILD
       - name: 🏗️ Frontend - Install dependencies
@@ -209,6 +218,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: |
+            ./saans-api/package-lock.json
+            ./saans-web/package-lock.json
 
       - name: 🔐 Frontend - Dependency audit
         run: cd saans-web && npm audit --audit-level=moderate 2>&1 || true
@@ -442,6 +454,7 @@ jobs:
           echo "Author: ${{ github.actor }}"
 
       - name: 📧 Email Notification
+        if: ${{ secrets.EMAIL_TO != '' }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
