@@ -20,7 +20,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": false,
-    "types": ["jest", "node"]
+    "types": ["node"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "src/__tests__", "**/*.test.ts"]
