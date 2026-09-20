@@ -13,6 +13,10 @@ import analyticsRoutes from './routes/analyticsRoutes.js';
 import matchingRoutes from './routes/matchingRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import subscriptionRoutes from './routes/subscriptionRoutes.js';
+import medicalRecordsRoutes from './routes/medicalRecordsRoutes.js';
+import progressTrackingRoutes from './routes/progressTrackingRoutes.js';
+import safetyPlanRoutes from './routes/safetyPlanRoutes.js';
+import wellnessResourcesRoutes from './routes/wellnessResourcesRoutes.js';
 import {
   validateSecurityConfig,
   requestIdMiddleware,
@@ -209,6 +213,18 @@ app.use('/api/reports', reportRoutes);
 
 // Subscriptions routes
 app.use('/api/subscriptions', subscriptionRoutes);
+
+// Medical Records routes
+app.use('/api/medical-records', medicalRecordsRoutes);
+
+// Progress Tracking routes
+app.use('/api/progress', progressTrackingRoutes);
+
+// Safety Plan routes
+app.use('/api/safety', safetyPlanRoutes);
+
+// Wellness Resources routes
+app.use('/api/wellness', wellnessResourcesRoutes);
 
 // =============== ERROR HANDLING ===============
 
