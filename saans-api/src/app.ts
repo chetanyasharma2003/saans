@@ -72,23 +72,13 @@ app.use(
 
 // =============== CORS ===============
 
-const corsOrigin = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-  // ALLOW EVERYTHING - emergency mode
-  callback(null, true);
-};
+// Allow ALL origins - maximum permissive mode
+app.use(cors({
+  origin: true, // Allow all origins
+  credentials: true,
+}));
 
-app.use(
-  cors({
-    origin: corsOrigin,
-    credentials: true,
-    optionsSuccessStatus: 200,
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Request-ID'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    maxAge: 3600,
-  })
-);
-
-// Explicit OPTIONS handler for all routes (preflight requests)
+// Handle OPTIONS preflight
 app.options('*', cors());
 
 // =============== SECURITY HEADERS ===============
