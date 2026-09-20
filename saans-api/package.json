@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "prisma migrate deploy && node dist/index.js",
+    "start": "prisma db push --skip-generate && node dist/index.js",
     "lint": "eslint 'src/**/*.{ts,js}' --fix",
     "format": "prettier --write 'src/**/*.{ts,js,json}'",
     "type-check": "tsc --noEmit",
