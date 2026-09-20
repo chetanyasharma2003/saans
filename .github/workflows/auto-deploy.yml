@@ -48,18 +48,8 @@ jobs:
           working-directory: ./saans-web
           production: true
 
-      - name: 📤 Deploy Backend to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_API }}
-          working-directory: ./saans-api
-          production: true
-
       - name: ✅ Check Deployment Status
-        run: echo "✅ Deployment completed successfully!"
+        run: echo "✅ Frontend deployment to Vercel completed!"
 
   auto-fix-errors:
     runs-on: ubuntu-latest
