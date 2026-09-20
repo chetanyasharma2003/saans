@@ -13,16 +13,13 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
     "strictNullChecks": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noImplicitReturns": false,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "noImplicitReturns": false
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
