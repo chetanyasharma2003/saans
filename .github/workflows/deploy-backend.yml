@@ -26,6 +26,9 @@ jobs:
       - name: 📚 Install dependencies
         run: cd saans-api && npm ci
 
+      - name: 🔄 Generate Prisma types
+        run: cd saans-api && npx prisma generate
+
       - name: ✨ Type check
         run: cd saans-api && npm run type-check || true
 

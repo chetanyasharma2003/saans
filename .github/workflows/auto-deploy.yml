@@ -26,6 +26,9 @@ jobs:
           cd saans-web && npm install && cd ..
           cd saans-api && npm install && cd ..
 
+      - name: 🔄 Generate Prisma types
+        run: cd saans-api && npx prisma generate
+
       - name: 🧪 Frontend Type Check
         run: cd saans-web && npm run type-check 2>&1 || true
 

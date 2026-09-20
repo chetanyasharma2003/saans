@@ -44,6 +44,9 @@ jobs:
       - name: Install dependencies (Frontend)
         run: cd saans-web && npm install
 
+      - name: Generate Prisma types (Backend)
+        run: cd saans-api && npx prisma generate
+
       - name: Run TypeScript check (Backend)
         run: cd saans-api && npm run build
 

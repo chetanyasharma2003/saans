@@ -36,6 +36,7 @@ jobs:
         run: |
           cd saans-api
           npm install
+          npx prisma generate
           npm run type-check 2>&1 || true
           npm run lint 2>&1 || true
           echo "✅ Backend checks passed"
