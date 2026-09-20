@@ -13,31 +13,31 @@ datasource db {
 // =============== USER MODELS ===============
 
 model User {
-  id                  String    @id @default(cuid())
-  email               String    @unique
-  password            String
-  name                String
-  role                Role      @default(PATIENT)
-  profileImage        String?
-  phoneNumber         String?   @unique
-  gender              String?
-  dateOfBirth         DateTime?
+  id           String    @id @default(cuid())
+  email        String    @unique
+  password     String
+  name         String
+  role         Role      @default(PATIENT)
+  profileImage String?
+  phoneNumber  String?   @unique
+  gender       String?
+  dateOfBirth  DateTime?
 
   // Subscription
   subscription        Subscription?
   subscriptionEndDate DateTime?
-  isPremium           Boolean   @default(false)
+  isPremium           Boolean       @default(false)
 
   // Profile
-  bio                 String?
-  city                String?
-  state               String?
+  bio   String?
+  city  String?
+  state String?
 
   // Status
-  isVerified          Boolean   @default(false)
-  emailVerified       Boolean   @default(false)
-  isActive            Boolean   @default(true)
-  lastLoginAt         DateTime?
+  isVerified    Boolean   @default(false)
+  emailVerified Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
 
   // Email Verification
   emailVerificationToken  String?
@@ -49,131 +49,174 @@ model User {
   passwordResetExpiry DateTime?
 
   // Two-Factor Authentication
-  twoFactorEnabled    Boolean   @default(false)
-  twoFactorSecret     String?
+  twoFactorEnabled     Boolean               @default(false)
+  twoFactorSecret      String?
   twoFactorBackupCodes TwoFactorBackupCode[]
-  twoFactorSessions   TwoFactorSession[]
+  twoFactorSessions    TwoFactorSession[]
 
   // Relations
-  therapistProfile    Therapist?
-  moodEntries         MoodEntry[]
-  chatSessions        ChatSession[]
-  therapyBookings     TherapyBooking[]
-  crisisIncidents     CrisisIncident[]
-  payments            Payment[]
-  reviews             Review[]
-  notifications       Notification[]
-  emergencyContacts   EmergencyContact[]
+  therapistProfile  Therapist?
+  moodEntries       MoodEntry[]
+  chatSessions      ChatSession[]
+  therapyBookings   TherapyBooking[]
+  crisisIncidents   CrisisIncident[]
+  payments          Payment[]
+  reviews           Review[]
+  notifications     Notification[]
+  emergencyContacts EmergencyContact[]
 
   // Community Relations
   communityGroupMemberships CommunityGroupMember[]
-  communityPosts      CommunityPost[]
-  communityComments   CommunityComment[]
-  communityPostLikes  CommunityPostLike[]
-  communityCommentLikes CommunityCommentLike[]
+  communityPosts            CommunityPost[]
+  communityComments         CommunityComment[]
+  communityPostLikes        CommunityPostLike[]
+  communityCommentLikes     CommunityCommentLike[]
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  // SAANS v2.0 Relations
+  patientStories          PatientStory[]
+  verifiedReviews         PatientReview[]
+  storyComments           StoryComment[]
+  medicalRecord           MedicalRecord?
+  progressMetrics         ProgressMetric[]
+  recoveryMilestones      RecoveryMilestone[]
+  supportGroupMemberships SupportGroupMember[]
+  safetyPlan              SafetyPlan?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([email])
   @@index([role])
 }
 
 model Therapist {
-  id                  String    @id @default(cuid())
-  userId              String    @unique
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // License & Credentials
-  licenseNumber       String    @unique
-  licenseVerifiedAt   DateTime?
-  specialization      String[]
-  certifications      String[]
-  yearsOfExperience   Int
+  // License & Credentials - SAANS v2.0 Enhanced
+  licenseNumber             String    @unique
+  licenseState              String?
+  licenseVerifiedAt         DateTime?
+  licenseVerificationStatus String    @default("PENDING") // PENDING, VERIFIED, EXPIRED
+  specialization            String[]
+  certifications            String[]
+  credentials               String[] // "MD", "PhD", "Board Certified", etc
+  yearsOfExperience         Int
 
-  // Availability
-  availableSlots      AvailabilitySlot[]
+  // Availability & Responsiveness
+  availableSlots    AvailabilitySlot[]
+  timezone          String?
+  responseTimeHours Int                @default(24) // Guaranteed response within X hours
+
+  // Languages Spoken
+  languages String[] @default(["English"])
+
+  // Insurance & Payment
+  acceptedInsurance String[] // ["Aetna", "United", etc]
+  acceptsUninsured  Boolean  @default(true)
+
+  // Practice Information
+  practiceName        String?
+  practiceAddress     String?
+  latitude            Float?
+  longitude           Float?
+  photoUrl            String? // Real therapist photo
+  bio                 String? // Personal introduction
+  approachDescription String? // "I use CBT and mindfulness..."
+
+  // Safety & Verification - SAANS v2.0
+  backgroundCheckVerified Boolean   @default(false)
+  backgroundCheckDate     DateTime?
+  malpracticeInsured      Boolean   @default(true)
 
   // Rating & Reviews
-  averageRating       Float     @default(0)
-  totalReviews        Int       @default(0)
+  averageRating Float @default(0)
+  totalReviews  Int   @default(0)
 
   // Relations
-  therapyBookings     TherapyBooking[]
-  sessions            SessionRecord[]
-  reviews             Review[]
+  therapyBookings          TherapyBooking[]
+  sessions                 SessionRecord[]
+  reviews                  Review[]
+  verifiedReviews          PatientReview[]
+  specialtyTags            TherapistSpecialty[]
+  therapyNotes             TherapyNote[]
+  supportGroupsFacilitated SupportGroup[]
+  safetyPlansMentored      SafetyPlan[]         @relation("SafetyPlanMentor")
 
-  isAvailable         Boolean   @default(true)
-  hourlyRate          Float     @default(500)
+  isAvailable Boolean @default(true)
+  hourlyRate  Float   @default(500)
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([specialization])
+  @@index([licenseVerificationStatus])
+  @@index([latitude, longitude])
 }
 
 // =============== CHAT & MOOD MODELS ===============
 
 model ChatSession {
-  id                  String    @id @default(cuid())
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  type                ChatType
-  therapistId         String?
+  type        ChatType
+  therapistId String?
 
-  messages            ChatMessage[]
+  messages ChatMessage[]
 
-  moodAtStart         String?
-  moodAtEnd           String?
+  moodAtStart String?
+  moodAtEnd   String?
 
-  isActive            Boolean   @default(true)
-  startedAt           DateTime  @default(now())
-  endedAt             DateTime?
+  isActive  Boolean   @default(true)
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
 
   @@index([userId])
   @@index([type])
 }
 
 model ChatMessage {
-  id                  String    @id @default(cuid())
-  conversationId      String
-  chatSession         ChatSession @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  id             String      @id @default(cuid())
+  conversationId String
+  chatSession    ChatSession @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
-  content             String
-  sender              MessageSender
+  content String
+  sender  MessageSender
 
   // AI Analysis
-  detectedMood        String?
-  topics              String[]
-  sentiment           Float?
-  requiresFollowup    Boolean @default(false)
+  detectedMood     String?
+  topics           String[]
+  sentiment        Float?
+  requiresFollowup Boolean  @default(false)
 
-  metadata            Json?
+  metadata Json?
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([conversationId])
   @@index([sender])
 }
 
 model MoodEntry {
-  id                  String    @id @default(cuid())
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  moodScore           Int
-  moodCategory        String
-  symptoms            String[]
+  moodScore    Int
+  moodCategory String
+  symptoms     String[]
 
-  triggers            String[]
-  notes               String?
+  triggers String[]
+  notes    String?
 
-  location            String?
-  weather             String?
+  location String?
+  weather  String?
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
   @@index([moodScore])
@@ -182,29 +225,29 @@ model MoodEntry {
 // =============== THERAPY MODELS ===============
 
 model TherapyBooking {
-  id                  String    @id @default(cuid())
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  therapistId         String
-  therapist           Therapist @relation(fields: [therapistId], references: [id], onDelete: Restrict)
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Restrict)
 
-  scheduledAt         DateTime
-  duration            Int
-  status              BookingStatus @default(SCHEDULED)
+  scheduledAt DateTime
+  duration    Int
+  status      BookingStatus @default(SCHEDULED)
 
-  sessionRecord       SessionRecord?
-  meetingUrl          String?
+  sessionRecord SessionRecord?
+  meetingUrl    String?
 
-  price               Float
-  paymentId           String?
+  price     Float
+  paymentId String?
 
-  notes               String?
-  cancelledAt         DateTime?
-  cancelReason        String?
+  notes        String?
+  cancelledAt  DateTime?
+  cancelReason String?
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([therapistId])
@@ -212,49 +255,49 @@ model TherapyBooking {
 }
 
 model SessionRecord {
-  id                  String    @id @default(cuid())
-  bookingId           String    @unique
-  booking             TherapyBooking @relation(fields: [bookingId], references: [id])
+  id        String         @id @default(cuid())
+  bookingId String         @unique
+  booking   TherapyBooking @relation(fields: [bookingId], references: [id])
 
-  therapistId         String
-  therapist           Therapist @relation(fields: [therapistId], references: [id])
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [id])
 
-  duration            Int
-  status              String
-  topics              String[]
-  exercises           String[]
-  homeAssignments     String[]
+  duration        Int
+  status          String
+  topics          String[]
+  exercises       String[]
+  homeAssignments String[]
 
-  therapistNotes      String?
-  moodBefore          String?
-  moodAfter           String?
-  progressRating      Int?
+  therapistNotes String?
+  moodBefore     String?
+  moodAfter      String?
+  progressRating Int?
 
-  recordingUrl        String?
-  transcriptUrl       String?
+  recordingUrl  String?
+  transcriptUrl String?
 
-  nextSessionDate     DateTime?
+  nextSessionDate DateTime?
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([therapistId])
   @@index([bookingId])
 }
 
 model AvailabilitySlot {
-  id                  String    @id @default(cuid())
-  therapistId         String
-  therapist           Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
 
-  dayOfWeek           Int
-  startTime           String
-  endTime             String
+  dayOfWeek Int
+  startTime String
+  endTime   String
 
-  isBooked            Boolean   @default(false)
-  bookedDate          DateTime?
+  isBooked   Boolean   @default(false)
+  bookedDate DateTime?
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([therapistId, dayOfWeek])
 }
@@ -262,27 +305,27 @@ model AvailabilitySlot {
 // =============== CRISIS MODELS ===============
 
 model CrisisIncident {
-  id                  String    @id @default(cuid())
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  level               CrisisLevel
-  content             String
+  level   CrisisLevel
+  content String
 
-  status              String
-  handledBy           String?
-  responseTime        Int?
-  resolution          String?
+  status       String
+  handledBy    String?
+  responseTime Int?
+  resolution   String?
 
-  requiresFollowup    Boolean   @default(false)
-  followupScheduled   DateTime?
-  followupCompleted   DateTime?
+  requiresFollowup  Boolean   @default(false)
+  followupScheduled DateTime?
+  followupCompleted DateTime?
 
-  emergencyAlertSent  Boolean   @default(false)
-  emergencyContactId  String?
+  emergencyAlertSent Boolean @default(false)
+  emergencyContactId String?
 
-  detectedAt          DateTime  @default(now())
-  resolvedAt          DateTime?
+  detectedAt DateTime  @default(now())
+  resolvedAt DateTime?
 
   @@index([userId, level])
   @@index([status])
@@ -291,52 +334,52 @@ model CrisisIncident {
 // =============== PAYMENT MODELS ===============
 
 model Payment {
-  id                  String    @id @default(cuid())
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  amount              Float
-  currency            String    @default("INR")
+  amount   Float
+  currency String @default("INR")
 
-  subscriptionType    SubscriptionPlan
-  billingCycle        String
+  subscriptionType SubscriptionPlan
+  billingCycle     String
 
-  status              PaymentStatus
-  gateway             String
-  transactionId       String    @unique
+  status        PaymentStatus
+  gateway       String
+  transactionId String        @unique
 
-  refundAmount        Float?
-  refundedAt          DateTime?
+  refundAmount Float?
+  refundedAt   DateTime?
 
-  invoiceUrl          String?
+  invoiceUrl String?
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([status])
 }
 
 model Subscription {
-  id                  String    @id @default(cuid())
-  userId              String    @unique
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  type                SubscriptionPlan
+  type SubscriptionPlan
 
-  startDate           DateTime  @default(now())
-  endDate             DateTime
-  autoRenewal         Boolean   @default(true)
+  startDate   DateTime @default(now())
+  endDate     DateTime
+  autoRenewal Boolean  @default(true)
 
-  features            String[]
+  features String[]
 
-  aiChatLimit         Int       @default(-1)
-  aiChatsUsed         Int       @default(0)
-  therapySessionLimit Int       @default(4)
-  therapySessionsUsed Int       @default(0)
+  aiChatLimit         Int @default(-1)
+  aiChatsUsed         Int @default(0)
+  therapySessionLimit Int @default(4)
+  therapySessionsUsed Int @default(0)
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([type])
 }
@@ -344,21 +387,21 @@ model Subscription {
 // =============== REVIEW & FEEDBACK MODELS ===============
 
 model Review {
-  id                  String    @id @default(cuid())
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  therapistId         String
-  therapist           Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
 
-  rating              Int
-  content             String?
+  rating  Int
+  content String?
 
-  helpful             Int       @default(0)
-  unhelpful           Int       @default(0)
+  helpful   Int @default(0)
+  unhelpful Int @default(0)
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, therapistId])
   @@index([therapistId])
@@ -367,20 +410,20 @@ model Review {
 // =============== NOTIFICATION MODELS ===============
 
 model Notification {
-  id                  String    @id @default(cuid())
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  type                String
-  title               String
-  message             String
+  type    String
+  title   String
+  message String
 
-  isRead              Boolean   @default(false)
-  readAt              DateTime?
+  isRead Boolean   @default(false)
+  readAt DateTime?
 
-  data                Json?
+  data Json?
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([userId, isRead])
   @@index([type])
@@ -389,31 +432,31 @@ model Notification {
 // =============== TWO-FACTOR AUTHENTICATION ===============
 
 model TwoFactorBackupCode {
-  id                  String    @id @default(cuid())
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  code                String    @unique
-  isUsed              Boolean   @default(false)
-  usedAt              DateTime?
+  code   String    @unique
+  isUsed Boolean   @default(false)
+  usedAt DateTime?
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([isUsed])
 }
 
 model TwoFactorSession {
-  id                  String    @id @default(cuid())
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  sessionToken        String    @unique
-  expiresAt           DateTime
-  isUsed              Boolean   @default(false)
-  usedAt              DateTime?
+  sessionToken String    @unique
+  expiresAt    DateTime
+  isUsed       Boolean   @default(false)
+  usedAt       DateTime?
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([sessionToken])
@@ -423,57 +466,57 @@ model TwoFactorSession {
 // =============== EMERGENCY CONTACT ===============
 
 model EmergencyContact {
-  id                  String    @id @default(cuid())
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  name                String
-  relationship        String
-  phoneNumber         String
-  email               String?
+  name         String
+  relationship String
+  phoneNumber  String
+  email        String?
 
-  alertOnCrisis       Boolean   @default(true)
+  alertOnCrisis Boolean @default(true)
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // =============== COMMUNITY MODELS ===============
 
 model CommunityGroup {
-  id                  String    @id @default(cuid())
-  name                String    @unique
-  description         String
-  icon                String    @default("👥")
-  category            String    @default("General")
+  id          String @id @default(cuid())
+  name        String @unique
+  description String
+  icon        String @default("👥")
+  category    String @default("General")
 
   // Statistics
-  memberCount         Int       @default(0)
-  postCount           Int       @default(0)
+  memberCount Int @default(0)
+  postCount   Int @default(0)
 
   // Relations
-  members             CommunityGroupMember[]
-  posts               CommunityPost[]
+  members CommunityGroupMember[]
+  posts   CommunityPost[]
 
-  isActive            Boolean   @default(true)
+  isActive Boolean @default(true)
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([category])
   @@index([isActive])
 }
 
 model CommunityGroupMember {
-  id                  String    @id @default(cuid())
-  groupId             String
-  group               CommunityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  id      String         @id @default(cuid())
+  groupId String
+  group   CommunityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  role                String    @default("MEMBER")
-  joinedAt            DateTime  @default(now())
+  role     String   @default("MEMBER")
+  joinedAt DateTime @default(now())
 
   @@unique([groupId, userId])
   @@index([groupId])
@@ -481,29 +524,29 @@ model CommunityGroupMember {
 }
 
 model CommunityPost {
-  id                  String    @id @default(cuid())
-  groupId             String
-  group               CommunityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  id      String         @id @default(cuid())
+  groupId String
+  group   CommunityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
-  userId              String
-  author              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  author User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  title               String
-  content             String
-  category            String?
+  title    String
+  content  String
+  category String?
 
   // Statistics
-  likeCount           Int       @default(0)
-  commentCount        Int       @default(0)
+  likeCount    Int @default(0)
+  commentCount Int @default(0)
 
   // Relations
-  likes               CommunityPostLike[]
-  comments            CommunityComment[]
+  likes    CommunityPostLike[]
+  comments CommunityComment[]
 
-  isActive            Boolean   @default(true)
+  isActive Boolean @default(true)
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([groupId])
   @@index([userId])
@@ -512,14 +555,14 @@ model CommunityPost {
 }
 
 model CommunityPostLike {
-  id                  String    @id @default(cuid())
-  postId              String
-  post                CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id     String        @id @default(cuid())
+  postId String
+  post   CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([postId, userId])
   @@index([postId])
@@ -527,26 +570,26 @@ model CommunityPostLike {
 }
 
 model CommunityComment {
-  id                  String    @id @default(cuid())
-  postId              String
-  post                CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id     String        @id @default(cuid())
+  postId String
+  post   CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  userId              String
-  author              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  author User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  content             String
-  parentCommentId     String?
-  parentComment       CommunityComment? @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
-  replies             CommunityComment[] @relation("CommentReplies")
+  content         String
+  parentCommentId String?
+  parentComment   CommunityComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies         CommunityComment[] @relation("CommentReplies")
 
   // Statistics
-  likeCount           Int       @default(0)
-  likes               CommunityCommentLike[]
+  likeCount Int                    @default(0)
+  likes     CommunityCommentLike[]
 
-  isActive            Boolean   @default(true)
+  isActive Boolean @default(true)
 
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([postId])
   @@index([userId])
@@ -554,18 +597,484 @@ model CommunityComment {
 }
 
 model CommunityCommentLike {
-  id                  String    @id @default(cuid())
-  commentId           String
-  comment             CommunityComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  id        String           @id @default(cuid())
+  commentId String
+  comment   CommunityComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
-  userId              String
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt           DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([commentId, userId])
   @@index([commentId])
   @@index([userId])
+}
+
+// =============== PATIENT STORIES & TESTIMONIALS ===============
+
+model PatientStory {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Story Content
+  title        String
+  content      String // Full story (markdown supported)
+  condition    String // "Anxiety", "Depression", "OCD", etc
+  startDate    DateTime // When struggle began
+  recoveryDate DateTime? // When got better
+
+  // Media
+  videoUrl String? // Optional video testimony
+  photoUrl String? // Face (optional, privacy-respecting)
+
+  // Milestones
+  milestones StoryMilestone[]
+
+  // Engagement
+  verifiedStory Boolean        @default(false)
+  isPublic      Boolean        @default(false)
+  likes         Int            @default(0)
+  comments      StoryComment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([condition])
+  @@index([isPublic])
+}
+
+model StoryMilestone {
+  id      String       @id @default(cuid())
+  storyId String
+  story   PatientStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  date        DateTime
+  description String // "Started therapy", "First panic attack", "Got job offer"
+  sentiment   Int // -5 to +5 (low to high)
+
+  createdAt DateTime @default(now())
+
+  @@index([storyId])
+}
+
+model StoryComment {
+  id      String       @id @default(cuid())
+  storyId String
+  story   PatientStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([storyId])
+  @@index([userId])
+}
+
+// =============== VERIFIED PATIENT REVIEWS ===============
+
+model PatientReview {
+  id          String    @id @default(cuid())
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  rating          Int // 1-5
+  reviewText      String
+  verifiedPatient Boolean @default(true) // Only verified patients can review
+
+  helpfulCount   Int @default(0)
+  unhelpfulCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([therapistId, userId])
+  @@index([therapistId])
+  @@index([userId])
+}
+
+// =============== THERAPIST SPECIALTIES & TAGS ===============
+
+model TherapistSpecialty {
+  id          String    @id @default(cuid())
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+
+  specialtyName         String // "Depression", "Anxiety", "Trauma", etc
+  yearsOfFocus          Int?
+  certificationsInFocus String[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([therapistId, specialtyName])
+  @@index([therapistId])
+}
+
+// =============== MEDICAL RECORDS (HIPAA-COMPLIANT) ===============
+
+model MedicalRecord {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Current Health
+  currentDiagnoses   String[]
+  currentMedications Medication[]
+
+  // Allergies
+  allergies       String[]
+  allergySeverity String? // MILD, MODERATE, SEVERE
+
+  // History
+  medicationHistory MedicationHistory[]
+  diagnosisHistory  DiagnosisHistory[]
+
+  // Therapy Notes (doctor-created, user-viewable)
+  therapyNotes TherapyNote[]
+
+  // Emergency Info
+  emergencyContacts EmergencyContactMedical[]
+
+  // Consent & Privacy
+  consentLogs ConsentLog[]
+  accessLogs  AccessLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Medication {
+  id       String        @id @default(cuid())
+  recordId String
+  record   MedicalRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+
+  name         String
+  dosage       String
+  frequency    String // "Once daily", "Twice daily", etc
+  startDate    DateTime
+  endDate      DateTime?
+  prescribedBy String?
+  sideEffects  String[]
+  notes        String?
+
+  createdAt DateTime @default(now())
+
+  @@index([recordId])
+}
+
+model MedicationHistory {
+  id       String        @id @default(cuid())
+  recordId String
+  record   MedicalRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+
+  medicationName      String
+  startDate           DateTime
+  endDate             DateTime
+  effectivenessRating Int? // 1-10
+  notes               String?
+
+  createdAt DateTime @default(now())
+
+  @@index([recordId])
+}
+
+model DiagnosisHistory {
+  id       String        @id @default(cuid())
+  recordId String
+  record   MedicalRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+
+  diagnosisName String
+  diagnosisDate DateTime
+  severity      String? // MILD, MODERATE, SEVERE
+  notes         String?
+
+  createdAt DateTime @default(now())
+
+  @@index([recordId])
+}
+
+model TherapyNote {
+  id       String        @id @default(cuid())
+  recordId String
+  record   MedicalRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [id])
+
+  sessionDate   DateTime
+  content       String // Private therapy notes
+  mood          String?
+  progressNotes String?
+  nextSteps     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([recordId])
+  @@index([therapistId])
+}
+
+model EmergencyContactMedical {
+  id       String        @id @default(cuid())
+  recordId String
+  record   MedicalRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+
+  name         String
+  relationship String
+  phoneNumber  String
+  email        String?
+
+  createdAt DateTime @default(now())
+
+  @@index([recordId])
+}
+
+model ConsentLog {
+  id       String        @id @default(cuid())
+  recordId String
+  record   MedicalRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+
+  consentType  String // "DATA_SHARING", "THIRD_PARTY", etc
+  consentGiven Boolean
+  consentDate  DateTime
+  expiryDate   DateTime?
+  notes        String?
+
+  createdAt DateTime @default(now())
+
+  @@index([recordId])
+}
+
+model AccessLog {
+  id       String        @id @default(cuid())
+  recordId String
+  record   MedicalRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+
+  accessedBy   String // User ID who accessed
+  accessType   String // "VIEW", "EDIT", etc
+  accessReason String?
+  accessTime   DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([recordId])
+  @@index([accessTime])
+}
+
+// =============== PROGRESS TRACKING ===============
+
+model ProgressMetric {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  metricName String // "Anxiety Score", "Sleep Quality", "Medication Adherence", etc
+  value      Float
+  date       DateTime @default(now())
+  notes      String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([metricName])
+}
+
+model RecoveryMilestone {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title              String // "First week without panic attack"
+  description        String
+  date               DateTime @default(now())
+  celebrationMessage String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// =============== SUPPORT GROUPS ===============
+
+model SupportGroup {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String
+
+  condition    String // "Anxiety", "Depression", etc
+  memberCount  Int    @default(0)
+  sessionCount Int    @default(0)
+
+  facilitatorId String? // Optional therapist facilitator
+  facilitator   Therapist? @relation(fields: [facilitatorId], references: [id], onDelete: SetNull)
+
+  members  SupportGroupMember[]
+  sessions SupportGroupSession[]
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([condition])
+  @@index([facilitatorId])
+}
+
+model SupportGroupMember {
+  id      String       @id @default(cuid())
+  groupId String
+  group   SupportGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  role     String   @default("MEMBER") // MEMBER, FACILITATOR
+  joinedAt DateTime @default(now())
+
+  @@unique([groupId, userId])
+}
+
+model SupportGroupSession {
+  id      String       @id @default(cuid())
+  groupId String
+  group   SupportGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  scheduledAt DateTime
+  duration    Int // Minutes
+
+  attendeeCount Int     @default(0)
+  recordingUrl  String?
+
+  createdAt DateTime @default(now())
+
+  @@index([groupId])
+}
+
+// =============== WELLNESS RESOURCES ===============
+
+model WellnessResource {
+  id String @id @default(cuid())
+
+  title        String
+  description  String
+  resourceType String // "GUIDE", "MEDITATION", "EXERCISE", "ARTICLE", "BOOK", "PODCAST", "APP"
+  category     String // "Anxiety", "Depression", "Sleep", "Mindfulness", etc
+
+  contentUrl   String?
+  resourceLink String?
+
+  authorName        String?
+  authorCredentials String?
+
+  difficulty    String? // BEGINNER, INTERMEDIATE, ADVANCED
+  estimatedTime Int? // Minutes
+
+  rating      Float?
+  reviewCount Int    @default(0)
+
+  isVerified Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([resourceType])
+  @@index([category])
+}
+
+// =============== CRISIS RESOURCES DATABASE ===============
+
+model CrisisResourceLocation {
+  id String @id @default(cuid())
+
+  name         String
+  resourceType String // "HOTLINE", "CRISIS_CENTER", "HOSPITAL", "SUPPORT_SERVICE"
+  description  String?
+
+  phone      String?
+  textNumber String?
+  website    String?
+  email      String?
+
+  address String?
+  city    String?
+  state   String?
+  country String?
+
+  latitude  Float?
+  longitude Float?
+
+  languages String[] // Languages supported
+
+  availability String? // "24/7", "Business hours", etc
+
+  isVerified Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([resourceType])
+  @@index([country])
+  @@index([latitude, longitude])
+}
+
+// =============== SAFETY PLANNING ===============
+
+model SafetyPlan {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  warningSignsSelf   String[] // Signs user can recognize in themselves
+  warningSignsOthers String[] // Signs others might notice
+
+  copingStrategies            String[] // Things that help internally
+  distressToleranceActivities String[] // Things to do
+
+  contacts SafetyContact[]
+
+  // Safety Steps if in Crisis
+  safePlaces    String[] // Where to go
+  safetyActions String[] // What to do
+
+  therapistId String?
+  therapist   Therapist? @relation("SafetyPlanMentor", fields: [therapistId], references: [id], onDelete: SetNull)
+
+  lastReviewedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model SafetyContact {
+  id     String     @id @default(cuid())
+  planId String
+  plan   SafetyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  name             String
+  phone            String?
+  email            String?
+  relationship     String?
+  notesAboutPerson String?
+  contactType      String  @default("SOCIAL") // SOCIAL, PROFESSIONAL, CRISIS_RESOURCE
+
+  createdAt DateTime @default(now())
+
+  @@index([planId])
 }
 
 // =============== ENUMS ===============
