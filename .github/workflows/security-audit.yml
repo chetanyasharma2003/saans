@@ -27,7 +27,10 @@ jobs:
 
       - name: Check for hardcoded secrets
         run: |
-          if grep -r "password\|secret\|token" saans-api/src --include="*.ts" | grep -v "\.env\|process.env\|import"; then
+          # Look for actual hardcoded credential assignments (not env variable references)
+          # Patterns: password = "...", SECRET_KEY: "...", token: "...", etc
+          if grep -rE '(password|secret|token|apiKey)\s*[:=]\s*["\x27][A-Za-z0-9/+=_-]{8,}["\x27]' saans-api/src saans-web/src --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" | grep -v "process\.env\|import\|//"; then
             echo "⚠️ Potential hardcoded secrets found"
             exit 1
           fi
+          echo "✅ No hardcoded secrets detected"
