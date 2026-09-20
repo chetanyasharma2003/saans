@@ -88,6 +88,9 @@ app.use(
   })
 );
 
+// Explicit OPTIONS handler for all routes (preflight requests)
+app.options('*', cors());
+
 // =============== SECURITY HEADERS ===============
 
 // Comprehensive security headers
