@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_branch }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
@@ -42,8 +42,8 @@ jobs:
 
       - name: 📝 Commit & Push Fixes
         run: |
-          git config user.name "SAANS AutoFix Bot"
-          git config user.email "autofix@saans.com"
+          git config user.name "chetanyasharma2003"
+          git config user.email "chetanyaprakashsharma2003@gmail.com"
 
           if git diff --quiet; then
             echo "✅ No changes needed"
@@ -58,7 +58,7 @@ jobs:
     if: failure()
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 

@@ -14,10 +14,10 @@ jobs:
 
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 📦 Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
@@ -42,10 +42,10 @@ jobs:
           git remote add render https://git.render.com/git/srv-${{ secrets.RENDER_SERVICE_ID }}.git || true
           git push render main:main || git push render develop:main
         env:
-          GIT_AUTHOR_NAME: GitHub Actions
-          GIT_AUTHOR_EMAIL: actions@github.com
-          GIT_COMMITTER_NAME: GitHub Actions
-          GIT_COMMITTER_EMAIL: actions@github.com
+          GIT_AUTHOR_NAME: chetanyasharma2003
+          GIT_AUTHOR_EMAIL: chetanyaprakashsharma2003@gmail.com
+          GIT_COMMITTER_NAME: chetanyasharma2003
+          GIT_COMMITTER_EMAIL: chetanyaprakashsharma2003@gmail.com
         continue-on-error: true
 
       - name: ✅ Deployment triggered
