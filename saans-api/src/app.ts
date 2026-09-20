@@ -73,23 +73,8 @@ app.use(
 // =============== CORS ===============
 
 const corsOrigin = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-  // Development: Allow all localhost/local IPs
-  if (process.env.NODE_ENV !== 'production') {
-    callback(null, true);
-  } else {
-    // Production: Allow Vercel frontend URLs (any preview or production)
-    if (!origin || origin.includes('vercel.app') || origin.includes('localhost')) {
-      callback(null, true);
-    } else {
-      // Also check CORS_ORIGIN env var
-      const corsOriginEnv = process.env.CORS_ORIGIN || '';
-      if (corsOriginEnv && origin.includes(corsOriginEnv)) {
-        callback(null, true);
-      } else {
-        callback(null, true); // Allow by default in production
-      }
-    }
-  }
+  // ALLOW EVERYTHING - emergency mode
+  callback(null, true);
 };
 
 app.use(
