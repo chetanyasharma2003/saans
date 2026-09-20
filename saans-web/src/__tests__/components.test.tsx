@@ -183,7 +183,7 @@ describe('Components', () => {
     it('should render appointment modal', async () => {
       const AppointmentModal = (await import('../components/AppointmentModal')).AppointmentModal;
 
-      renderWithRedux(<AppointmentModal isOpen={true} onClose={() => {}} />, {
+      renderWithRedux(<AppointmentModal therapist={null} onClose={() => {}} />, {
         preloadedState: AUTHENTICATED_STATE,
       });
 
@@ -195,7 +195,7 @@ describe('Components', () => {
       const AppointmentModal = (await import('../components/AppointmentModal')).AppointmentModal;
       const user = userEvent.setup();
 
-      renderWithRedux(<AppointmentModal isOpen={true} onClose={() => {}} />, {
+      renderWithRedux(<AppointmentModal therapist={null} onClose={() => {}} />, {
         preloadedState: AUTHENTICATED_STATE,
       });
 
@@ -213,7 +213,7 @@ describe('Components', () => {
       const AppointmentModal = (await import('../components/AppointmentModal')).AppointmentModal;
       const user = userEvent.setup();
 
-      renderWithRedux(<AppointmentModal isOpen={true} onClose={() => {}} />, {
+      renderWithRedux(<AppointmentModal therapist={null} onClose={() => {}} />, {
         preloadedState: AUTHENTICATED_STATE,
       });
 
@@ -235,7 +235,7 @@ describe('Components', () => {
       const AppointmentModal = (await import('../components/AppointmentModal')).AppointmentModal;
       const user = userEvent.setup();
 
-      renderWithRedux(<AppointmentModal isOpen={true} onClose={mockOnClose} />, {
+      renderWithRedux(<AppointmentModal therapist={null} onClose={mockOnClose} />, {
         preloadedState: AUTHENTICATED_STATE,
       });
 
@@ -251,7 +251,7 @@ describe('Components', () => {
     it('should render payment modal', async () => {
       const PaymentModal = (await import('../components/PaymentModal')).PaymentModal;
 
-      renderWithRedux(<PaymentModal isOpen={true} onClose={() => {}} amount={50000} />, {
+      renderWithRedux(<PaymentModal isOpen={true} onClose={() => {}} planType="PREMIUM" planName="Premium" price={500} features={['Feature 1']} />, {
         preloadedState: AUTHENTICATED_STATE,
       });
 
@@ -262,7 +262,7 @@ describe('Components', () => {
     it('should display amount to be paid', async () => {
       const PaymentModal = (await import('../components/PaymentModal')).PaymentModal;
 
-      renderWithRedux(<PaymentModal isOpen={true} onClose={() => {}} amount={50000} />, {
+      renderWithRedux(<PaymentModal isOpen={true} onClose={() => {}} planType="PREMIUM" planName="Premium" price={500} features={['Feature 1']} />, {
         preloadedState: AUTHENTICATED_STATE,
       });
 
@@ -279,7 +279,7 @@ describe('Components', () => {
       const PaymentModal = (await import('../components/PaymentModal')).PaymentModal;
       const user = userEvent.setup();
 
-      renderWithRedux(<PaymentModal isOpen={true} onClose={() => {}} amount={50000} />, {
+      renderWithRedux(<PaymentModal isOpen={true} onClose={() => {}} planType="PREMIUM" planName="Premium" price={500} features={['Feature 1']} />, {
         preloadedState: AUTHENTICATED_STATE,
       });
 
@@ -304,7 +304,7 @@ describe('Components', () => {
       const PaymentModal = (await import('../components/PaymentModal')).PaymentModal;
       const user = userEvent.setup();
 
-      renderWithRedux(<PaymentModal isOpen={true} onClose={() => {}} amount={50000} />, {
+      renderWithRedux(<PaymentModal isOpen={true} onClose={() => {}} planType="PREMIUM" planName="Premium" price={500} features={['Feature 1']} />, {
         preloadedState: AUTHENTICATED_STATE,
       });
 
@@ -329,7 +329,7 @@ describe('Components', () => {
       const PaymentModal = (await import('../components/PaymentModal')).PaymentModal;
       const user = userEvent.setup();
 
-      renderWithRedux(<PaymentModal isOpen={true} onClose={() => {}} amount={50000} />, {
+      renderWithRedux(<PaymentModal isOpen={true} onClose={() => {}} planType="PREMIUM" planName="Premium" price={500} features={['Feature 1']} />, {
         preloadedState: AUTHENTICATED_STATE,
       });
 
