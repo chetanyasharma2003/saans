@@ -16,21 +16,29 @@ export async function initializeRedis(): Promise<any> {
       database: parseInt(process.env.REDIS_DB || '0', 10),
     });
 
-    client.on('error', (err: any) => {
-      console.error('Redis Client Error:', err);
+    // Suppress error logging for Redis (it's optional)
+    client.on('error', () => {
+      // Silently ignore - Redis is optional
     });
 
     client.on('connect', () => {
       console.log('✅ Redis connected');
     });
 
-    // Connect to Redis
-    await client.connect();
-    redisClient = client;
-    return client;
+    // Connect to Redis with timeout
+    try {
+      await Promise.race([
+        client.connect(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 3000))
+      ]);
+      redisClient = client;
+      return client;
+    } catch {
+      // Redis failed - continue without it
+      return null;
+    }
   } catch (error: any) {
-    console.warn('⚠️ Redis connection failed:', error.message);
-    console.warn('Running without Redis - job scheduling will not work');
+    console.log('⚠️ Redis unavailable - continuing without caching/job scheduling');
     return null;
   }
 }
