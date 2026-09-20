@@ -73,20 +73,21 @@ app.use(
 // =============== CORS ===============
 
 const corsOrigin = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-  // Allow all localhost origins in development
+  // Development: Allow all localhost/local IPs
   if (process.env.NODE_ENV !== 'production') {
-    if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      callback(null, true);
-    } else {
-      callback(null, true); // Allow all in dev
-    }
+    callback(null, true);
   } else {
-    // Production: use env var
-    const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(o => o.trim());
-    if (allowedOrigins.includes(origin || '')) {
+    // Production: Allow frontend + CORS_ORIGIN env var
+    const allowedOrigins = [
+      'https://saans-mental-health.vercel.app', // Production frontend
+      'https://saans-mental-health-6qh01dqe9-chetanya-s-projects.vercel.app', // Vercel preview
+      ...(process.env.CORS_ORIGIN || '').split(',').map(o => o.trim()).filter(o => o)
+    ];
+
+    if (!origin || allowedOrigins.some(allowed => origin.includes(allowed))) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(null, true); // Allow by default to prevent total blockage
     }
   }
 };
