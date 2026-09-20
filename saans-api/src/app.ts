@@ -9,6 +9,10 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import crisisRoutes from './routes/crisisRoutes.js';
 import communityRoutes from './routes/communityRoutes.js';
 import moodRoutes from './routes/moodRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
+import matchingRoutes from './routes/matchingRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
+import subscriptionRoutes from './routes/subscriptionRoutes.js';
 import {
   validateSecurityConfig,
   requestIdMiddleware,
@@ -150,8 +154,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// =============== SWAGGER DOCUMENTATION ===============
-
 // =============== ROUTES ===============
 
 // Health check
@@ -195,6 +197,18 @@ app.use('/api/community', communityRoutes);
 
 // Mood routes
 app.use('/api/moods', moodRoutes);
+
+// Analytics routes
+app.use('/api/analytics', analyticsRoutes);
+
+// Matching routes
+app.use('/api/matching', matchingRoutes);
+
+// Reports routes
+app.use('/api/reports', reportRoutes);
+
+// Subscriptions routes
+app.use('/api/subscriptions', subscriptionRoutes);
 
 // =============== ERROR HANDLING ===============
 
