@@ -17,21 +17,7 @@ import medicalRecordsRoutes from './routes/medicalRecordsRoutes.js';
 import progressTrackingRoutes from './routes/progressTrackingRoutes.js';
 import safetyPlanRoutes from './routes/safetyPlanRoutes.js';
 import wellnessResourcesRoutes from './routes/wellnessResourcesRoutes.js';
-import {
-  validateSecurityConfig,
-  requestIdMiddleware,
-  csrfSessionMiddleware,
-  securityHeadersMiddleware,
-  cspMiddleware,
-  hstsMiddleware,
-  secureCookieMiddleware,
-  permissionsPolicyMiddleware,
-  csrfTokenMiddleware,
-  verifyCsrfMiddleware,
-  rateLimitMiddleware,
-  validateRequestSizeMiddleware,
-  sanitizeInputMiddleware,
-} from './middleware/securityMiddleware.js';
+// Security middleware removed for performance - can be re-added later if needed
 import {
   globalErrorHandler,
   notFoundHandler,
@@ -39,109 +25,25 @@ import {
 
 dotenv.config();
 
-// =============== SECURITY CONFIGURATION ===============
-
-// Validate security config on startup
-validateSecurityConfig();
-
 const app: Express = express();
 
-// =============== REQUEST LOGGING (FIRST!) ===============
+// =============== MINIMAL SETUP - JUST CORS + ROUTES ===============
 
-// Log EVERY request immediately
-app.use((req, res, next) => {
-  console.log(`📍 [${new Date().toISOString()}] ${req.method} ${req.path} from ${req.get('origin')}`);
-  next();
-});
+// Trust proxy
+app.set('trust proxy', 1);
 
-// =============== TRUST PROXY ===============
-
-// Trust X-Forwarded-For when behind reverse proxy (Nginx, Vercel, etc.)
-app.set('trust proxy', process.env.TRUST_PROXY === 'true' ? 1 : false);
-
-// =============== REQUEST TRACKING ===============
-
-// Add request IDs for logging and debugging
-app.use(requestIdMiddleware);
-
-// =============== BODY PARSING & SIZE VALIDATION ===============
-
-// Validate request size before parsing
-app.use(validateRequestSizeMiddleware(Number(process.env.MAX_REQUEST_SIZE_MB) || 10));
-
-// Body parsing with size limits
-app.use(express.json({ limit: process.env.MAX_REQUEST_SIZE_MB || '10mb' }));
-app.use(
-  express.urlencoded({
-    limit: process.env.MAX_REQUEST_SIZE_MB || '10mb',
-    extended: true,
-  })
-);
-
-// =============== CORS ===============
-
-// Allow ALL origins - maximum permissive mode
-app.use(cors({
-  origin: true, // Allow all origins
-  credentials: true,
-}));
-
-// Handle OPTIONS preflight
+// CORS - MAXIMUM PERMISSIVE
+app.use(cors({ origin: true, credentials: true }));
 app.options('*', cors());
 
-// =============== SECURITY HEADERS ===============
+// Body parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// Comprehensive security headers
-app.use(securityHeadersMiddleware);
+// =============== LOGGING ===============
 
-// Content Security Policy
-app.use(cspMiddleware);
-
-// HSTS (HTTP Strict Transport Security)
-app.use(hstsMiddleware);
-
-// Permissions Policy (Feature Policy)
-app.use(permissionsPolicyMiddleware);
-
-// Secure cookie defaults
-app.use(secureCookieMiddleware);
-
-// =============== CSRF PROTECTION ===============
-
-// Initialize CSRF session tracking
-app.use(csrfSessionMiddleware);
-
-// Provide CSRF tokens on GET requests
-app.use(csrfTokenMiddleware);
-
-// =============== INPUT VALIDATION & RATE LIMITING ===============
-
-// Sanitize input to prevent injection attacks
-app.use(sanitizeInputMiddleware);
-
-// Rate limiting - disabled in development, configurable via environment
-if (process.env.NODE_ENV === 'production') {
-  const rateLimitWindowMs = Number(process.env.RATE_LIMIT_WINDOW_MS) || 60000;
-  const rateLimitMaxRequests = Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100;
-  app.use(rateLimitMiddleware(rateLimitWindowMs, rateLimitMaxRequests));
-}
-
-// =============== CSRF VERIFICATION FOR STATE-CHANGING REQUESTS ===============
-
-// Verify CSRF token on POST, PUT, DELETE, PATCH requests
-app.use(verifyCsrfMiddleware);
-
-// =============== REQUEST LOGGING ===============
-
-app.use((req: Request, res: Response, next: NextFunction) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    const requestId = req.id || 'unknown';
-    console.log(
-      `[${new Date().toISOString()}] [${requestId}] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`
-    );
-  });
+app.use((req, res, next) => {
+  console.log(`📍 ${new Date().toISOString()} ${req.method} ${req.path}`);
   next();
 });
 
