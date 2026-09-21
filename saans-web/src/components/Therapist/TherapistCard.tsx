@@ -57,7 +57,7 @@ export const TherapistCard: React.FC<TherapistCardProps> = ({
   const displayRate = hourlyRate || price || 0;
 
   return (
-    <div className="group relative bg-gradient-to-br from-slate-800/40 to-slate-900/40 border border-white/10 rounded-2xl overflow-hidden hover:border-teal-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-teal-500/20 backdrop-blur-xl">
+    <div className="group relative bg-gradient-to-br from-slate-800/40 to-slate-900/40 border border-white/10 rounded-2xl overflow-hidden hover:border-teal-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-teal-500/20 backdrop-blur-xl flex flex-col">
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-teal-500/10 to-cyan-500/10" />
 
       <div className="relative h-48 overflow-hidden bg-gradient-to-b from-teal-600 to-cyan-600">
@@ -154,9 +154,9 @@ export const TherapistCard: React.FC<TherapistCardProps> = ({
 
         <button
           onClick={onViewDetails}
-          className="w-full mt-4 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-semibold py-3 rounded-xl transition-all duration-300 transform group-hover:scale-105 shadow-lg hover:shadow-teal-500/50"
+          className="w-full mt-auto bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-teal-500/50 active:scale-95 md:group-hover:scale-105"
         >
-          View Profile & Book
+          👁️ View Profile & Book
         </button>
       </div>
     </div>
