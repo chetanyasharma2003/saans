@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import CalendarPicker from './CalendarPicker';
+import BookingModal from '../Booking/BookingModal';
+import ReviewsSection from '../Reviews/ReviewsSection';
 
 interface Review {
   id: string;
@@ -39,6 +41,8 @@ export const TherapistDetail: React.FC<TherapistDetailProps> = ({ therapist, onC
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const [bookingStep, setBookingStep] = useState<'info' | 'booking' | 'confirmed'>('info');
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'info' | 'reviews'>('info');
 
   if (!therapist) return null;
 
@@ -135,10 +139,10 @@ export const TherapistDetail: React.FC<TherapistDetailProps> = ({ therapist, onC
               )}
 
               <button
-                onClick={() => setBookingStep('booking')}
+                onClick={() => setShowBookingModal(true)}
                 className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
-                Book a Session
+                🎯 Book a Session
               </button>
             </>
           ) : bookingStep === 'booking' ? (
@@ -270,6 +274,22 @@ export const TherapistDetail: React.FC<TherapistDetailProps> = ({ therapist, onC
           )}
         </div>
       </div>
+
+      {/* Booking Modal */}
+      <BookingModal
+        isOpen={showBookingModal}
+        onClose={() => setShowBookingModal(false)}
+        therapist={
+          therapist
+            ? {
+                id: therapist.id,
+                name: therapist.name,
+                hourlyRate: therapist.hourlyRate || therapist.price || 1500,
+                image: therapist.image,
+              }
+            : null
+        }
+      />
     </div>
   );
 };
