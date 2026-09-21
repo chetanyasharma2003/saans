@@ -37,7 +37,7 @@ jobs:
 
       - name: 🔑 Trigger Render deployment
         run: |
-          curl -X POST https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_DEPLOY_KEY }}
+          curl -X POST https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
         continue-on-error: true
 
       - name: 💾 Push to Render
@@ -60,5 +60,5 @@ jobs:
           echo "Deployment may take 2-5 minutes to complete"
 
       - name: ⚠️ Render secrets check
-        if: ${{ secrets.RENDER_SERVICE_ID == '' || secrets.RENDER_DEPLOY_KEY == '' }}
-        run: echo "⚠️ RENDER_SERVICE_ID or RENDER_DEPLOY_KEY secrets not configured - deployment may have skipped"
+        if: ${{ secrets.RENDER_SERVICE_ID == '' || secrets.RENDER_API_KEY == '' }}
+        run: echo "⚠️ RENDER_SERVICE_ID or RENDER_API_KEY secrets not configured - deployment may have skipped"
