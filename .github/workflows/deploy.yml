@@ -111,7 +111,7 @@ jobs:
       - name: Health check
         run: |
           for i in {1..30}; do
-            if curl -f https://saans-backend-ti8p.onrender.com/api/status 2>/dev/null | grep -q "operational"; then
+            if curl -f https://saans-backend-tt8p.onrender.com/api/status 2>/dev/null | grep -q "operational"; then
               echo "✅ Backend health check passed"
               exit 0
             fi

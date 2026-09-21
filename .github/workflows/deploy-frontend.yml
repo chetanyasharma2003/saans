@@ -34,7 +34,7 @@ jobs:
       - name: 🏗️ Build
         run: cd saans-web && npm run build
         env:
-          VITE_API_URL: https://saans-backend-ti8p.onrender.com
+          VITE_API_URL: https://saans-backend-tt8p.onrender.com
 
       - name: 🚀 Deploy to Vercel
         if: ${{ secrets.VERCEL_TOKEN != '' && secrets.VERCEL_PROJECT_ID != '' }}
@@ -46,7 +46,7 @@ jobs:
           working-directory: saans-web
           production: true
         env:
-          VITE_API_URL: https://saans-backend-ti8p.onrender.com
+          VITE_API_URL: https://saans-backend-tt8p.onrender.com
 
       - name: ⚠️ Vercel secrets missing
         if: ${{ secrets.VERCEL_TOKEN == '' || secrets.VERCEL_PROJECT_ID == '' }}

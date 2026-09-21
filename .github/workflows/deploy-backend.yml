@@ -56,7 +56,7 @@ jobs:
 
       - name: 📝 Deployment info
         run: |
-          echo "Backend URL: https://saans-backend-ti8p.onrender.com"
+          echo "Backend URL: https://saans-backend-tt8p.onrender.com"
           echo "Deployment may take 2-5 minutes to complete"
 
       - name: ⚠️ Render secrets check
