@@ -6,11 +6,11 @@ import TherapistDetail from '../components/Therapist/TherapistDetail';
 
 // Types
 interface Therapist extends TherapistData {
-  reviews: number;
-  price: number;
-  languages: string[];
-  availability: string[];
-  reviews_list: Review[];
+  reviews?: number;
+  price?: number;
+  languages?: string[];
+  availability?: string[];
+  reviews_list?: Review[];
   yearsOfExperience?: number;
 }
 

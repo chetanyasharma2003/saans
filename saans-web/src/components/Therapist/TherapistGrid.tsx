@@ -16,6 +16,13 @@ interface TherapistData {
   hourlyRate?: number;
   price?: number;
   languages?: string[];
+  // New fields for enhanced display
+  responseTimeHours?: number;
+  isVerified?: boolean;
+  licenseVerificationStatus?: string;
+  yearsOfExperience?: number;
+  sessionTypes?: ('video' | 'inperson' | 'phone')[];
+  nextAvailability?: string;
 }
 
 interface TherapistGridProps {

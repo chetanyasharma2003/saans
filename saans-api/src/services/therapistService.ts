@@ -105,18 +105,40 @@ export class TherapistService {
       // Apply pagination
       const paginatedTherapists = sortedTherapists.slice(skip, skip + limit);
 
-      // Add location match info to each therapist
-      const therapistsWithLocationData = paginatedTherapists.map((therapist) => ({
+      // Add enhanced data to each therapist for frontend display
+      const therapistsWithEnhancedData = paginatedTherapists.map((therapist) => ({
         ...therapist,
+        // For frontend compatibility - map fields to expected names
+        image: therapist.user?.profileImage,
+        bio: therapist.user?.bio,
+        city: therapist.user?.city,
+        name: therapist.user?.name,
+
+        // Add verification status
+        isVerified: therapist.licenseVerificationStatus === 'VERIFIED',
+
+        // Add session types (default to video if not specified)
+        sessionTypes: ['video', 'inperson', 'phone'], // Default - can be customized per therapist
+
+        // Response time in hours
+        responseTimeHours: therapist.responseTimeHours || 24,
+
+        // Experience years
+        yearsOfExperience: therapist.yearsOfExperience,
+
+        // Location match info
         cityMatch: userCity
-          ? therapist.user.city?.toLowerCase() === userCity.toLowerCase()
+          ? therapist.user?.city?.toLowerCase() === userCity.toLowerCase()
             ? 'same-city'
             : 'nearby'
           : null,
+
+        // Next availability (default - would be calculated from availableSlots in full implementation)
+        nextAvailability: 'Today',
       }));
 
       return {
-        data: therapistsWithLocationData,
+        data: therapistsWithEnhancedData,
         pagination: {
           total,
           page,

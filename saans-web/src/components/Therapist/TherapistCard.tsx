@@ -18,6 +18,12 @@ interface TherapistCardProps {
   languages?: string[];
   userCity?: string;
   onViewDetails: () => void;
+  // New fields
+  responseTimeHours?: number;
+  isVerified?: boolean;
+  yearsOfExperience?: number;
+  sessionTypes?: ('video' | 'inperson' | 'phone')[];
+  nextAvailability?: string;
 }
 
 export const TherapistCard: React.FC<TherapistCardProps> = ({
@@ -37,6 +43,11 @@ export const TherapistCard: React.FC<TherapistCardProps> = ({
   languages,
   userCity,
   onViewDetails,
+  responseTimeHours,
+  isVerified,
+  yearsOfExperience,
+  sessionTypes,
+  nextAvailability,
 }) => {
   const defaultImage = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop';
   const imageUrl = image || defaultImage;
@@ -71,10 +82,16 @@ export const TherapistCard: React.FC<TherapistCardProps> = ({
           <p className="text-teal-300 text-sm mt-1">{specs[0] || 'General Therapy'}</p>
         </div>
 
-        <div className="flex items-center gap-2 text-gray-400 text-sm">
+        <div className="flex items-center gap-2 text-gray-400 text-sm flex-wrap">
           <span className="flex items-center gap-1">
             ⭐ {displayReviews} reviews
           </span>
+          {isVerified && <span className="text-teal-400 text-xs">✓ Verified</span>}
+          {yearsOfExperience && (
+            <span className="text-gray-400 text-xs">
+              {yearsOfExperience}+ years
+            </span>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -94,6 +111,39 @@ export const TherapistCard: React.FC<TherapistCardProps> = ({
             <span>🌐</span>
             <span className="text-white text-sm">{(languages || [])[0] || 'English'}</span>
           </div>
+        </div>
+
+        {/* Session Types & Response Time */}
+        <div className="pt-3 space-y-2">
+          {sessionTypes && sessionTypes.length > 0 && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {sessionTypes.includes('video') && (
+                <span className="text-xs bg-cyan-500/20 text-cyan-300 px-2 py-1 rounded">
+                  🎥 Video
+                </span>
+              )}
+              {sessionTypes.includes('inperson') && (
+                <span className="text-xs bg-teal-500/20 text-teal-300 px-2 py-1 rounded">
+                  🏥 In-person
+                </span>
+              )}
+              {sessionTypes.includes('phone') && (
+                <span className="text-xs bg-violet-500/20 text-violet-300 px-2 py-1 rounded">
+                  📞 Phone
+                </span>
+              )}
+            </div>
+          )}
+          {responseTimeHours && (
+            <div className="text-xs text-gray-400">
+              ⚡ Responds within {responseTimeHours}h
+            </div>
+          )}
+          {nextAvailability && (
+            <div className="text-xs text-teal-300 font-semibold">
+              ✓ Available {nextAvailability}
+            </div>
+          )}
         </div>
 
         {city && (
