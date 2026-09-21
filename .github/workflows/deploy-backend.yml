@@ -56,5 +56,9 @@ jobs:
 
       - name: 📝 Deployment info
         run: |
-          echo "Backend URL: https://saans-api.onrender.com"
+          echo "Backend URL: https://saans-backend-ti8p.onrender.com"
           echo "Deployment may take 2-5 minutes to complete"
+
+      - name: ⚠️ Render secrets check
+        if: ${{ secrets.RENDER_SERVICE_ID == '' || secrets.RENDER_DEPLOY_KEY == '' }}
+        run: echo "⚠️ RENDER_SERVICE_ID or RENDER_DEPLOY_KEY secrets not configured - deployment may have skipped"

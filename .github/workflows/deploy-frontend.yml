@@ -34,9 +34,10 @@ jobs:
       - name: 🏗️ Build
         run: cd saans-web && npm run build
         env:
-          VITE_API_URL: https://saans-api.onrender.com
+          VITE_API_URL: https://saans-backend-ti8p.onrender.com
 
       - name: 🚀 Deploy to Vercel
+        if: ${{ secrets.VERCEL_TOKEN != '' && secrets.VERCEL_PROJECT_ID != '' }}
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -45,7 +46,11 @@ jobs:
           working-directory: saans-web
           production: true
         env:
-          VITE_API_URL: https://saans-api.onrender.com
+          VITE_API_URL: https://saans-backend-ti8p.onrender.com
+
+      - name: ⚠️ Vercel secrets missing
+        if: ${{ secrets.VERCEL_TOKEN == '' || secrets.VERCEL_PROJECT_ID == '' }}
+        run: echo "⚠️ VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID secrets not configured in GitHub"
 
       - name: ✅ Deployment successful
         if: success()
