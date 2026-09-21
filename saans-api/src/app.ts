@@ -46,6 +46,14 @@ validateSecurityConfig();
 
 const app: Express = express();
 
+// =============== REQUEST LOGGING (FIRST!) ===============
+
+// Log EVERY request immediately
+app.use((req, res, next) => {
+  console.log(`📍 [${new Date().toISOString()}] ${req.method} ${req.path} from ${req.get('origin')}`);
+  next();
+});
+
 // =============== TRUST PROXY ===============
 
 // Trust X-Forwarded-For when behind reverse proxy (Nginx, Vercel, etc.)
@@ -141,11 +149,19 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // Health check
 app.get('/health', (_req, res) => {
+  console.log('✅ /health endpoint called');
   res.status(200).json({
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
   });
+});
+
+// Test endpoint (no middleware)
+app.get('/test', (_req, res) => {
+  console.log('✅ /test endpoint called');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.status(200).json({ message: 'Backend is responding!' });
 });
 
 // API status
