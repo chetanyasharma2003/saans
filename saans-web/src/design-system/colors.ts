@@ -227,7 +227,7 @@ export const darkColors = {
  */
 export function getColor(
   colorName: keyof typeof colors,
-  shade: keyof typeof colors.primary = '500'
+  shade: string = '500'
 ): string {
   return (colors[colorName] as Record<string, string>)[shade] || '#000000';
 }

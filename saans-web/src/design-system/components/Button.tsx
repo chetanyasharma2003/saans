@@ -4,7 +4,7 @@ type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';
 type ButtonType = 'button' | 'submit' | 'reset';
 
-interface ButtonProps
+export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;

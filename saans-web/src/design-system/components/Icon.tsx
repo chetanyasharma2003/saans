@@ -5,7 +5,7 @@ import { LucideIcon } from 'lucide-react';
  * Icon Library Mapping
  * Maps semantic icon names to lucide-react icons
  */
-type IconName =
+export type IconName =
   | 'dashboard' | 'therapist' | 'ai-counselor' | 'crisis' | 'mood' | 'community'
   | 'settings' | 'profile' | 'logout' | 'menu' | 'close' | 'back' | 'forward'
   | 'home' | 'search' | 'heart' | 'star' | 'calendar' | 'clock' | 'phone'

@@ -11,8 +11,8 @@ type TypographyVariant =
 
 type ColorVariant = 'primary' | 'secondary' | 'tertiary' | 'success' | 'error' | 'warning' | 'info';
 
-interface TypographyProps {
-  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div' | 'label';
+export interface TypographyProps {
+  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div' | 'label' | 'code';
   variant?: TypographyVariant;
   color?: ColorVariant | 'inherit';
   align?: 'left' | 'center' | 'right' | 'justify';

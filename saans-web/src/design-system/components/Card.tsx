@@ -5,7 +5,7 @@ import { semanticShadows } from '../shadows';
 type CardVariant = 'flat' | 'outlined' | 'elevated' | 'filled';
 type CardPadding = 'sm' | 'md' | 'lg' | 'none';
 
-interface CardProps {
+export interface CardProps {
   variant?: CardVariant;
   padding?: CardPadding;
   rounded?: boolean;
