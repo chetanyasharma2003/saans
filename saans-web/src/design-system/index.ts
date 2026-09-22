@@ -74,13 +74,3 @@ export {
   type BadgeProps,
 } from './components/Badge';
 
-/**
- * Design System Configuration
- * Export commonly used combinations
- */
-export const DesignSystem = {
-  colors: { ...semanticColors },
-  spacing: { ...semanticSpacing },
-  shadows: { ...semanticShadows },
-  typography: { ...typography },
-};
