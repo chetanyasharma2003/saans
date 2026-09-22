@@ -16,11 +16,13 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
 
   const navItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
-    { path: '/ai-counselor', label: 'AI Counselor', icon: '🤖' },
+    { path: '/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/therapist', label: 'Find Therapist', icon: '👨‍⚕️' },
-    { path: '/mood-tracker', label: 'Mood Tracker', icon: '📊' },
+    { path: '/mood-tracker', label: 'Mood Tracker', icon: '😊' },
     { path: '/community', label: 'Community', icon: '👥' },
+    { path: '/appointments', label: 'Appointments', icon: '📅' },
+    { path: '/resources', label: 'Resources', icon: '📚' },
+    { path: '/stories', label: 'Stories', icon: '⭐' },
     { path: '/crisis', label: 'Crisis Support', icon: '🆘' },
     { path: '/profile', label: 'Profile', icon: '👤' },
   ];

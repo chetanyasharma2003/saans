@@ -12,11 +12,14 @@ import ToastProvider from './components/Toast';
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const RegisterPage = React.lazy(() => import('./pages/RegisterPage'));
-const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));
+const DashboardPage = React.lazy(() => import('./pages/DashboardPage.integrated'));
 const AICounselorPage = React.lazy(() => import('./pages/AICounselorPage'));
-const FindTherapistPage = React.lazy(() => import('./pages/FindTherapistPage'));
-const MoodTrackerPage = React.lazy(() => import('./pages/MoodTrackerPage'));
-const CommunityPage = React.lazy(() => import('./pages/CommunityPage'));
+const FindTherapistPage = React.lazy(() => import('./pages/FindTherapistPage.integrated'));
+const MoodTrackerPage = React.lazy(() => import('./pages/MoodTrackerPage.integrated'));
+const CommunityPage = React.lazy(() => import('./pages/CommunityPage.integrated'));
+const AppointmentPage = React.lazy(() => import('./pages/AppointmentPage.integrated'));
+const WellnessResourcesPage = React.lazy(() => import('./pages/WellnessResourcesPage.integrated'));
+const StoriesPage = React.lazy(() => import('./pages/StoriesPage.integrated'));
 const CrisisSupportPage = React.lazy(() => import('./pages/CrisisSupportPage'));
 const MyProfilePage = React.lazy(() => import('./pages/MyProfilePage'));
 
@@ -143,6 +146,42 @@ function AppRoutes() {
               <React.Suspense fallback={<SuspenseLoading />}>
                 <PageTransition>
                   <CommunityPage />
+                </PageTransition>
+              </React.Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/appointments"
+          element={
+            <ProtectedRoute>
+              <React.Suspense fallback={<SuspenseLoading />}>
+                <PageTransition>
+                  <AppointmentPage />
+                </PageTransition>
+              </React.Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resources"
+          element={
+            <ProtectedRoute>
+              <React.Suspense fallback={<SuspenseLoading />}>
+                <PageTransition>
+                  <WellnessResourcesPage />
+                </PageTransition>
+              </React.Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stories"
+          element={
+            <ProtectedRoute>
+              <React.Suspense fallback={<SuspenseLoading />}>
+                <PageTransition>
+                  <StoriesPage />
                 </PageTransition>
               </React.Suspense>
             </ProtectedRoute>
