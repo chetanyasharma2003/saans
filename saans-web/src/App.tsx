@@ -1,12 +1,28 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Provider, useSelector } from 'react-redux';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store, RootState } from './redux/store';
 import { Navbar } from './components/Navbar';
 import SuspenseLoading from './components/SuspenseLoading';
 import PageTransition from './components/PageTransition';
 import ErrorBoundary from './components/ErrorBoundary';
 import ToastProvider from './components/Toast';
+
+// Create a client for React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10,   // 10 minutes
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: 1,
+    },
+  },
+});
 
 // Pages
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
@@ -221,9 +237,11 @@ export function App() {
   return (
     <ErrorBoundary>
       <Provider store={store}>
-        <ToastProvider>
-          <AppRoutes />
-        </ToastProvider>
+        <QueryClientProvider client={queryClient}>
+          <ToastProvider>
+            <AppRoutes />
+          </ToastProvider>
+        </QueryClientProvider>
       </Provider>
     </ErrorBoundary>
   );
