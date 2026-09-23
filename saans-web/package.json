@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "./node_modules/.bin/vite",
-    "build": "tsc --noEmit --skipLibCheck || true && ./node_modules/.bin/vite build",
-    "preview": "./node_modules/.bin/vite preview",
+    "dev": "node node_modules/vite/bin/vite.js",
+    "build": "tsc --noEmit --skipLibCheck || true && node node_modules/vite/bin/vite.js build",
+    "preview": "node node_modules/vite/bin/vite.js preview",
     "lint": "eslint 'src/**/*.{ts,tsx}' --fix",
     "format": "prettier --write 'src/**/*.{ts,tsx,json,css}'",
     "type-check": "tsc --noEmit",
