@@ -43,7 +43,11 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/saans', {
+    const mongoURI = process.env.MONGODB_URI || process.env.DATABASE_URL || 'mongodb://localhost:27017/saans';
+    if (!mongoURI) {
+      throw new Error('MONGODB_URI or DATABASE_URL environment variable is required');
+    }
+    await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
