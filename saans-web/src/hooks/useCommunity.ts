@@ -37,8 +37,9 @@ export function useCommunityPosts() {
     queryKey: communityKeys.posts,
     queryFn: async () => {
       const response = await apiClient.get('/community/posts');
-      return response.data.data || [];
+      return response.data || [];
     },
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -47,8 +48,9 @@ export function useCommunityPost(id: string) {
     queryKey: [...communityKeys.posts, id],
     queryFn: async () => {
       const response = await apiClient.get(`/community/posts/${id}`);
-      return response.data.data || null;
+      return response.data || null;
     },
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -57,7 +59,7 @@ export function useCreatePost() {
   return useMutation({
     mutationFn: async (data: any) => {
       const response = await apiClient.post('/community/posts', data);
-      return response.data.data;
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: communityKeys.posts });
@@ -70,7 +72,7 @@ export function useLikePost() {
   return useMutation({
     mutationFn: async (postId: string) => {
       const response = await apiClient.post(`/community/posts/${postId}/like`, {});
-      return response.data.data;
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: communityKeys.posts });
@@ -83,8 +85,9 @@ export function useSupportGroups() {
     queryKey: communityKeys.groups,
     queryFn: async () => {
       const response = await apiClient.get('/community/groups');
-      return response.data.data || [];
+      return response.data || [];
     },
+    staleTime: 1000 * 60 * 10,
   });
 }
 
@@ -93,8 +96,9 @@ export function useSupportGroup(id: string) {
     queryKey: [...communityKeys.groups, id],
     queryFn: async () => {
       const response = await apiClient.get(`/community/groups/${id}`);
-      return response.data.data || null;
+      return response.data || null;
     },
+    staleTime: 1000 * 60 * 10,
   });
 }
 

@@ -23,8 +23,9 @@ export function useTherapists(filters?: any) {
     queryKey: [...therapistKeys.list(), filters],
     queryFn: async () => {
       const response = await apiClient.get('/therapists', { params: filters });
-      return response.data.data || [];
+      return response.data || [];
     },
+    staleTime: 1000 * 60 * 10,
   });
 }
 
@@ -33,8 +34,9 @@ export function useTherapist(id: string) {
     queryKey: [...therapistKeys.all, id],
     queryFn: async () => {
       const response = await apiClient.get(`/therapists/${id}`);
-      return response.data.data || null;
+      return response.data || null;
     },
+    staleTime: 1000 * 60 * 10,
   });
 }
 
@@ -42,9 +44,15 @@ export function useRecommendedTherapists() {
   return useQuery({
     queryKey: [...therapistKeys.all, 'recommended'],
     queryFn: async () => {
-      const response = await apiClient.get('/therapists').catch(() => ({ data: { data: [] } }));
-      return response.data.data || [];
+      try {
+        const response = await apiClient.get('/therapists');
+        return response.data || [];
+      } catch (error) {
+        console.error('Failed to fetch recommended therapists:', error);
+        return [];
+      }
     },
+    staleTime: 1000 * 60 * 10,
   });
 }
 
@@ -52,9 +60,15 @@ export function useNearbyTherapists() {
   return useQuery({
     queryKey: [...therapistKeys.all, 'nearby'],
     queryFn: async () => {
-      const response = await apiClient.get('/therapists').catch(() => ({ data: { data: [] } }));
-      return response.data.data || [];
+      try {
+        const response = await apiClient.get('/therapists');
+        return response.data || [];
+      } catch (error) {
+        console.error('Failed to fetch nearby therapists:', error);
+        return [];
+      }
     },
+    staleTime: 1000 * 60 * 10,
   });
 }
 
@@ -62,9 +76,15 @@ export function useTherapistsBySpecialty() {
   return useQuery({
     queryKey: [...therapistKeys.all, 'specialty'],
     queryFn: async () => {
-      const response = await apiClient.get('/therapists').catch(() => ({ data: { data: [] } }));
-      return response.data.data || [];
+      try {
+        const response = await apiClient.get('/therapists');
+        return response.data || [];
+      } catch (error) {
+        console.error('Failed to fetch therapists by specialty:', error);
+        return [];
+      }
     },
+    staleTime: 1000 * 60 * 10,
   });
 }
 

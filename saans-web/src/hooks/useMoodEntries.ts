@@ -27,8 +27,9 @@ export function useMoodEntries() {
     queryKey: moodKeys.list(),
     queryFn: async () => {
       const response = await apiClient.get('/mood');
-      return response.data.data || [];
+      return response.data || [];
     },
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -37,8 +38,9 @@ export function useMoodStats() {
     queryKey: moodKeys.stats(),
     queryFn: async () => {
       const response = await apiClient.get('/mood/stats');
-      return response.data.data || {};
+      return response.data || {};
     },
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -47,8 +49,9 @@ export function useRecentMood() {
     queryKey: [...moodKeys.all, 'recent'],
     queryFn: async () => {
       const response = await apiClient.get('/mood/recent');
-      return response.data.data || null;
+      return response.data || null;
     },
+    staleTime: 1000 * 60 * 2,
   });
 }
 
@@ -57,8 +60,9 @@ export function useMoodEntry(id: string) {
     queryKey: [...moodKeys.all, id],
     queryFn: async () => {
       const response = await apiClient.get(`/mood/${id}`);
-      return response.data.data || null;
+      return response.data || null;
     },
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -67,7 +71,7 @@ export function useLogMood() {
   return useMutation({
     mutationFn: async (data: any) => {
       const response = await apiClient.post('/mood', data);
-      return response.data.data;
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: moodKeys.all });
@@ -80,7 +84,7 @@ export function useUpdateMood() {
   return useMutation({
     mutationFn: async ({ id, ...data }: any) => {
       const response = await apiClient.put(`/mood/${id}`, data);
-      return response.data.data;
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: moodKeys.all });

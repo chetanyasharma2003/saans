@@ -13,12 +13,12 @@ router.get('/', authenticateToken, async (req, res) => {
     if (month) {
       const startDate = new Date(month + '-01');
       const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
-      query.date = { $gte: startDate, $lte: endDate };
+      query.scheduledAt = { $gte: startDate, $lte: endDate };
     }
 
     const appointments = await Appointment.find(query)
       .populate('therapistId', 'firstName lastName specialty rating')
-      .sort({ date: -1 });
+      .sort({ scheduledAt: -1 });
 
     res.json({
       success: true,
@@ -36,11 +36,11 @@ router.get('/upcoming', authenticateToken, async (req, res) => {
     const now = new Date();
     const appointments = await Appointment.find({
       userId: req.userId,
-      date: { $gte: now },
+      scheduledAt: { $gte: now },
       status: { $ne: 'cancelled' },
     })
       .populate('therapistId', 'firstName lastName specialty rating')
-      .sort({ date: 1 })
+      .sort({ scheduledAt: 1 })
       .limit(5);
 
     res.json({
@@ -58,11 +58,11 @@ router.get('/next', authenticateToken, async (req, res) => {
     const now = new Date();
     const appointment = await Appointment.findOne({
       userId: req.userId,
-      date: { $gte: now },
+      scheduledAt: { $gte: now },
       status: { $ne: 'cancelled' },
     })
       .populate('therapistId', 'firstName lastName specialty rating')
-      .sort({ date: 1 });
+      .sort({ scheduledAt: 1 });
 
     res.json({
       success: true,
@@ -97,19 +97,48 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // ============ CREATE APPOINTMENT ============
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { therapistId, date, time, type, price, notes } = req.body;
+    const { therapistId, scheduledAt, type, price, notes } = req.body;
 
-    if (!therapistId || !date || !time) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!therapistId || !scheduledAt) {
+      return res.status(400).json({ error: 'Missing required fields: therapistId, scheduledAt' });
+    }
+
+    // Validate therapist exists and is active
+    const User = require('../models/User');
+    const therapist = await User.findOne({
+      _id: therapistId,
+      role: 'therapist',
+      status: 'active'
+    }).select('_id therapistProfile');
+
+    if (!therapist) {
+      return res.status(404).json({ error: 'Therapist not found or not available' });
+    }
+
+    const appointmentDate = new Date(scheduledAt);
+
+    // Validate appointment is in future
+    if (appointmentDate <= new Date()) {
+      return res.status(400).json({ error: 'Appointment must be scheduled for a future date' });
+    }
+
+    // Check for double-booking
+    const existingAppointment = await Appointment.findOne({
+      therapistId,
+      scheduledAt: appointmentDate,
+      status: { $ne: 'cancelled' }
+    });
+
+    if (existingAppointment) {
+      return res.status(409).json({ error: 'Therapist already booked at this time' });
     }
 
     const appointment = new Appointment({
       userId: req.userId,
       therapistId,
-      date: new Date(date),
-      time,
+      scheduledAt: appointmentDate,
       type: type || 'video',
-      price: price || 500,
+      price: price || therapist.therapistProfile?.price || 500,
       notes,
       status: 'scheduled',
     });
@@ -119,7 +148,7 @@ router.post('/', authenticateToken, async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Appointment created',
+      message: 'Appointment created successfully',
       data: appointment,
     });
   } catch (error) {
@@ -139,11 +168,34 @@ router.put('/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Appointment not found' });
     }
 
-    const { date, time, status, notes, feedback } = req.body;
+    const { scheduledAt, status, notes, feedback } = req.body;
 
-    if (date) appointment.date = new Date(date);
-    if (time) appointment.time = time;
-    if (status) appointment.status = status;
+    if (scheduledAt) {
+      const newDate = new Date(scheduledAt);
+      if (newDate <= new Date()) {
+        return res.status(400).json({ error: 'Appointment must be in future' });
+      }
+      appointment.scheduledAt = newDate;
+    }
+
+    if (status) {
+      // Validate status transitions
+      const validTransitions = {
+        'scheduled': ['confirmed', 'cancelled'],
+        'confirmed': ['in-progress', 'cancelled'],
+        'in-progress': ['completed'],
+        'completed': [],
+        'cancelled': [],
+        'no-show': []
+      };
+
+      if (validTransitions[appointment.status] && !validTransitions[appointment.status].includes(status)) {
+        return res.status(400).json({ error: `Cannot transition from ${appointment.status} to ${status}` });
+      }
+
+      appointment.status = status;
+    }
+
     if (notes) appointment.notes = notes;
     if (feedback) appointment.feedback = feedback;
 
@@ -159,33 +211,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// ============ CANCEL APPOINTMENT (DELETE) ============
-router.delete('/:id', authenticateToken, async (req, res) => {
-  try {
-    const appointment = await Appointment.findOne({
-      _id: req.params.id,
-      userId: req.userId,
-    });
-
-    if (!appointment) {
-      return res.status(404).json({ error: 'Appointment not found' });
-    }
-
-    appointment.status = 'cancelled';
-    appointment.cancellationReason = req.body.reason || 'User cancelled';
-    await appointment.save();
-
-    res.json({
-      success: true,
-      message: 'Appointment cancelled',
-      data: appointment,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// ============ CANCEL APPOINTMENT (POST) ============
+// ============ CANCEL APPOINTMENT ============
 router.post('/:id/cancel', authenticateToken, async (req, res) => {
   try {
     const appointment = await Appointment.findOne({
@@ -214,10 +240,10 @@ router.post('/:id/cancel', authenticateToken, async (req, res) => {
 // ============ RESCHEDULE APPOINTMENT ============
 router.post('/:id/reschedule', authenticateToken, async (req, res) => {
   try {
-    const { date, time } = req.body;
+    const { scheduledAt } = req.body;
 
-    if (!date || !time) {
-      return res.status(400).json({ error: 'Date and time required' });
+    if (!scheduledAt) {
+      return res.status(400).json({ error: 'scheduledAt is required' });
     }
 
     const appointment = await Appointment.findOne({
@@ -229,14 +255,32 @@ router.post('/:id/reschedule', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Appointment not found' });
     }
 
-    appointment.date = new Date(date);
-    appointment.time = time;
+    const newDate = new Date(scheduledAt);
+
+    // Validate new date is in future
+    if (newDate <= new Date()) {
+      return res.status(400).json({ error: 'Appointment must be scheduled for a future date' });
+    }
+
+    // Check for double-booking at new time
+    const existingAppointment = await Appointment.findOne({
+      therapistId: appointment.therapistId,
+      scheduledAt: newDate,
+      _id: { $ne: appointment._id },
+      status: { $ne: 'cancelled' }
+    });
+
+    if (existingAppointment) {
+      return res.status(409).json({ error: 'Therapist already booked at this time' });
+    }
+
+    appointment.scheduledAt = newDate;
     appointment.status = 'scheduled';
     await appointment.save();
 
     res.json({
       success: true,
-      message: 'Appointment rescheduled',
+      message: 'Appointment rescheduled successfully',
       data: appointment,
     });
   } catch (error) {

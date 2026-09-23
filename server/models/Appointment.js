@@ -1,12 +1,21 @@
 const mongoose = require('mongoose');
 
 const appointmentSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  therapistId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  therapistId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
 
-  // Schedule
-  date: { type: Date, required: true },
-  time: { type: String, required: true },
+  // Schedule - Combined date and time into single field
+  scheduledAt: {
+    type: Date,
+    required: true,
+    index: true,
+    validate: {
+      validator: function(v) {
+        return v > new Date();
+      },
+      message: 'Appointment must be scheduled for a future date and time'
+    }
+  },
   duration: { type: Number, default: 60, enum: [30, 45, 60, 90] },
   timezone: { type: String, default: 'Asia/Kolkata' },
 
@@ -35,10 +44,6 @@ const appointmentSchema = new mongoose.Schema({
   // Video Call
   meetingLink: String,
   recordingUrl: String,
-
-  // Timestamps
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
 // Index for queries

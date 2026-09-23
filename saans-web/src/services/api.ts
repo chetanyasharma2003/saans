@@ -3,7 +3,18 @@
  * Centralized API client for all HTTP requests
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+class ApiError extends Error {
+  constructor(
+    message: string,
+    public statusCode: number,
+    public responseData?: any
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 interface ApiClientConfig {
   baseURL: string;
@@ -31,6 +42,9 @@ class ApiClient {
     const url = `${this.baseURL}${endpoint}`;
     const token = this.getAuthToken();
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
     const options: RequestInit = {
       method,
       headers: {
@@ -39,19 +53,79 @@ class ApiClient {
         ...(data && { 'Content-Type': 'application/json' }),
       },
       ...(data && { body: JSON.stringify(data) }),
+      signal: controller.signal,
     };
 
     try {
-      const response = await fetch(url, options);
+      let response = await fetch(url, options);
+
+      // Handle 401 Unauthorized - try to refresh token
+      if (response.status === 401) {
+        const isRefreshed = await this.refreshToken();
+        if (isRefreshed) {
+          // Retry with new token
+          const newToken = this.getAuthToken();
+          options.headers = {
+            ...options.headers,
+            ...(newToken && { Authorization: `Bearer ${newToken}` }),
+          };
+          response = await fetch(url, options);
+        } else {
+          // Refresh failed, redirect to login
+          localStorage.removeItem('accessToken');
+          window.location.href = '/login';
+          throw new Error('Session expired. Please login again.');
+        }
+      }
 
       if (!response.ok) {
-        throw new Error(`API Error: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          errorData.error || response.statusText,
+          response.status,
+          errorData
+        );
+      }
+
+      // Handle 204 No Content
+      if (response.status === 204) {
+        return null as unknown as T;
       }
 
       return await response.json() as T;
     } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        console.error(`API request timeout: ${method} ${endpoint}`);
+        throw new Error('Request timeout - server not responding');
+      }
       console.error(`API request failed: ${method} ${endpoint}`, error);
       throw error;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  private async refreshToken(): Promise<boolean> {
+    try {
+      const token = this.getAuthToken();
+      if (!token) return false;
+
+      const response = await fetch(`${this.baseURL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) return false;
+
+      const data = await response.json();
+      localStorage.setItem('accessToken', data.token);
+      return true;
+    } catch (error) {
+      console.error('Token refresh failed', error);
+      return false;
     }
   }
 
