@@ -12,7 +12,7 @@
     "prettier": "^3.9.6"
   },
   "scripts": {
-    "build": "cd saans-web && npm ci --legacy-peer-deps --production=false && npm run build",
+    "build": "cd saans-web && npm ci --legacy-peer-deps --production=false && npm run build && cd ../server && npm ci --legacy-peer-deps",
     "start": "cd server && npm start",
     "dev": "concurrently \"cd server && npm run dev\" \"cd saans-web && npm run dev\"",
     "lint": "eslint 'saans-web/src/**/*.{ts,tsx}' --fix",
