@@ -99,16 +99,14 @@ export function useMoodStats(days: number = 30) {
   return useQuery({
     queryKey: moodKeys.stats(),
     queryFn: async () => {
-        const response = await apiClient.get<{
-          success: boolean;
-          data: MoodStats;
-        }>('/mood/stats', { params: { days } });
-        if (!response.data.success) {
-          throw new Error('Failed to fetch mood statistics');
-        }
-        return response.data.data;
-      } catch (error) {
+      const response = await apiClient.get<{
+        success: boolean;
+        data: MoodStats;
+      }>('/mood/stats', { params: { days } });
+      if (!response.data.success) {
+        throw new Error('Failed to fetch mood statistics');
       }
+      return response.data.data;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
   });

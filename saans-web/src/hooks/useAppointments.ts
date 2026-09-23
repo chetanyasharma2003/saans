@@ -66,15 +66,13 @@ export function useNextAppointment() {
   return useQuery({
     queryKey: appointmentKeys.next(),
     queryFn: async () => {
-        const response = await apiClient.get<{ success: boolean; data: Appointment | null }>(
-          '/appointments/next'
-        );
-        if (!response.data.success) {
-          throw new Error('Failed to fetch next appointment');
-        }
-        return response.data.data;
-      } catch (error) {
+      const response = await apiClient.get<{ success: boolean; data: Appointment | null }>(
+        '/appointments/next'
+      );
+      if (!response.data.success) {
+        throw new Error('Failed to fetch next appointment');
       }
+      return response.data.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
