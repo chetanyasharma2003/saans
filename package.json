@@ -12,8 +12,8 @@
     "prettier": "^3.9.6"
   },
   "scripts": {
-    "install": "cd saans-web && npm install && cd ..",
-    "build": "cd saans-web && npm run build && cd ..",
+    "install": "npm install --legacy-peer-deps && cd saans-web && npm install --legacy-peer-deps && cd ../server && npm install && cd ..",
+    "build": "cd saans-web && npm install && npm run build && cd ..",
     "start": "cd server && npm start",
     "dev": "concurrently \"cd server && npm run dev\" \"cd saans-web && npm run dev\"",
     "lint": "eslint 'saans-web/src/**/*.{ts,tsx}' --fix",
