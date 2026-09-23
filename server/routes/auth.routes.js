@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
+const { ValidationError, NotFoundError, UnauthorizedError, ConflictError } = require('../utils/AppError');
 
 // Validate JWT_SECRET is set
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -28,12 +29,12 @@ router.post('/register', [
     .matches(/[!@#$%^&*(),.?":{}|<>]/).withMessage('Password must contain at least one special character (!@#$%^&*)'),
   body('firstName').notEmpty().trim(),
   body('lastName').notEmpty().trim(),
-], async (req, res) => {
+], async (req, res, next) => {
   try {
     // Validate
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      throw new ValidationError('Registration validation failed', errors.array());
     }
 
     const { email, password, firstName, lastName } = req.body;
@@ -41,7 +42,7 @@ router.post('/register', [
     // Check if user exists
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(409).json({ error: 'Email already registered' });
+      throw new ConflictError('Email already registered');
     }
 
     // Create user
@@ -64,7 +65,7 @@ router.post('/register', [
       user: user.toJSON(),
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
 
@@ -72,12 +73,12 @@ router.post('/register', [
 router.post('/login', [
   body('email').isEmail().normalizeEmail(),
   body('password').notEmpty(),
-], async (req, res) => {
+], async (req, res, next) => {
   try {
     // Validate
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      throw new ValidationError('Login validation failed', errors.array());
     }
 
     const { email, password } = req.body;
@@ -85,13 +86,13 @@ router.post('/login', [
     // Find user
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      throw new UnauthorizedError('Invalid email or password');
     }
 
     // Check password
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      throw new UnauthorizedError('Invalid email or password');
     }
 
     // Update last login
@@ -108,17 +109,17 @@ router.post('/login', [
       user: user.toJSON(),
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
 
 // ============ REFRESH TOKEN ============
-router.post('/refresh', async (req, res) => {
+router.post('/refresh', async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
-      return res.status(401).json({ error: 'No token provided' });
+      throw new UnauthorizedError('No token provided');
     }
 
     // Verify token (allow expired for refresh)
@@ -126,13 +127,13 @@ router.post('/refresh', async (req, res) => {
     try {
       decoded = jwt.verify(token, JWT_SECRET, { ignoreExpiration: true });
     } catch (error) {
-      return res.status(401).json({ error: 'Invalid token signature' });
+      throw new UnauthorizedError('Invalid token signature');
     }
 
     // Verify user still exists and is active
     const user = await User.findOne({ _id: decoded.userId, status: 'active' }).select('_id status');
     if (!user) {
-      return res.status(401).json({ error: 'User no longer active' });
+      throw new UnauthorizedError('User no longer active');
     }
 
     // Generate new token
@@ -144,17 +145,17 @@ router.post('/refresh', async (req, res) => {
       token: newToken,
     });
   } catch (error) {
-    res.status(401).json({ error: 'Token refresh failed' });
+    next(error);
   }
 });
 
 // ============ VERIFY TOKEN ============
-router.get('/verify', (req, res) => {
+router.get('/verify', (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
-      return res.status(401).json({ error: 'No token provided' });
+      throw new UnauthorizedError('No token provided');
     }
 
     // Verify token
@@ -166,10 +167,7 @@ router.get('/verify', (req, res) => {
       userId: decoded.userId,
     });
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
-    }
-    res.status(401).json({ error: 'Invalid token' });
+    next(error);
   }
 });
 

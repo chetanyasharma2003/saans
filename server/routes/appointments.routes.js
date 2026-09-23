@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Appointment = require('../models/Appointment');
 const { authenticateToken } = require('../middleware/auth');
+const { ValidationError, NotFoundError, UnauthorizedError, ConflictError } = require('../utils/AppError');
+const User = require('../models/User');
 
 // ============ GET ALL APPOINTMENTS ============
 router.get('/', authenticateToken, async (req, res) => {
@@ -26,7 +28,7 @@ router.get('/', authenticateToken, async (req, res) => {
       total: appointments.length,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
 
@@ -48,7 +50,7 @@ router.get('/upcoming', authenticateToken, async (req, res) => {
       data: appointments,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
 
@@ -69,12 +71,12 @@ router.get('/next', authenticateToken, async (req, res) => {
       data: appointment,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
 
 // ============ GET SINGLE APPOINTMENT ============
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res, next) => {
   try {
     const appointment = await Appointment.findOne({
       _id: req.params.id,
@@ -82,7 +84,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
     }).populate('therapistId', 'firstName lastName specialty rating');
 
     if (!appointment) {
-      return res.status(404).json({ error: 'Appointment not found' });
+      throw new NotFoundError('Appointment');
     }
 
     res.json({
@@ -90,21 +92,20 @@ router.get('/:id', authenticateToken, async (req, res) => {
       data: appointment,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
 
 // ============ CREATE APPOINTMENT ============
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, async (req, res, next) => {
   try {
     const { therapistId, scheduledAt, type, price, notes } = req.body;
 
     if (!therapistId || !scheduledAt) {
-      return res.status(400).json({ error: 'Missing required fields: therapistId, scheduledAt' });
+      throw new ValidationError('Missing required fields: therapistId, scheduledAt');
     }
 
     // Validate therapist exists and is active
-    const User = require('../models/User');
     const therapist = await User.findOne({
       _id: therapistId,
       role: 'therapist',
@@ -112,14 +113,14 @@ router.post('/', authenticateToken, async (req, res) => {
     }).select('_id therapistProfile');
 
     if (!therapist) {
-      return res.status(404).json({ error: 'Therapist not found or not available' });
+      throw new NotFoundError('Therapist');
     }
 
     const appointmentDate = new Date(scheduledAt);
 
     // Validate appointment is in future
     if (appointmentDate <= new Date()) {
-      return res.status(400).json({ error: 'Appointment must be scheduled for a future date' });
+      throw new ValidationError('Appointment must be scheduled for a future date');
     }
 
     // Check for double-booking
@@ -130,7 +131,7 @@ router.post('/', authenticateToken, async (req, res) => {
     });
 
     if (existingAppointment) {
-      return res.status(409).json({ error: 'Therapist already booked at this time' });
+      throw new ConflictError('Therapist already booked at this time');
     }
 
     const appointment = new Appointment({
@@ -152,7 +153,7 @@ router.post('/', authenticateToken, async (req, res) => {
       data: appointment,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
 
@@ -207,7 +208,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
       data: appointment,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
 
@@ -233,7 +234,7 @@ router.post('/:id/cancel', authenticateToken, async (req, res) => {
       data: appointment,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
 
@@ -284,7 +285,7 @@ router.post('/:id/reschedule', authenticateToken, async (req, res) => {
       data: appointment,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
 

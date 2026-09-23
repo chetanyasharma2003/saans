@@ -10,12 +10,17 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
+const requestIdMiddleware = require('./middleware/requestId');
+const errorHandler = require('./middleware/errorHandler');
 
 // Initialize Express App
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
 // ============ MIDDLEWARE ============
+
+// Request ID tracking (should be first)
+app.use(requestIdMiddleware);
 
 // Security
 app.use(helmet());
@@ -66,17 +71,17 @@ app.use('/api/community', require('./routes/community.routes'));
 
 // 404 Handler
 app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
-});
-
-// Error Handler
-app.use((err, req, res, next) => {
-  console.error('❌ Error:', err.message);
-  res.status(err.status || 500).json({
-    error: err.message || 'Internal Server Error',
-    status: err.status || 500,
+  res.status(404).json({
+    success: false,
+    error: 'Route not found',
+    code: 'NOT_FOUND',
+    statusCode: 404,
+    timestamp: new Date().toISOString(),
   });
 });
+
+// Global Error Handler (must be last)
+app.use(errorHandler);
 
 // ============ SERVER START ============
 
