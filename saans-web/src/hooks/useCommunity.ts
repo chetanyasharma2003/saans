@@ -64,7 +64,6 @@ export function useCommunityPosts(filters?: {
   return useQuery({
     queryKey: [...communityKeys.posts(), filters],
     queryFn: async () => {
-      try {
         const response = await apiClient.get<{
           success: boolean;
           data: CommunityPost[];
@@ -75,8 +74,6 @@ export function useCommunityPosts(filters?: {
         }
         return response.data.data;
       } catch (error) {
-        console.warn('Using mock community posts (API unavailable)');
-        return MOCK_COMMUNITY_POSTS;
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -158,7 +155,6 @@ export function useSupportGroups(filters?: { category?: string }) {
   return useQuery({
     queryKey: [...communityKeys.groups(), filters],
     queryFn: async () => {
-      try {
         const response = await apiClient.get<{
           success: boolean;
           data: SupportGroup[];
@@ -168,8 +164,6 @@ export function useSupportGroups(filters?: { category?: string }) {
         }
         return response.data.data;
       } catch (error) {
-        console.warn('Using mock support groups (API unavailable)');
-        return MOCK_SUPPORT_GROUPS;
       }
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
@@ -247,7 +241,6 @@ export function useActivityFeed(limit: number = 20) {
   return useQuery({
     queryKey: communityKeys.activity(),
     queryFn: async () => {
-      try {
         const response = await apiClient.get<{
           success: boolean;
           data: ActivityFeed[];
@@ -257,8 +250,6 @@ export function useActivityFeed(limit: number = 20) {
         }
         return response.data.data;
       } catch (error) {
-        console.warn('Using mock activity feed (API unavailable)');
-        return MOCK_ACTIVITY;
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes

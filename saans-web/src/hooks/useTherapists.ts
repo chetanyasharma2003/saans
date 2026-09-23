@@ -70,7 +70,6 @@ export function useTherapists(filters?: TherapistFilters) {
   return useQuery({
     queryKey: therapistKeys.list(filters),
     queryFn: async () => {
-      try {
         const response = await apiClient.get<TherapistResponse>(
           '/therapists',
           { params: filters }
@@ -80,8 +79,6 @@ export function useTherapists(filters?: TherapistFilters) {
         }
         return response.data.data;
       } catch (error) {
-        console.warn('Using mock therapists (API unavailable)');
-        return MOCK_THERAPISTS;
       }
     },
     staleTime: 10 * 60 * 1000, // 10 minutes

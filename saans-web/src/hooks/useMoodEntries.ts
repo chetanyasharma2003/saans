@@ -8,7 +8,6 @@ import { apiClient } from '../services/api';
 import { MOCK_MOOD_ENTRIES, MOCK_MOOD_STATS } from '../data/mockData';
 
 // Types
-export interface MoodEntry {
   id: string;
   date: string;
   time: string;
@@ -59,17 +58,13 @@ export function useMoodEntries(filters?: {
   return useQuery({
     queryKey: moodKeys.list(filters),
     queryFn: async () => {
-      try {
-        const response = await apiClient.get<MoodResponse>('/mood-entries', {
+        const response = await apiClient.get<MoodResponse>('/mood', {
           params: filters,
         });
         if (!response.data.success) {
           throw new Error(response.data.message || 'Failed to fetch mood entries');
         }
         return response.data.data;
-      } catch (error) {
-        console.warn('Using mock mood entries (API unavailable)');
-        return MOCK_MOOD_ENTRIES;
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -83,18 +78,14 @@ export function useRecentMood() {
   return useQuery({
     queryKey: moodKeys.recent(),
     queryFn: async () => {
-      try {
         const response = await apiClient.get<{
           success: boolean;
           data: MoodEntry | null;
-        }>('/mood-entries/recent');
+        }>('/mood/recent');
         if (!response.data.success) {
           throw new Error('Failed to fetch recent mood');
         }
         return response.data.data;
-      } catch (error) {
-        console.warn('Using mock recent mood (API unavailable)');
-        return MOCK_MOOD_ENTRIES[0] || null;
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -108,18 +99,15 @@ export function useMoodStats(days: number = 30) {
   return useQuery({
     queryKey: moodKeys.stats(),
     queryFn: async () => {
-      try {
         const response = await apiClient.get<{
           success: boolean;
           data: MoodStats;
-        }>('/mood-entries/stats', { params: { days } });
+        }>('/mood/stats', { params: { days } });
         if (!response.data.success) {
           throw new Error('Failed to fetch mood statistics');
         }
         return response.data.data;
       } catch (error) {
-        console.warn('Using mock mood stats (API unavailable)');
-        return MOCK_MOOD_STATS;
       }
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
@@ -136,7 +124,7 @@ export function useMoodEntry(id: string) {
       const response = await apiClient.get<{
         success: boolean;
         data: MoodEntry;
-      }>(`/mood-entries/${id}`);
+      }>(`/mood/${id}`);
       if (!response.data.success) {
         throw new Error('Failed to fetch mood entry');
       }
@@ -157,7 +145,7 @@ export function useLogMood() {
       const response = await apiClient.post<{
         success: boolean;
         data: MoodEntry;
-      }>('/mood-entries', data);
+      }>('/mood', data);
       if (!response.data.success) {
         throw new Error(response.data.message || 'Failed to log mood');
       }
@@ -185,7 +173,7 @@ export function useUpdateMood() {
       const response = await apiClient.put<{
         success: boolean;
         data: MoodEntry;
-      }>(`/mood-entries/${id}`, data);
+      }>(`/mood/${id}`, data);
       if (!response.data.success) {
         throw new Error(response.data.message || 'Failed to update mood');
       }
@@ -207,7 +195,7 @@ export function useDeleteMood() {
   return useMutation({
     mutationFn: async (moodId: string) => {
       const response = await apiClient.delete<{ success: boolean }>(
-        `/mood-entries/${moodId}`
+        `/mood/${moodId}`
       );
       if (!response.data.success) {
         throw new Error('Failed to delete mood entry');
@@ -229,7 +217,7 @@ export function useMoodRange(startDate: string, endDate: string) {
     queryKey: moodKeys.list({ startDate, endDate }),
     queryFn: async () => {
       const response = await apiClient.get<MoodResponse>(
-        '/mood-entries/range',
+        '/mood/range',
         { params: { startDate, endDate } }
       );
       if (!response.data.success) {
@@ -251,7 +239,7 @@ export function useMoodTrend(days: number = 30) {
       const response = await apiClient.get<{
         success: boolean;
         data: Array<{ date: string; mood: number }>;
-      }>('/mood-entries/trend', { params: { days } });
+      }>('/mood/trend', { params: { days } });
       if (!response.data.success) {
         throw new Error('Failed to fetch mood trend');
       }

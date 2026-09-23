@@ -45,20 +45,14 @@ export function useAppointments(filters?: { status?: string; month?: string }) {
   return useQuery({
     queryKey: appointmentKeys.list(filters),
     queryFn: async () => {
-      try {
-        const response = await apiClient.get<AppointmentResponse>(
-          '/appointments',
-          { params: filters }
-        );
-        if (!response.data.success) {
-          throw new Error(response.data.message || 'Failed to fetch appointments');
-        }
-        return response.data.data;
-      } catch (error) {
-        // Fallback to mock data when API fails
-        console.warn('Using mock appointment data (API unavailable)');
-        return MOCK_APPOINTMENTS;
+      const response = await apiClient.get<AppointmentResponse>(
+        '/appointments',
+        { params: filters }
+      );
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Failed to fetch appointments');
       }
+      return response.data.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
@@ -72,7 +66,6 @@ export function useNextAppointment() {
   return useQuery({
     queryKey: appointmentKeys.next(),
     queryFn: async () => {
-      try {
         const response = await apiClient.get<{ success: boolean; data: Appointment | null }>(
           '/appointments/next'
         );
@@ -81,8 +74,6 @@ export function useNextAppointment() {
         }
         return response.data.data;
       } catch (error) {
-        console.warn('Using mock next appointment (API unavailable)');
-        return MOCK_APPOINTMENTS[0] || null;
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
