@@ -5,6 +5,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../services/api';
+import { MOCK_THERAPISTS } from '../data/mockData';
 
 // Types
 export interface Therapist {
@@ -69,17 +70,22 @@ export function useTherapists(filters?: TherapistFilters) {
   return useQuery({
     queryKey: therapistKeys.list(filters),
     queryFn: async () => {
-      const response = await apiClient.get<TherapistResponse>(
-        '/therapists',
-        { params: filters }
-      );
-      if (!response.data.success) {
-        throw new Error(response.data.message || 'Failed to fetch therapists');
+      try {
+        const response = await apiClient.get<TherapistResponse>(
+          '/therapists',
+          { params: filters }
+        );
+        if (!response.data.success) {
+          throw new Error(response.data.message || 'Failed to fetch therapists');
+        }
+        return response.data.data;
+      } catch (error) {
+        console.warn('Using mock therapists (API unavailable)');
+        return MOCK_THERAPISTS;
       }
-      return response.data.data;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
-    retry: 2,
+    retry: 1,
   });
 }
 

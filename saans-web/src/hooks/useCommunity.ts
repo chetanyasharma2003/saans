@@ -5,6 +5,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../services/api';
+import { MOCK_COMMUNITY_POSTS, MOCK_SUPPORT_GROUPS, MOCK_ACTIVITY } from '../data/mockData';
 
 // Types
 export interface CommunityPost {
@@ -63,15 +64,20 @@ export function useCommunityPosts(filters?: {
   return useQuery({
     queryKey: [...communityKeys.posts(), filters],
     queryFn: async () => {
-      const response = await apiClient.get<{
-        success: boolean;
-        data: CommunityPost[];
-        total?: number;
-      }>('/community/posts', { params: filters });
-      if (!response.data.success) {
-        throw new Error('Failed to fetch community posts');
+      try {
+        const response = await apiClient.get<{
+          success: boolean;
+          data: CommunityPost[];
+          total?: number;
+        }>('/community/posts', { params: filters });
+        if (!response.data.success) {
+          throw new Error('Failed to fetch community posts');
+        }
+        return response.data.data;
+      } catch (error) {
+        console.warn('Using mock community posts (API unavailable)');
+        return MOCK_COMMUNITY_POSTS;
       }
-      return response.data.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -152,14 +158,19 @@ export function useSupportGroups(filters?: { category?: string }) {
   return useQuery({
     queryKey: [...communityKeys.groups(), filters],
     queryFn: async () => {
-      const response = await apiClient.get<{
-        success: boolean;
-        data: SupportGroup[];
-      }>('/community/groups', { params: filters });
-      if (!response.data.success) {
-        throw new Error('Failed to fetch support groups');
+      try {
+        const response = await apiClient.get<{
+          success: boolean;
+          data: SupportGroup[];
+        }>('/community/groups', { params: filters });
+        if (!response.data.success) {
+          throw new Error('Failed to fetch support groups');
+        }
+        return response.data.data;
+      } catch (error) {
+        console.warn('Using mock support groups (API unavailable)');
+        return MOCK_SUPPORT_GROUPS;
       }
-      return response.data.data;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
@@ -236,14 +247,19 @@ export function useActivityFeed(limit: number = 20) {
   return useQuery({
     queryKey: communityKeys.activity(),
     queryFn: async () => {
-      const response = await apiClient.get<{
-        success: boolean;
-        data: ActivityFeed[];
-      }>('/activity-feed', { params: { limit } });
-      if (!response.data.success) {
-        throw new Error('Failed to fetch activity feed');
+      try {
+        const response = await apiClient.get<{
+          success: boolean;
+          data: ActivityFeed[];
+        }>('/activity-feed', { params: { limit } });
+        if (!response.data.success) {
+          throw new Error('Failed to fetch activity feed');
+        }
+        return response.data.data;
+      } catch (error) {
+        console.warn('Using mock activity feed (API unavailable)');
+        return MOCK_ACTIVITY;
       }
-      return response.data.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

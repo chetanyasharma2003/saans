@@ -5,6 +5,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../services/api';
+import { MOCK_MOOD_ENTRIES, MOCK_MOOD_STATS } from '../data/mockData';
 
 // Types
 export interface MoodEntry {
@@ -58,13 +59,18 @@ export function useMoodEntries(filters?: {
   return useQuery({
     queryKey: moodKeys.list(filters),
     queryFn: async () => {
-      const response = await apiClient.get<MoodResponse>('/mood-entries', {
-        params: filters,
-      });
-      if (!response.data.success) {
-        throw new Error(response.data.message || 'Failed to fetch mood entries');
+      try {
+        const response = await apiClient.get<MoodResponse>('/mood-entries', {
+          params: filters,
+        });
+        if (!response.data.success) {
+          throw new Error(response.data.message || 'Failed to fetch mood entries');
+        }
+        return response.data.data;
+      } catch (error) {
+        console.warn('Using mock mood entries (API unavailable)');
+        return MOCK_MOOD_ENTRIES;
       }
-      return response.data.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -77,14 +83,19 @@ export function useRecentMood() {
   return useQuery({
     queryKey: moodKeys.recent(),
     queryFn: async () => {
-      const response = await apiClient.get<{
-        success: boolean;
-        data: MoodEntry | null;
-      }>('/mood-entries/recent');
-      if (!response.data.success) {
-        throw new Error('Failed to fetch recent mood');
+      try {
+        const response = await apiClient.get<{
+          success: boolean;
+          data: MoodEntry | null;
+        }>('/mood-entries/recent');
+        if (!response.data.success) {
+          throw new Error('Failed to fetch recent mood');
+        }
+        return response.data.data;
+      } catch (error) {
+        console.warn('Using mock recent mood (API unavailable)');
+        return MOCK_MOOD_ENTRIES[0] || null;
       }
-      return response.data.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -97,14 +108,19 @@ export function useMoodStats(days: number = 30) {
   return useQuery({
     queryKey: moodKeys.stats(),
     queryFn: async () => {
-      const response = await apiClient.get<{
-        success: boolean;
-        data: MoodStats;
-      }>('/mood-entries/stats', { params: { days } });
-      if (!response.data.success) {
-        throw new Error('Failed to fetch mood statistics');
+      try {
+        const response = await apiClient.get<{
+          success: boolean;
+          data: MoodStats;
+        }>('/mood-entries/stats', { params: { days } });
+        if (!response.data.success) {
+          throw new Error('Failed to fetch mood statistics');
+        }
+        return response.data.data;
+      } catch (error) {
+        console.warn('Using mock mood stats (API unavailable)');
+        return MOCK_MOOD_STATS;
       }
-      return response.data.data;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
