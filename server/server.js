@@ -24,8 +24,35 @@ app.use(requestIdMiddleware);
 
 // Security
 app.use(helmet());
+
+// CORS Configuration - Handle multiple origins properly
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+const allowedOrigins = corsOrigin
+  .split(',')
+  .map(url => url.trim())
+  .filter(url => url.length > 0);
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // Check if origin matches any allowed origin
+    const isAllowed = allowedOrigins.some(allowed => {
+      // Handle wildcard patterns like *.vercel.app
+      if (allowed.includes('*')) {
+        const pattern = allowed.replace(/\./g, '\\.').replace(/\*/g, '.*');
+        return new RegExp(`^https?://${pattern}$`).test(origin);
+      }
+      return origin === allowed;
+    });
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 
