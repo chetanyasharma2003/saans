@@ -207,7 +207,7 @@ const seedDatabase = async () => {
         date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
         time: '15:00',
         type: 'video',
-        duration: 50,
+        duration: 60,
         status: 'completed',
         price: 450,
         notes: 'Career transition discussion',
