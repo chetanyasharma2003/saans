@@ -1,7 +1,7 @@
 {
   "name": "saans",
   "version": "2.0.0",
-  "description": "Genuine Mental Health Healing Platform",
+  "description": "SAANS - Mental Health Platform (Express + React)",
   "engines": {
     "node": "18+"
   },
@@ -9,28 +9,14 @@
     "@typescript-eslint/eslint-plugin": "^8.67.0",
     "@typescript-eslint/parser": "^8.67.0",
     "eslint": "^9.39.5",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-security": "^4.0.1",
-    "husky": "^9.1.7",
-    "lint-staged": "^17.3.0",
     "prettier": "^3.9.6"
   },
   "scripts": {
-    "install": "cd saans-web && npm install && cd ../saans-api && npm install && cd ..",
-    "build": "cd saans-api && npm run build && cd ..",
-    "start": "node saans-api/dist/index.js",
-    "lint": "eslint 'src/**/*.{ts,tsx,js}' --fix",
-    "format": "prettier --write 'src/**/*.{ts,tsx,js,json}'",
-    "type-check": "tsc --noEmit",
-    "test:quick": "npm run type-check",
-    "pre-commit": "npm run lint && npm run format && npm run type-check",
-    "pre-push": "npm run test:quick && npm run build"
-  },
-  "lint-staged": {
-    "src/**/*": {
-      "{ts,tsx,js}": "eslint"
-    }
+    "install": "cd saans-web && npm install && cd ..",
+    "build": "cd saans-web && npm run build && cd ..",
+    "start": "cd server && npm start",
+    "dev": "concurrently \"cd server && npm run dev\" \"cd saans-web && npm run dev\"",
+    "lint": "eslint 'saans-web/src/**/*.{ts,tsx}' --fix",
+    "format": "prettier --write 'saans-web/src/**/*.{ts,tsx,json}'"
   }
 }
