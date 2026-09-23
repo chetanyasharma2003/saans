@@ -22,10 +22,7 @@ const PORT = process.env.PORT || 3001;
 // Request ID tracking (should be first)
 app.use(requestIdMiddleware);
 
-// Security
-app.use(helmet());
-
-// CORS Configuration - Handle multiple origins properly
+// CORS Configuration - Must be BEFORE helmet
 const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
 const allowedOrigins = corsOrigin
   .split(',')
@@ -52,6 +49,11 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// Security (after CORS)
+app.use(helmet({
+  crossOriginResourcePolicy: false, // Don't interfere with CORS
 }));
 
 // Logging
