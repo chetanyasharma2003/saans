@@ -56,13 +56,13 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'SAANS Backend is running' });
 });
 
-// API Routes (Placeholder - will be added)
-app.use('/api/v1/auth', require('./routes/auth.routes'));
-app.use('/api/v1/users', require('./routes/users.routes'));
-app.use('/api/v1/appointments', require('./routes/appointments.routes'));
-app.use('/api/v1/mood', require('./routes/mood.routes'));
-app.use('/api/v1/therapists', require('./routes/therapists.routes'));
-app.use('/api/v1/community', require('./routes/community.routes'));
+// API Routes (All endpoints at /api/)
+app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/users', require('./routes/users.routes'));
+app.use('/api/appointments', require('./routes/appointments.routes'));
+app.use('/api/mood', require('./routes/mood.routes'));
+app.use('/api/therapists', require('./routes/therapists.routes'));
+app.use('/api/community', require('./routes/community.routes'));
 
 // 404 Handler
 app.use((req, res) => {
@@ -85,7 +85,9 @@ const startServer = async () => {
     await connectDB();
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📍 API: http://localhost:${PORT}/api/v1`);
+      console.log(`📍 API Base: http://localhost:${PORT}/api`);
+      console.log(`📍 Auth: http://localhost:${PORT}/api/auth`);
+      console.log(`📍 Appointments: http://localhost:${PORT}/api/appointments`);
     });
   } catch (error) {
     console.error('❌ Server Start Error:', error);

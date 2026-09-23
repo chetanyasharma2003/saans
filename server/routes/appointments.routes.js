@@ -159,7 +159,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// ============ CANCEL APPOINTMENT ============
+// ============ CANCEL APPOINTMENT (DELETE) ============
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const appointment = await Appointment.findOne({
@@ -178,6 +178,65 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     res.json({
       success: true,
       message: 'Appointment cancelled',
+      data: appointment,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============ CANCEL APPOINTMENT (POST) ============
+router.post('/:id/cancel', authenticateToken, async (req, res) => {
+  try {
+    const appointment = await Appointment.findOne({
+      _id: req.params.id,
+      userId: req.userId,
+    });
+
+    if (!appointment) {
+      return res.status(404).json({ error: 'Appointment not found' });
+    }
+
+    appointment.status = 'cancelled';
+    appointment.cancellationReason = req.body.reason || 'User cancelled';
+    await appointment.save();
+
+    res.json({
+      success: true,
+      message: 'Appointment cancelled',
+      data: appointment,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============ RESCHEDULE APPOINTMENT ============
+router.post('/:id/reschedule', authenticateToken, async (req, res) => {
+  try {
+    const { date, time } = req.body;
+
+    if (!date || !time) {
+      return res.status(400).json({ error: 'Date and time required' });
+    }
+
+    const appointment = await Appointment.findOne({
+      _id: req.params.id,
+      userId: req.userId,
+    });
+
+    if (!appointment) {
+      return res.status(404).json({ error: 'Appointment not found' });
+    }
+
+    appointment.date = new Date(date);
+    appointment.time = time;
+    appointment.status = 'scheduled';
+    await appointment.save();
+
+    res.json({
+      success: true,
+      message: 'Appointment rescheduled',
       data: appointment,
     });
   } catch (error) {
