@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit --skipLibCheck || true && vite build",
-    "preview": "vite preview",
+    "dev": "npx vite",
+    "build": "tsc --noEmit --skipLibCheck || true && npx vite build",
+    "preview": "npx vite preview",
     "lint": "eslint 'src/**/*.{ts,tsx}' --fix",
     "format": "prettier --write 'src/**/*.{ts,tsx,json,css}'",
     "type-check": "tsc --noEmit",
