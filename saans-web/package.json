@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit --skipLibCheck || true && vite build",
+    "build": "echo '=== DEBUG: pwd ===' && pwd && echo '=== DEBUG: ls node_modules/.bin | grep vite ===' && ls -la node_modules/.bin | grep vite && echo '=== DEBUG: which vite ===' && which vite && tsc --noEmit --skipLibCheck || true && vite build",
     "preview": "vite preview",
     "lint": "eslint 'src/**/*.{ts,tsx}' --fix",
     "format": "prettier --write 'src/**/*.{ts,tsx,json,css}'",
