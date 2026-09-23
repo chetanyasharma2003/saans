@@ -3,6 +3,41 @@ const router = express.Router();
 const User = require('../models/User');
 const { authenticateToken } = require('../middleware/auth');
 
+// ============ GET SPECIALTIES ============
+router.get('/options/specialties', async (req, res) => {
+  try {
+    const specialties = [
+      { id: '1', name: 'Anxiety & Stress', count: 45 },
+      { id: '2', name: 'Depression', count: 38 },
+      { id: '3', name: 'Relationships', count: 42 },
+      { id: '4', name: 'PTSD & Trauma', count: 28 },
+      { id: '5', name: 'Addiction', count: 22 },
+      { id: '6', name: 'Grief & Loss', count: 18 },
+    ];
+
+    res.json({
+      success: true,
+      data: specialties,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============ GET LANGUAGES ============
+router.get('/options/languages', async (req, res) => {
+  try {
+    const languages = ['English', 'Hindi', 'Spanish', 'Mandarin', 'French', 'German'];
+
+    res.json({
+      success: true,
+      data: languages,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ============ GET ALL THERAPISTS ============
 router.get('/', async (req, res) => {
   try {
@@ -41,41 +76,6 @@ router.get('/:id', async (req, res) => {
     res.json({
       success: true,
       data: therapist,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// ============ GET SPECIALTIES ============
-router.get('/options/specialties', async (req, res) => {
-  try {
-    const specialties = [
-      { id: '1', name: 'Anxiety & Stress', count: 45 },
-      { id: '2', name: 'Depression', count: 38 },
-      { id: '3', name: 'Relationships', count: 42 },
-      { id: '4', name: 'PTSD & Trauma', count: 28 },
-      { id: '5', name: 'Addiction', count: 22 },
-      { id: '6', name: 'Grief & Loss', count: 18 },
-    ];
-
-    res.json({
-      success: true,
-      data: specialties,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// ============ GET LANGUAGES ============
-router.get('/options/languages', async (req, res) => {
-  try {
-    const languages = ['English', 'Hindi', 'Spanish', 'Mandarin', 'French', 'German'];
-
-    res.json({
-      success: true,
-      data: languages,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

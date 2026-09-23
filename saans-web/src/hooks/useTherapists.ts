@@ -107,7 +107,7 @@ export function useSpecialties() {
     queryKey: [...therapistKeys.all, 'specialties'],
     queryFn: async () => {
       const response = await apiClient.get('/therapists/options/specialties');
-      return response.data.data || [];
+      return response.data || [];
     },
   });
 }
@@ -121,7 +121,7 @@ export function useLanguages() {
     queryKey: [...therapistKeys.all, 'languages'],
     queryFn: async () => {
       const response = await apiClient.get('/therapists/options/languages');
-      return response.data.data || [];
+      return response.data || [];
     },
   });
 }

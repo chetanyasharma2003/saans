@@ -6,7 +6,7 @@ const { ValidationError, NotFoundError, UnauthorizedError, ConflictError } = req
 const User = require('../models/User');
 
 // ============ GET ALL APPOINTMENTS ============
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, async (req, res, next) => {
   try {
     const { status, month } = req.query;
     const query = { userId: req.userId };
@@ -33,7 +33,7 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // ============ GET UPCOMING APPOINTMENTS ============
-router.get('/upcoming', authenticateToken, async (req, res) => {
+router.get('/upcoming', authenticateToken, async (req, res, next) => {
   try {
     const now = new Date();
     const appointments = await Appointment.find({
@@ -55,7 +55,7 @@ router.get('/upcoming', authenticateToken, async (req, res) => {
 });
 
 // ============ GET NEXT APPOINTMENT ============
-router.get('/next', authenticateToken, async (req, res) => {
+router.get('/next', authenticateToken, async (req, res, next) => {
   try {
     const now = new Date();
     const appointment = await Appointment.findOne({
