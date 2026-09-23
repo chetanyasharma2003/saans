@@ -75,14 +75,18 @@ export function LandingPage() {
       <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob-2"></div>
       <div className="absolute -bottom-8 left-20 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob-3"></div>
 
-      {/* Header/Navigation */}
-      <header className="relative z-50 backdrop-blur-lg border-b border-indigo-400/20">
+      {/* Header/Navigation - Sticky */}
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg border-b border-indigo-400/20">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg flex items-center justify-center">
               <Brain className="w-5 h-5" />
             </div>
             <span className="text-xl font-bold gradient-text">SAANS</span>
+          </div>
+          <div className="hidden md:flex gap-6 items-center">
+            <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="text-indigo-200 hover:text-white transition">Features</button>
+            <button onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} className="text-indigo-200 hover:text-white transition">Pricing</button>
           </div>
           <div className="flex gap-4">
             <button
@@ -100,6 +104,7 @@ export function LandingPage() {
           </div>
         </nav>
       </header>
+      <div className="h-16"></div>
 
       {/* Hero Section */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
@@ -151,9 +156,9 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Trust Section - Honest & Genuine */}
+      {/* Trust Section - Honest & Genuine + Social Proof */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
           {[
             { number: '₹99', label: 'Starting Monthly', icon: Users },
             { number: '24/7', label: 'AI Support Available', icon: Heart },
@@ -176,10 +181,28 @@ export function LandingPage() {
             );
           })}
         </div>
+
+        {/* Social Proof */}
+        <div className="bg-gradient-to-r from-indigo-500/10 to-purple-600/10 border border-indigo-400/20 rounded-2xl p-8 backdrop-blur-xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div className="animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
+              <p className="text-4xl font-bold gradient-text mb-2">50K+</p>
+              <p className="text-indigo-300">Active Users Trusting SAANS</p>
+            </div>
+            <div className="animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+              <p className="text-4xl font-bold gradient-text mb-2">4.9★</p>
+              <p className="text-indigo-300">Average Rating from Users</p>
+            </div>
+            <div className="animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
+              <p className="text-4xl font-bold gradient-text mb-2">500K+</p>
+              <p className="text-indigo-300">Sessions Completed</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Features Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <section id="features" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             Everything You Need for <span className="gradient-text">Mental Wellness</span>

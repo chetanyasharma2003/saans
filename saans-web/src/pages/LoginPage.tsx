@@ -3,16 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setUser, setToken } from '../redux/slices/authSlice';
 import axios from 'axios';
+import { Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [touched, setTouched] = useState({ email: false, password: false });
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isEmailValid = email.length === 0 || emailRegex.test(email);
+  const isPasswordValid = password.length >= 6;
+  const isFormValid = email.length > 0 && emailRegex.test(email) && password.length >= 6;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,8 +67,8 @@ export function LoginPage() {
       {/* Main container */}
       <div className="w-full max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          {/* Left side - Hero section */}
-          <div className="text-white z-10 hidden lg:block">
+          {/* Left side - Hero section (Hidden on Mobile) */}
+          <div className="text-white z-10 hidden lg:flex flex-col justify-center">
             <div className="mb-8">
               <h1 className="text-5xl font-bold mb-6 leading-tight">
                 Welcome Back to Your Wellness
@@ -114,44 +122,99 @@ export function LoginPage() {
               {/* Form */}
               <form onSubmit={handleLogin} className="space-y-5">
                 {error && (
-                  <div className="bg-red-500/20 border border-red-400/50 text-red-100 px-4 py-3 rounded-xl backdrop-blur-sm">
-                    {error}
+                  <div className="bg-red-500/20 border border-red-400/50 text-red-100 px-4 py-3 rounded-xl backdrop-blur-sm flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    <span>{error}</span>
                   </div>
                 )}
 
+                {/* Email Field with Validation */}
                 <div>
                   <label className="block text-sm font-semibold text-teal-100 mb-3">
                     Email Address
                   </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-400/30 transition backdrop-blur-sm"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      onBlur={() => setTouched({ ...touched, email: true })}
+                      placeholder="you@example.com"
+                      className={`w-full px-4 py-3 bg-white/10 border rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 transition backdrop-blur-sm ${
+                        touched.email && email.length > 0
+                          ? isEmailValid
+                            ? 'border-green-400/50 focus:border-green-400 focus:ring-green-400/30'
+                            : 'border-red-400/50 focus:border-red-400 focus:ring-red-400/30'
+                          : 'border-white/20 focus:border-teal-400 focus:ring-teal-400/30'
+                      }`}
+                      required
+                    />
+                    {touched.email && email.length > 0 && (
+                      <div className="absolute right-4 top-3">
+                        {isEmailValid ? (
+                          <CheckCircle className="w-5 h-5 text-green-400" />
+                        ) : (
+                          <AlertCircle className="w-5 h-5 text-red-400" />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {touched.email && email.length > 0 && !isEmailValid && (
+                    <p className="text-red-400 text-xs mt-2">Please enter a valid email address</p>
+                  )}
                 </div>
 
+                {/* Password Field with Toggle & Validation */}
                 <div>
                   <label className="block text-sm font-semibold text-teal-100 mb-3">
                     Password
                   </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-400/30 transition backdrop-blur-sm"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onBlur={() => setTouched({ ...touched, password: true })}
+                      placeholder="Enter your password"
+                      className={`w-full px-4 py-3 bg-white/10 border rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 transition backdrop-blur-sm ${
+                        touched.password && password.length > 0
+                          ? isPasswordValid
+                            ? 'border-green-400/50 focus:border-green-400 focus:ring-green-400/30'
+                            : 'border-red-400/50 focus:border-red-400 focus:ring-red-400/30'
+                          : 'border-white/20 focus:border-teal-400 focus:ring-teal-400/30'
+                      }`}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-3 text-white/60 hover:text-white transition"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                  {touched.password && password.length > 0 && !isPasswordValid && (
+                    <p className="text-red-400 text-xs mt-2">Password must be at least 6 characters</p>
+                  )}
                 </div>
 
                 <button
                   type="submit"
-                  disabled={isLoading}
-                  className="w-full mt-6 bg-gradient-to-r from-teal-400 to-cyan-400 hover:from-teal-300 hover:to-cyan-300 text-slate-900 font-bold py-3 rounded-xl transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                  disabled={isLoading || !isFormValid}
+                  className={`w-full mt-6 bg-gradient-to-r from-teal-400 to-cyan-400 hover:from-teal-300 hover:to-cyan-300 text-slate-900 font-bold py-3 rounded-xl transition transform shadow-lg hover:shadow-xl flex items-center justify-center gap-2 ${
+                    isLoading || !isFormValid
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'hover:scale-105'
+                  }`}
                 >
+                  {isLoading && (
+                    <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+                  )}
                   {isLoading ? 'Signing in...' : 'Sign In'}
                 </button>
               </form>
