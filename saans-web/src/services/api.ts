@@ -16,6 +16,16 @@ class ApiError extends Error {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
+interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+  code?: string;
+  statusCode?: number;
+  timestamp?: string;
+}
+
 interface ApiClientConfig {
   baseURL: string;
   headers: Record<string, string>;
@@ -129,24 +139,24 @@ class ApiClient {
     }
   }
 
-  async get<T>(endpoint: string): Promise<T> {
-    return this.makeRequest<T>('GET', endpoint);
+  async get<T = any>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.makeRequest<ApiResponse<T>>('GET', endpoint);
   }
 
-  async post<T>(endpoint: string, data: any): Promise<T> {
-    return this.makeRequest<T>('POST', endpoint, data);
+  async post<T = any>(endpoint: string, data: any): Promise<ApiResponse<T>> {
+    return this.makeRequest<ApiResponse<T>>('POST', endpoint, data);
   }
 
-  async put<T>(endpoint: string, data: any): Promise<T> {
-    return this.makeRequest<T>('PUT', endpoint, data);
+  async put<T = any>(endpoint: string, data: any): Promise<ApiResponse<T>> {
+    return this.makeRequest<ApiResponse<T>>('PUT', endpoint, data);
   }
 
-  async patch<T>(endpoint: string, data: any): Promise<T> {
-    return this.makeRequest<T>('PATCH', endpoint, data);
+  async patch<T = any>(endpoint: string, data: any): Promise<ApiResponse<T>> {
+    return this.makeRequest<ApiResponse<T>>('PATCH', endpoint, data);
   }
 
-  async delete<T>(endpoint: string): Promise<T> {
-    return this.makeRequest<T>('DELETE', endpoint);
+  async delete<T = any>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.makeRequest<ApiResponse<T>>('DELETE', endpoint);
   }
 }
 

@@ -22,7 +22,7 @@ export function useTherapists(filters?: any) {
   return useQuery({
     queryKey: [...therapistKeys.list(), filters],
     queryFn: async () => {
-      const response = await apiClient.get('/therapists', { params: filters });
+      const response = await apiClient.get<Therapist[]>('/therapists', { params: filters });
       return response.data || [];
     },
     staleTime: 1000 * 60 * 10,
@@ -33,7 +33,7 @@ export function useTherapist(id: string) {
   return useQuery({
     queryKey: [...therapistKeys.all, id],
     queryFn: async () => {
-      const response = await apiClient.get(`/therapists/${id}`);
+      const response = await apiClient.get<Therapist>(`/therapists/${id}`);
       return response.data || null;
     },
     staleTime: 1000 * 60 * 10,
@@ -45,7 +45,7 @@ export function useRecommendedTherapists() {
     queryKey: [...therapistKeys.all, 'recommended'],
     queryFn: async () => {
       try {
-        const response = await apiClient.get('/therapists');
+        const response = await apiClient.get<Therapist[]>('/therapists');
         return response.data || [];
       } catch (error) {
         console.error('Failed to fetch recommended therapists:', error);
@@ -61,7 +61,7 @@ export function useNearbyTherapists() {
     queryKey: [...therapistKeys.all, 'nearby'],
     queryFn: async () => {
       try {
-        const response = await apiClient.get('/therapists');
+        const response = await apiClient.get<Therapist[]>('/therapists');
         return response.data || [];
       } catch (error) {
         console.error('Failed to fetch nearby therapists:', error);
@@ -77,7 +77,7 @@ export function useTherapistsBySpecialty() {
     queryKey: [...therapistKeys.all, 'specialty'],
     queryFn: async () => {
       try {
-        const response = await apiClient.get('/therapists');
+        const response = await apiClient.get<Therapist[]>('/therapists');
         return response.data || [];
       } catch (error) {
         console.error('Failed to fetch therapists by specialty:', error);

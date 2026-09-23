@@ -36,7 +36,7 @@ export function useCommunityPosts() {
   return useQuery({
     queryKey: communityKeys.posts,
     queryFn: async () => {
-      const response = await apiClient.get('/community/posts');
+      const response = await apiClient.get<CommunityPost[]>('/community/posts');
       return response.data || [];
     },
     staleTime: 1000 * 60 * 5,
@@ -47,7 +47,7 @@ export function useCommunityPost(id: string) {
   return useQuery({
     queryKey: [...communityKeys.posts, id],
     queryFn: async () => {
-      const response = await apiClient.get(`/community/posts/${id}`);
+      const response = await apiClient.get<CommunityPost>(`/community/posts/${id}`);
       return response.data || null;
     },
     staleTime: 1000 * 60 * 5,
@@ -58,7 +58,7 @@ export function useCreatePost() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiClient.post('/community/posts', data);
+      const response = await apiClient.post<CommunityPost>('/community/posts', data);
       return response.data;
     },
     onSuccess: () => {
@@ -71,7 +71,7 @@ export function useLikePost() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (postId: string) => {
-      const response = await apiClient.post(`/community/posts/${postId}/like`, {});
+      const response = await apiClient.post<CommunityPost>(`/community/posts/${postId}/like`, {});
       return response.data;
     },
     onSuccess: () => {
@@ -84,7 +84,7 @@ export function useSupportGroups() {
   return useQuery({
     queryKey: communityKeys.groups,
     queryFn: async () => {
-      const response = await apiClient.get('/community/groups');
+      const response = await apiClient.get<SupportGroup[]>('/community/groups');
       return response.data || [];
     },
     staleTime: 1000 * 60 * 10,
@@ -95,7 +95,7 @@ export function useSupportGroup(id: string) {
   return useQuery({
     queryKey: [...communityKeys.groups, id],
     queryFn: async () => {
-      const response = await apiClient.get(`/community/groups/${id}`);
+      const response = await apiClient.get<SupportGroup>(`/community/groups/${id}`);
       return response.data || null;
     },
     staleTime: 1000 * 60 * 10,

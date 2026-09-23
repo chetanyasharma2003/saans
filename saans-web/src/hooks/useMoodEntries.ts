@@ -26,7 +26,7 @@ export function useMoodEntries() {
   return useQuery({
     queryKey: moodKeys.list(),
     queryFn: async () => {
-      const response = await apiClient.get('/mood');
+      const response = await apiClient.get<MoodEntry[]>('/mood');
       return response.data || [];
     },
     staleTime: 1000 * 60 * 5,
@@ -37,8 +37,8 @@ export function useMoodStats() {
   return useQuery({
     queryKey: moodKeys.stats(),
     queryFn: async () => {
-      const response = await apiClient.get('/mood/stats');
-      return response.data || {};
+      const response = await apiClient.get<MoodStats>('/mood/stats');
+      return response.data || ({} as MoodStats);
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -48,7 +48,7 @@ export function useRecentMood() {
   return useQuery({
     queryKey: [...moodKeys.all, 'recent'],
     queryFn: async () => {
-      const response = await apiClient.get('/mood/recent');
+      const response = await apiClient.get<MoodEntry>('/mood/recent');
       return response.data || null;
     },
     staleTime: 1000 * 60 * 2,
@@ -59,7 +59,7 @@ export function useMoodEntry(id: string) {
   return useQuery({
     queryKey: [...moodKeys.all, id],
     queryFn: async () => {
-      const response = await apiClient.get(`/mood/${id}`);
+      const response = await apiClient.get<MoodEntry>(`/mood/${id}`);
       return response.data || null;
     },
     staleTime: 1000 * 60 * 5,
@@ -70,7 +70,7 @@ export function useLogMood() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiClient.post('/mood', data);
+      const response = await apiClient.post<MoodEntry>('/mood', data);
       return response.data;
     },
     onSuccess: () => {
@@ -83,7 +83,7 @@ export function useUpdateMood() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...data }: any) => {
-      const response = await apiClient.put(`/mood/${id}`, data);
+      const response = await apiClient.put<MoodEntry>(`/mood/${id}`, data);
       return response.data;
     },
     onSuccess: () => {
