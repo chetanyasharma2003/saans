@@ -110,6 +110,10 @@ const connectDB = async () => {
       useUnifiedTopology: true,
     });
     console.log('✅ MongoDB Connected');
+
+    // Migrate old user roles
+    const User = require('./models/User');
+    await User.migrateOldRoles();
   } catch (error) {
     console.error('❌ MongoDB Connection Error:', error.message);
     process.exit(1);

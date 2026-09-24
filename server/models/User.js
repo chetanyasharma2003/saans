@@ -67,8 +67,12 @@ const userSchema = new mongoose.Schema({
   lastLogin: Date,
 }, { timestamps: true });
 
-// Hash password before saving
+// Migrate old role values on save
 userSchema.pre('save', async function(next) {
+  if (this.role && !['patient', 'therapist', 'admin'].includes(this.role)) {
+    this.role = 'patient';
+  }
+
   if (!this.isModified('password')) return next();
 
   try {
@@ -79,6 +83,21 @@ userSchema.pre('save', async function(next) {
     next(error);
   }
 });
+
+// Static method to migrate old data
+userSchema.statics.migrateOldRoles = async function() {
+  try {
+    const result = await this.updateMany(
+      { role: { $nin: ['patient', 'therapist', 'admin'] } },
+      { $set: { role: 'patient' } }
+    );
+    if (result.modifiedCount > 0) {
+      console.log(`✅ Migrated ${result.modifiedCount} users with invalid roles to 'patient'`);
+    }
+  } catch (error) {
+    console.error('User role migration error:', error.message);
+  }
+};
 
 // Compare password method
 userSchema.methods.comparePassword = async function(enteredPassword) {
