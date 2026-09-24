@@ -10,6 +10,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger-config');
 const requestIdMiddleware = require('./middleware/requestId');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -103,6 +105,12 @@ const connectDB = async () => {
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'SAANS Backend is running' });
 });
+
+// API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'SAANS API Documentation'
+}));
 
 // API Routes (All endpoints at /api/)
 app.use('/api/auth', require('./routes/auth.routes'));

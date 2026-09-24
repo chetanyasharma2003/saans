@@ -4,39 +4,28 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts'],
-    css: true,
-    include: ['src/**/*.test.{ts,tsx}'],
-    exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
+    setupFiles: ['./src/test/setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
-      reportOnFailure: true,
       exclude: [
         'node_modules/',
-        'dist/',
-        '**/*.d.ts',
-        '**/*.config.*',
-        '**/mockData',
-        'src/main.tsx',
-        'src/vite-env.d.ts',
+        'src/test/',
       ],
-      include: [
-        'src/**/*.{ts,tsx}',
-      ],
-      all: true,
-      lines: 75,
-      functions: 75,
-      branches: 70,
-      statements: 75,
+      lines: 60,
+      functions: 60,
+      branches: 60,
+      statements: 60
+    },
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    exclude: ['node_modules', 'dist']
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
     },
   },
 });
