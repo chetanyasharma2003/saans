@@ -3,9 +3,10 @@ services:
     name: saans-api
     env: node
     plan: standard
-    region: ohio  # Change to oregon/frankfurt as needed
-    buildCommand: cd server && npm install --legacy-peer-deps
-    startCommand: cd server && npm start
+    region: ohio
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: server
     envVars:
       - key: NODE_ENV
         value: production
