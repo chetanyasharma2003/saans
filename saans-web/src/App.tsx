@@ -29,6 +29,7 @@ const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const RegisterPage = React.lazy(() => import('./pages/RegisterPage'));
 const DashboardPage = React.lazy(() => import('./pages/DashboardPageNew'));
+const AdminDashboardPage = React.lazy(() => import('./pages/AdminDashboardNew'));
 const AICounselorPage = React.lazy(() => import('./pages/AICounselorPage'));
 const FindTherapistPage = React.lazy(() => import('./pages/FindTherapistPageNew'));
 const MoodTrackerPage = React.lazy(() => import('./pages/MoodTrackerPageNew'));
@@ -217,6 +218,18 @@ function AppRoutes() {
               <React.Suspense fallback={<SuspenseLoading />}>
                 <PageTransition>
                   <MyProfilePage />
+                </PageTransition>
+              </React.Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <React.Suspense fallback={<SuspenseLoading />}>
+                <PageTransition>
+                  <AdminDashboardPage />
                 </PageTransition>
               </React.Suspense>
             </ProtectedRoute>

@@ -1,12 +1,7 @@
 const mongoose = require('mongoose');
 
-const analyticsSchema = new mongoose.Schema({
-  date: {
-    type: Date,
-    default: Date.now,
-    index: true
-  },
-  event: {
+const AnalyticsSchema = new mongoose.Schema({
+  eventType: {
     type: String,
     enum: [
       'user_signup',
@@ -14,16 +9,18 @@ const analyticsSchema = new mongoose.Schema({
       'appointment_booked',
       'appointment_completed',
       'appointment_cancelled',
-      'payment_completed',
-      'ai_chat_message',
-      'mood_entry',
-      'community_post',
-      'community_comment',
-      'therapist_viewed',
       'therapist_rated',
+      'community_post_created',
+      'community_post_upvoted',
+      'resource_viewed',
+      'mood_entry_created',
+      'subscription_started',
+      'subscription_renewed',
+      'subscription_cancelled',
+      'payment_completed',
+      'payment_failed',
       'message_sent',
-      'notification_read',
-      'user_logout'
+      'session_duration'
     ],
     required: true,
     index: true
@@ -33,27 +30,37 @@ const analyticsSchema = new mongoose.Schema({
     ref: 'User',
     index: true
   },
+  therapistId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Therapist'
+  },
+  appointmentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Appointment'
+  },
   metadata: {
-    resourceType: String,
-    resourceId: mongoose.Schema.Types.ObjectId,
-    value: mongoose.Schema.Types.Mixed,
     duration: Number,
-    status: String
+    rating: Number,
+    amount: Number,
+    currency: String,
+    category: String,
+    status: String,
+    customData: mongoose.Schema.Types.Mixed
   },
   timestamp: {
     type: Date,
-    default: Date.now
+    default: Date.now,
+    index: true
+  },
+  date: {
+    type: Date,
+    default: () => new Date(new Date().setHours(0, 0, 0, 0))
   }
-}, {
-  timestamps: true
 });
 
-// Index for efficient queries
-analyticsSchema.index({ event: 1, date: -1 });
-analyticsSchema.index({ userId: 1, event: 1, date: -1 });
-analyticsSchema.index({ date: -1 });
+AnalyticsSchema.index({ eventType: 1, timestamp: -1 });
+AnalyticsSchema.index({ eventType: 1, date: -1 });
+AnalyticsSchema.index({ userId: 1, timestamp: -1 });
+AnalyticsSchema.index({ therapistId: 1, timestamp: -1 });
 
-// TTL index - Delete events older than 2 years
-analyticsSchema.index({ timestamp: 1 }, { expireAfterSeconds: 63072000 });
-
-module.exports = mongoose.model('Analytics', analyticsSchema);
+module.exports = mongoose.model('Analytics', AnalyticsSchema);
