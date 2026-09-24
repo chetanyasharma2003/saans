@@ -1,11 +1,17 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const AppleStrategy = require('passport-apple').Strategy;
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const oauthService = require('../services/oauthService');
 const logger = require('../utils/logger');
+
+let AppleStrategy = null;
+try {
+  AppleStrategy = require('passport-apple').Strategy;
+} catch (e) {
+  logger.warn('passport-apple not installed - Apple OAuth disabled for MVP');
+}
 
 /**
  * Passport.js Configuration
@@ -88,7 +94,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 
 // ============ APPLE STRATEGY ============
 
-if (process.env.APPLE_TEAM_ID && process.env.APPLE_KEY_ID && process.env.APPLE_PRIVATE_KEY_PATH) {
+if (AppleStrategy && process.env.APPLE_TEAM_ID && process.env.APPLE_KEY_ID && process.env.APPLE_PRIVATE_KEY_PATH) {
   passport.use('apple', new AppleStrategy(
     {
       teamID: process.env.APPLE_TEAM_ID,

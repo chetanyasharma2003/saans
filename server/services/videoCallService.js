@@ -1,5 +1,14 @@
-const { RtcTokenBuilder, RtcRole } = require('agora-access-token');
+let RtcTokenBuilder = null;
+let RtcRole = null;
 const logger = require('../utils/logger');
+
+try {
+  const agoraModule = require('agora-access-token');
+  RtcTokenBuilder = agoraModule.RtcTokenBuilder;
+  RtcRole = agoraModule.RtcRole;
+} catch (e) {
+  logger.warn('agora-access-token not installed - video calls disabled for MVP');
+}
 
 class VideoCallService {
   constructor() {
@@ -23,6 +32,10 @@ class VideoCallService {
 
   generateToken(channelName, userId, role = 'publisher') {
     try {
+      if (!RtcTokenBuilder || !RtcRole) {
+        logger.warn('Video calls disabled for MVP - Agora not installed');
+        return { success: false, message: 'Video calls not available' };
+      }
       const rtcRole = role === 'subscriber' ? RtcRole.SUBSCRIBER : RtcRole.PUBLISHER;
 
       const token = RtcTokenBuilder.buildTokenWithUid(

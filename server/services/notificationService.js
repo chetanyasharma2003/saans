@@ -1,6 +1,14 @@
 const nodemailer = require('nodemailer');
-const twilio = require('twilio');
 const logger = require('../utils/logger');
+
+let twilio = null;
+let twilioClient = null;
+try {
+  twilio = require('twilio');
+  twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+} catch (e) {
+  logger.warn('twilio not installed - SMS notifications disabled for MVP');
+}
 
 // Email transporter
 const emailTransporter = nodemailer.createTransport({
@@ -10,9 +18,6 @@ const emailTransporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASSWORD
   }
 });
-
-// Twilio client
-const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 class NotificationService {
   // ==================== EMAIL NOTIFICATIONS ====================
@@ -152,6 +157,10 @@ class NotificationService {
 
   async sendAppointmentReminder(phoneNumber, therapistName, appointmentTime) {
     try {
+      if (!twilioClient) {
+        logger.warn('SMS disabled for MVP - skipping appointment reminder');
+        return { success: false, message: 'SMS not available' };
+      }
       const message = await twilioClient.messages.create({
         body: `Hi! Reminder: You have a therapy session with ${therapistName} at ${appointmentTime}. Get ready in 15 mins! - SAANS`,
         from: process.env.TWILIO_PHONE_NUMBER,
@@ -168,6 +177,10 @@ class NotificationService {
 
   async sendVerificationCode(phoneNumber, code) {
     try {
+      if (!twilioClient) {
+        logger.warn('SMS disabled for MVP - skipping verification code');
+        return { success: false, message: 'SMS not available' };
+      }
       const message = await twilioClient.messages.create({
         body: `Your SAANS verification code is: ${code}. Valid for 10 minutes.`,
         from: process.env.TWILIO_PHONE_NUMBER,
@@ -184,6 +197,10 @@ class NotificationService {
 
   async sendCrisisAlert(phoneNumber, supportInfo) {
     try {
+      if (!twilioClient) {
+        logger.warn('SMS disabled for MVP - skipping crisis alert');
+        return { success: false, message: 'SMS not available' };
+      }
       const message = await twilioClient.messages.create({
         body: `SAANS Support Alert: ${supportInfo.resourceName} - ${supportInfo.phone}. We're here for you. 💜`,
         from: process.env.TWILIO_PHONE_NUMBER,
