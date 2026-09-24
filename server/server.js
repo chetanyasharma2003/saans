@@ -143,6 +143,7 @@ app.use('/api/users', require('./routes/users.routes'));
 app.use('/api/appointments', require('./routes/appointments.routes'));
 app.use('/api/mood', require('./routes/mood.routes'));
 app.use('/api/therapists', require('./routes/therapists.routes'));
+app.use('/api/therapist-register', require('./routes/therapistRegistration.routes'));
 app.use('/api/community', require('./routes/community.routes'));
 app.use('/api/ai', require('./routes/ai.routes'));
 app.use('/api/email', require('./routes/email.routes'));

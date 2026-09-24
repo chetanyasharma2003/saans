@@ -1,70 +1,133 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, Star, Filter, ChevronRight, Heart, MessageSquare, Clock, Award } from 'lucide-react';
+import { Search, MapPin, Star, Filter, ChevronRight, Heart, MessageSquare, Clock, Award, Loader, AlertCircle } from 'lucide-react';
 import { DashboardHeader } from '../components/DashboardHeader';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export function FindTherapistPageNew() {
   const navigate = useNavigate();
+  const [therapists, setTherapists] = useState([]);
+  const [filteredTherapists, setFilteredTherapists] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilters, setSelectedFilters] = useState({
     specialty: null,
     language: null,
-    rating: null,
+    maxPrice: null,
+    minRating: null,
+    radius: 50
   });
 
-  const therapists = [
-    {
-      id: 1,
-      name: 'Dr. Priya Singh',
-      specialty: 'Anxiety & Stress',
-      rating: 4.9,
-      reviews: 128,
-      price: '₹500/session',
-      image: '👩‍⚕️',
-      bio: 'Specializes in anxiety management and stress relief with 8+ years experience',
-      languages: ['English', 'Hindi'],
-      availability: 'Available Today',
-    },
-    {
-      id: 2,
-      name: 'Dr. Rajesh Patel',
-      specialty: 'Depression',
-      rating: 4.8,
-      reviews: 95,
-      price: '₹450/session',
-      image: '👨‍⚕️',
-      bio: 'Expert in depression and mood disorders with compassionate approach',
-      languages: ['English', 'Gujarati'],
-      availability: 'Available Tomorrow',
-    },
-    {
-      id: 3,
-      name: 'Dr. Meera Kapoor',
-      specialty: 'Relationships',
-      rating: 5.0,
-      reviews: 156,
-      price: '₹600/session',
-      image: '👩‍⚕️',
-      bio: 'Relationship counselor helping couples and individuals build healthy connections',
-      languages: ['English', 'Hindi', 'Punjabi'],
-      availability: 'Available Today',
-    },
-    {
-      id: 4,
-      name: 'Dr. Amit Sharma',
-      specialty: 'PTSD & Trauma',
-      rating: 4.7,
-      reviews: 82,
-      price: '₹550/session',
-      image: '👨‍⚕️',
-      bio: 'Trauma-informed therapist specializing in PTSD and recovery',
-      languages: ['English', 'Hindi'],
-      availability: 'Available in 2 days',
-    },
+  const specialties = [
+    'Anxiety & Stress',
+    'Depression',
+    'Relationships',
+    'PTSD & Trauma',
+    'Grief & Loss',
+    'Addiction'
   ];
 
-  const specialties = ['Anxiety & Stress', 'Depression', 'Relationships', 'PTSD & Trauma', 'Grief & Loss', 'Addiction'];
   const languages = ['English', 'Hindi', 'Spanish', 'Mandarin', 'French', 'German'];
+
+  // Get user location on mount
+  useEffect(() => {
+    getUserLocation();
+  }, []);
+
+  const getUserLocation = () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+          });
+          fetchNearbyTherapists(position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          console.log('Location access denied, using default location');
+          // Default to Jaipur
+          const defaultLoc = { lat: 26.9124, lon: 75.8058 };
+          setUserLocation(defaultLoc);
+          fetchNearbyTherapists(defaultLoc.lat, defaultLoc.lon);
+        }
+      );
+    }
+  };
+
+  const fetchNearbyTherapists = async (lat, lon) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const token = localStorage.getItem('accessToken');
+      const response = await axios.get(`${API_URL}/api/therapists/nearby`, {
+        params: {
+          lat,
+          lon,
+          radius: selectedFilters.radius,
+          specialty: selectedFilters.specialty,
+          language: selectedFilters.language,
+          maxPrice: selectedFilters.maxPrice,
+          minRating: selectedFilters.minRating
+        },
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setTherapists(response.data.data || []);
+      applyLocalFilters(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching therapists:', error);
+      setError('Failed to load therapists. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const applyLocalFilters = (therapistList) => {
+    let filtered = therapistList;
+
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (t) =>
+          t.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          t.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          t.specialties.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    setFilteredTherapists(filtered);
+  };
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleFilterChange = (filterType, value) => {
+    setSelectedFilters({
+      ...selectedFilters,
+      [filterType]: value
+    });
+  };
+
+  const handleApplyFilters = () => {
+    if (userLocation) {
+      fetchNearbyTherapists(userLocation.lat, userLocation.lon);
+    }
+  };
+
+  const handleViewProfile = (therapistId) => {
+    navigate(`/therapist/${therapistId}`);
+  };
+
+  const formatPrice = (price) => {
+    return `₹${price}/session`;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -97,166 +160,237 @@ export function FindTherapistPageNew() {
         <DashboardHeader title="Find Therapist" showBackButton={false} />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+          {/* Error Alert */}
+          {error && (
+            <div className="animate-slideInUp bg-red-500/20 border border-red-500/50 text-red-300 p-4 rounded-xl flex items-center gap-3">
+              <AlertCircle className="w-5 h-5" />
+              {error}
+            </div>
+          )}
+
           {/* Search & Filter Section */}
           <section className="animate-slideInUp">
-            <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-3xl p-8 backdrop-blur-xl">
+            <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-3xl p-10 backdrop-blur-xl">
+              <h2 className="text-2xl font-bold text-white mb-8">Find Your Perfect Therapist</h2>
+
               {/* Search Bar */}
               <div className="mb-8">
                 <div className="relative">
-                  <Search className="absolute left-4 top-4 w-6 h-6 text-purple-400" />
+                  <Search className="absolute left-4 top-3.5 w-5 h-5 text-purple-400" />
                   <input
                     type="text"
-                    placeholder="Search by name or specialty..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-6 py-4 bg-slate-800/50 border border-purple-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition"
+                    onChange={handleSearch}
+                    placeholder="Search by name or specialty..."
+                    className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition"
                   />
                 </div>
               </div>
 
-              {/* Filter Buttons */}
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-purple-300 font-semibold mb-3 flex items-center gap-2">
-                    <Filter className="w-5 h-5" />
-                    By Specialty
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {specialties.map((spec) => (
-                      <button
-                        key={spec}
-                        onClick={() => setSelectedFilters({ ...selectedFilters, specialty: spec })}
-                        className={`px-4 py-2 rounded-full transition-all ${
-                          selectedFilters.specialty === spec
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-slate-800/50 text-purple-300 hover:bg-purple-500/20 border border-purple-500/30'
-                        }`}
-                      >
-                        {spec}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-purple-300 font-semibold mb-3">By Language</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {languages.map((lang) => (
-                      <button
-                        key={lang}
-                        onClick={() => setSelectedFilters({ ...selectedFilters, language: lang })}
-                        className={`px-4 py-2 rounded-full transition-all ${
-                          selectedFilters.language === lang
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-slate-800/50 text-purple-300 hover:bg-purple-500/20 border border-purple-500/30'
-                        }`}
-                      >
-                        {lang}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Therapists Grid */}
-          <section>
-            <h2 className="text-2xl font-bold text-white mb-8">{therapists.length} Verified Therapists</h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {therapists.map((therapist, idx) => (
-                <div
-                  key={therapist.id}
-                  className="animate-slideInUp bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-3xl p-8 hover:border-purple-500/60 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 backdrop-blur-xl group"
-                  style={{ animationDelay: `${idx * 0.1}s` }}
+              {/* Filters */}
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                {/* Specialty Filter */}
+                <select
+                  value={selectedFilters.specialty || ''}
+                  onChange={(e) => handleFilterChange('specialty', e.target.value || null)}
+                  className="px-4 py-2 bg-slate-800/50 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30"
                 >
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 text-4xl rounded-full bg-purple-600/20 border-2 border-purple-500/50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        {therapist.image}
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-white">{therapist.name}</h3>
-                        <p className="text-purple-300 text-sm">{therapist.specialty}</p>
-                      </div>
-                    </div>
-                    <button className="text-red-400 hover:text-red-300 transition">
-                      <Heart className="w-6 h-6" />
-                    </button>
-                  </div>
+                  <option value="">All Specialties</option>
+                  {specialties.map((spec) => (
+                    <option key={spec} value={spec}>
+                      {spec}
+                    </option>
+                  ))}
+                </select>
 
-                  {/* Rating */}
-                  <div className="flex items-center gap-2 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    ))}
-                    <span className="text-gray-300 text-sm ml-2">({therapist.reviews} reviews)</span>
-                  </div>
+                {/* Language Filter */}
+                <select
+                  value={selectedFilters.language || ''}
+                  onChange={(e) => handleFilterChange('language', e.target.value || null)}
+                  className="px-4 py-2 bg-slate-800/50 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30"
+                >
+                  <option value="">All Languages</option>
+                  {languages.map((lang) => (
+                    <option key={lang} value={lang}>
+                      {lang}
+                    </option>
+                  ))}
+                </select>
 
-                  {/* Bio */}
-                  <p className="text-gray-300 text-sm mb-6">{therapist.bio}</p>
+                {/* Max Price Filter */}
+                <select
+                  value={selectedFilters.maxPrice || ''}
+                  onChange={(e) => handleFilterChange('maxPrice', e.target.value ? parseInt(e.target.value) : null)}
+                  className="px-4 py-2 bg-slate-800/50 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30"
+                >
+                  <option value="">Any Price</option>
+                  <option value="500">Up to ₹500</option>
+                  <option value="1000">Up to ₹1000</option>
+                  <option value="1500">Up to ₹1500</option>
+                </select>
 
-                  {/* Info Cards */}
-                  <div className="grid grid-cols-2 gap-3 mb-6">
-                    <div className="bg-purple-600/20 border border-purple-500/30 rounded-lg p-3">
-                      <div className="text-purple-300 text-xs font-semibold mb-1">Price</div>
-                      <div className="text-white font-bold">{therapist.price}</div>
-                    </div>
-                    <div className="bg-purple-600/20 border border-purple-500/30 rounded-lg p-3">
-                      <div className="text-purple-300 text-xs font-semibold mb-1 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        Availability
-                      </div>
-                      <div className="text-white font-bold text-sm">{therapist.availability}</div>
-                    </div>
-                  </div>
+                {/* Rating Filter */}
+                <select
+                  value={selectedFilters.minRating || ''}
+                  onChange={(e) => handleFilterChange('minRating', e.target.value ? parseFloat(e.target.value) : null)}
+                  className="px-4 py-2 bg-slate-800/50 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30"
+                >
+                  <option value="">Any Rating</option>
+                  <option value="4.5">4.5+ Stars</option>
+                  <option value="4.7">4.7+ Stars</option>
+                  <option value="4.9">4.9+ Stars</option>
+                </select>
 
-                  {/* Languages */}
-                  <div className="mb-6">
-                    <div className="text-purple-300 text-xs font-semibold mb-2">Languages</div>
-                    <div className="flex flex-wrap gap-2">
-                      {therapist.languages.map((lang) => (
-                        <span key={lang} className="px-2 py-1 bg-slate-800/50 text-purple-200 text-xs rounded-full">
-                          {lang}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-3">
-                    <button className="flex-1 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-all hover:scale-105 active:scale-95">
-                      Book Session
-                    </button>
-                    <button className="px-4 py-3 bg-slate-800/50 hover:bg-slate-700/50 text-purple-300 border border-purple-500/30 rounded-lg transition-all">
-                      <MessageSquare className="w-6 h-6" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* CTA Section */}
-          <section className="animate-slideInUp">
-            <div className="bg-gradient-to-r from-purple-600/40 to-pink-600/40 border border-purple-500/30 rounded-3xl p-12 text-center backdrop-blur-xl">
-              <h2 className="text-3xl font-bold text-white mb-4">Can't Find the Right Therapist?</h2>
-              <p className="text-purple-200 text-lg mb-8">Chat with our AI counselor or browse more therapists</p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                {/* Apply Button */}
                 <button
-                  onClick={() => navigate('/ai-counselor')}
-                  className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all hover:scale-105 active:scale-95"
+                  onClick={handleApplyFilters}
+                  className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition-all hover:scale-105 active:scale-95"
                 >
-                  💬 Talk to AI
-                </button>
-                <button className="px-8 py-4 bg-slate-800/50 text-purple-300 border-2 border-purple-500/50 font-bold rounded-xl hover:bg-slate-700/50 transition-all">
-                  View More
+                  <Filter className="w-5 h-5 inline mr-2" />
+                  Apply
                 </button>
               </div>
             </div>
           </section>
+
+          {/* Loading State */}
+          {loading && (
+            <div className="flex justify-center items-center py-20">
+              <Loader className="w-8 h-8 animate-spin text-purple-400" />
+            </div>
+          )}
+
+          {/* Therapists List */}
+          {!loading && filteredTherapists.length > 0 && (
+            <section className="animate-slideInUp">
+              <h2 className="text-2xl font-bold text-white mb-6">
+                Available Therapists ({filteredTherapists.length})
+              </h2>
+
+              <div className="space-y-4">
+                {filteredTherapists.map((therapist) => (
+                  <div
+                    key={therapist._id}
+                    className="group p-6 bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl hover:border-purple-500/60 transition-all hover:shadow-lg hover:shadow-purple-500/20 backdrop-blur-xl cursor-pointer"
+                    onClick={() => handleViewProfile(therapist._id)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        {/* Name & Location */}
+                        <div className="mb-3">
+                          <h3 className="text-xl font-bold text-white">
+                            Dr. {therapist.firstName} {therapist.lastName}
+                          </h3>
+                          <div className="flex items-center gap-2 text-purple-300 text-sm mt-1">
+                            <MapPin className="w-4 h-4" />
+                            {therapist.location.city}, {therapist.location.state}
+                            {therapist.distanceKm && (
+                              <span className="ml-2">({therapist.distanceKm} km away)</span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Bio */}
+                        <p className="text-gray-300 text-sm mb-3">{therapist.bio}</p>
+
+                        {/* Specialties */}
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {therapist.specialties.slice(0, 3).map((spec) => (
+                            <span
+                              key={spec}
+                              className="px-3 py-1 bg-purple-600/30 text-purple-200 text-xs rounded-full"
+                            >
+                              {spec}
+                            </span>
+                          ))}
+                          {therapist.specialties.length > 3 && (
+                            <span className="px-3 py-1 bg-purple-600/30 text-purple-200 text-xs rounded-full">
+                              +{therapist.specialties.length - 3}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Info Row */}
+                        <div className="flex flex-wrap gap-6 text-sm">
+                          {/* Rating */}
+                          <div className="flex items-center gap-2">
+                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                            <span className="text-white font-semibold">{therapist.ratings.average}</span>
+                            <span className="text-gray-400">({therapist.ratings.count} reviews)</span>
+                          </div>
+
+                          {/* Price */}
+                          <div className="flex items-center gap-2">
+                            <Award className="w-4 h-4 text-green-400" />
+                            <span className="text-white font-semibold">{formatPrice(therapist.pricing.perSession)}</span>
+                          </div>
+
+                          {/* Experience */}
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4 text-blue-400" />
+                            <span className="text-white font-semibold">{therapist.experience}+ yrs</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex flex-col gap-2 ml-4">
+                        <button className="p-2 rounded-lg hover:bg-purple-600/20 transition text-purple-300 hover:text-purple-200">
+                          <Heart className="w-5 h-5" />
+                        </button>
+                        <button className="p-2 rounded-lg hover:bg-purple-600/20 transition text-purple-300 hover:text-purple-200">
+                          <MessageSquare className="w-5 h-5" />
+                        </button>
+                        <ChevronRight className="w-5 h-5 text-purple-400 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Empty State */}
+          {!loading && filteredTherapists.length === 0 && therapists.length === 0 && (
+            <section className="animate-slideInUp">
+              <div className="bg-gradient-to-r from-purple-600/40 to-blue-600/40 border border-purple-500/30 rounded-3xl p-10 backdrop-blur-xl text-center">
+                <h2 className="text-2xl font-bold text-white mb-2">No Therapists Found</h2>
+                <p className="text-purple-200 mb-6">Try adjusting your filters or allow location access for better results.</p>
+                <button
+                  onClick={getUserLocation}
+                  className="px-6 py-3 bg-white text-purple-600 font-bold rounded-lg hover:shadow-lg transition-all hover:scale-105 active:scale-95"
+                >
+                  Try Again
+                </button>
+              </div>
+            </section>
+          )}
+
+          {/* No Results After Filter */}
+          {!loading && filteredTherapists.length === 0 && therapists.length > 0 && (
+            <section className="animate-slideInUp">
+              <div className="bg-gradient-to-r from-purple-600/40 to-blue-600/40 border border-purple-500/30 rounded-3xl p-10 backdrop-blur-xl text-center">
+                <h2 className="text-2xl font-bold text-white mb-2">No Match Found</h2>
+                <p className="text-purple-200 mb-6">Try adjusting your filters to find more therapists.</p>
+                <button
+                  onClick={() => {
+                    setSelectedFilters({
+                      specialty: null,
+                      language: null,
+                      maxPrice: null,
+                      minRating: null,
+                      radius: 50
+                    });
+                    setSearchQuery('');
+                    setFilteredTherapists(therapists);
+                  }}
+                  className="px-6 py-3 bg-white text-purple-600 font-bold rounded-lg hover:shadow-lg transition-all hover:scale-105 active:scale-95"
+                >
+                  Reset Filters
+                </button>
+              </div>
+            </section>
+          )}
         </main>
       </div>
     </div>
