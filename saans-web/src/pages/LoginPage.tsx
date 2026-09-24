@@ -33,12 +33,13 @@ export function LoginPage() {
         password,
       });
 
-      localStorage.setItem('accessToken', response.data.accessToken);
+      // Backend returns { success, message, token, user }
+      localStorage.setItem('accessToken', response.data.token);
       dispatch(setUser(response.data.user));
-      dispatch(setToken(response.data.accessToken));
+      dispatch(setToken(response.data.token));
       navigate('/dashboard');
     } catch (err: any) {
-      const errorMsg = err.response?.data?.error;
+      const errorMsg = err.response?.data?.error || err.response?.data?.message;
       const message = typeof errorMsg === 'string' ? errorMsg : (errorMsg?.message || 'Login failed');
       setError(message);
     } finally {

@@ -38,13 +38,20 @@ export function RegisterPage() {
     e.preventDefault();
     setError('');
 
+    if (!formData.name.trim()) {
+      setError('Full name is required');
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    // Backend requires: 8+ chars, uppercase, lowercase, number, special char
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      setError('Password must have: 8+ chars, uppercase, lowercase, number, special character (!@#$%^&*)');
       return;
     }
 
@@ -56,21 +63,26 @@ export function RegisterPage() {
     setIsLoading(true);
 
     try {
+      // Split name into firstName and lastName
+      const nameParts = formData.name.trim().split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ') || nameParts[0];
+
       const response = await axios.post(`${API_URL}/api/auth/register`, {
-        name: formData.name,
+        firstName,
+        lastName,
         email: formData.email,
         password: formData.password,
-        city: formData.city,
-        role: 'PATIENT',
       });
 
-      localStorage.setItem('accessToken', response.data.accessToken);
+      // Backend returns { success, message, token, user }
+      localStorage.setItem('accessToken', response.data.token);
       dispatch(setUser(response.data.user));
-      dispatch(setToken(response.data.accessToken));
+      dispatch(setToken(response.data.token));
       navigate('/dashboard');
     } catch (err: any) {
-      const errorMsg = err.response?.data?.error;
-      const message = typeof errorMsg === 'string' ? errorMsg : (errorMsg?.message || 'Registration failed');
+      const errorMsg = err.response?.data?.error || err.response?.data?.message;
+      const message = typeof errorMsg === 'string' ? errorMsg : (Array.isArray(errorMsg) ? errorMsg[0]?.msg : 'Registration failed');
       setError(message);
     } finally {
       setIsLoading(false);
