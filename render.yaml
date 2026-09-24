@@ -4,9 +4,14 @@ services:
     env: node
     plan: standard
     region: ohio
-    buildCommand: npm install
+    buildCommand: npm install --legacy-peer-deps --no-audit
     startCommand: npm start
     rootDir: server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NPM_CONFIG_LEGACY_PEER_DEPS
+        value: "true"
     envVars:
       - key: NODE_ENV
         value: production
