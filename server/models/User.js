@@ -19,9 +19,26 @@ const userSchema = new mongoose.Schema({
   city: { type: String },
 
   // Account
-  role: { type: String, enum: ['user', 'therapist', 'admin'], default: 'user' },
+  role: { type: String, enum: ['patient', 'therapist', 'admin'], default: 'patient' },
   status: { type: String, enum: ['active', 'inactive', 'suspended'], default: 'active' },
+  isVerified: { type: Boolean, default: false },
   emailVerified: { type: Boolean, default: false },
+
+  // OAuth Integration
+  oauthProvider: { type: String, enum: ['google', 'apple'], default: null },
+  oauthId: { type: String, default: null },
+
+  // Security
+  passwordResetToken: String,
+  passwordResetExpires: Date,
+  twoFactorEnabled: { type: Boolean, default: false },
+  twoFactorSecret: String,
+  loginAttempts: { type: Number, default: 0 },
+  lockUntil: Date,
+
+  // Audit
+  lastLoginIp: String,
+  lastLoginUserAgent: String,
 
   // Therapist specific
   therapistProfile: {

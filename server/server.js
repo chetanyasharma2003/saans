@@ -10,10 +10,14 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
+const session = require('express-session');
+const passport = require('passport');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger-config');
 const requestIdMiddleware = require('./middleware/requestId');
 const errorHandler = require('./middleware/errorHandler');
+const { apiLimiter, loginLimiter, registrationLimiter } = require('./middleware/rateLimiter');
+require('./config/passport');
 
 // Initialize Express App
 const app = express();
@@ -23,6 +27,18 @@ const PORT = process.env.PORT || 3001;
 
 // Request ID tracking (should be first)
 app.use(requestIdMiddleware);
+
+// Session configuration for OAuth
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'saans-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production', httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }
+}));
+
+// Passport configuration
+app.use(passport.initialize());
+app.use(passport.session());
 
 // CORS Configuration - Must be BEFORE helmet
 app.use(cors({
@@ -113,6 +129,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 }));
 
 // API Routes (All endpoints at /api/)
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth/register', registrationLimiter);
+app.use('/api/', apiLimiter); // Apply to all authenticated endpoints
+
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/users.routes'));
 app.use('/api/appointments', require('./routes/appointments.routes'));
@@ -122,6 +142,8 @@ app.use('/api/community', require('./routes/community.routes'));
 app.use('/api/ai', require('./routes/ai.routes'));
 app.use('/api/email', require('./routes/email.routes'));
 app.use('/api/files', require('./routes/files.routes'));
+app.use('/api/oauth', require('./routes/oauth.routes'));
+app.use('/api/audit', require('./routes/audit.routes'));
 
 // 404 Handler
 app.use((req, res) => {
