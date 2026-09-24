@@ -17,6 +17,7 @@ const swaggerSpec = require('./swagger-config');
 const requestIdMiddleware = require('./middleware/requestId');
 const errorHandler = require('./middleware/errorHandler');
 const { apiLimiter, loginLimiter, registrationLimiter } = require('./middleware/rateLimiter');
+const socketService = require('./services/socketService');
 require('./config/passport');
 
 // Initialize Express App
@@ -144,6 +145,8 @@ app.use('/api/email', require('./routes/email.routes'));
 app.use('/api/files', require('./routes/files.routes'));
 app.use('/api/oauth', require('./routes/oauth.routes'));
 app.use('/api/audit', require('./routes/audit.routes'));
+app.use('/api/chat', require('./routes/chat.routes'));
+app.use('/api/notifications', require('./routes/notifications.routes'));
 
 // 404 Handler
 app.use((req, res) => {
@@ -164,12 +167,16 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📍 API Base: http://localhost:${PORT}/api`);
       console.log(`📍 Auth: http://localhost:${PORT}/api/auth`);
       console.log(`📍 Appointments: http://localhost:${PORT}/api/appointments`);
+      console.log(`📍 WebSocket: ws://localhost:${PORT}`);
     });
+
+    // Initialize Socket.io
+    socketService.initialize(server);
   } catch (error) {
     console.error('❌ Server Start Error:', error);
     process.exit(1);
