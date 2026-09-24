@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
   try {
     const { specialty, language, minRating, maxPrice } = req.query;
 
-    // Mock therapist data
+    // Always return mock therapist data (will use DB in production)
     const mockTherapists = [
       {
         _id: '1',
@@ -110,7 +110,7 @@ router.get('/', async (req, res) => {
       filtered = filtered.filter(t => t.price <= parseInt(maxPrice));
     }
 
-    res.json({
+    res.status(200).json({
       success: true,
       data: filtered,
       total: filtered.length,
