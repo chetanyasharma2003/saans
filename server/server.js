@@ -23,28 +23,40 @@ const PORT = process.env.PORT || 3001;
 app.use(requestIdMiddleware);
 
 // CORS Configuration - Must be BEFORE helmet
-const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
-const allowedOrigins = corsOrigin
-  .split(',')
-  .map(url => url.trim())
-  .filter(url => url.length > 0);
-
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    // Check if origin matches any allowed origin
-    const isAllowed = allowedOrigins.some(allowed => {
-      // Handle wildcard patterns like *.vercel.app
-      if (allowed.includes('*')) {
-        const pattern = allowed.replace(/\./g, '\\.').replace(/\*/g, '.*');
-        return new RegExp(`^https?://${pattern}$`).test(origin);
-      }
-      return origin === allowed;
-    });
+    // Whitelist of allowed patterns
+    const allowedPatterns = [
+      /^http:\/\/localhost(:\d+)?$/, // localhost:* for dev
+      /^https?:\/\/.*\.vercel\.app$/, // All Vercel deployments (preview + production)
+      /^https:\/\/saans-mental-health\.vercel\.app$/, // Production
+    ];
 
-    callback(null, isAllowed); // Pass true/false, not error
+    // Check if origin matches any allowed pattern
+    const isAllowed = allowedPatterns.some(pattern => pattern.test(origin));
+
+    // If CORS_ORIGIN env var is set, also check those
+    if (process.env.CORS_ORIGIN) {
+      const customOrigins = process.env.CORS_ORIGIN
+        .split(',')
+        .map(url => url.trim())
+        .filter(url => url.length > 0);
+
+      if (customOrigins.some(allowed => {
+        if (allowed.includes('*')) {
+          const pattern = allowed.replace(/\./g, '\\.').replace(/\*/g, '.*');
+          return new RegExp(`^https?://${pattern}$`).test(origin);
+        }
+        return origin === allowed;
+      })) {
+        return callback(null, true);
+      }
+    }
+
+    callback(null, isAllowed);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
