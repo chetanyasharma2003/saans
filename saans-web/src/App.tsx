@@ -39,7 +39,7 @@ const StoriesPage = React.lazy(() => import('./pages/StoriesPageNew'));
 const CrisisSupportPage = React.lazy(() => import('./pages/CrisisSupportPageNew'));
 const MyProfilePage = React.lazy(() => import('./pages/ProfilePageNew'));
 
-// Protected Route with Navbar
+// Protected Route (each page has its own header)
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
@@ -47,12 +47,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/login" replace />;
   }
 
-  return (
-    <>
-      <Navbar />
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }
 
 // App Routes
@@ -110,15 +105,13 @@ function AppRoutes() {
         <Route
           path="/dashboard"
           element={
-            isAuthenticated ? (
+            <ProtectedRoute>
               <React.Suspense fallback={<SuspenseLoading />}>
                 <PageTransition>
                   <DashboardPage />
                 </PageTransition>
               </React.Suspense>
-            ) : (
-              <Navigate to="/login" replace />
-            )
+            </ProtectedRoute>
           }
         />
         <Route
