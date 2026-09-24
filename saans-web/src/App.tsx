@@ -28,7 +28,7 @@ const queryClient = new QueryClient({
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const RegisterPage = React.lazy(() => import('./pages/RegisterPage'));
-const DashboardPage = React.lazy(() => import('./pages/DashboardPage.integrated'));
+const DashboardPage = React.lazy(() => import('./pages/DashboardPageNew'));
 const AICounselorPage = React.lazy(() => import('./pages/AICounselorPage'));
 const FindTherapistPage = React.lazy(() => import('./pages/FindTherapistPage.integrated'));
 const MoodTrackerPage = React.lazy(() => import('./pages/MoodTrackerPage.integrated'));
