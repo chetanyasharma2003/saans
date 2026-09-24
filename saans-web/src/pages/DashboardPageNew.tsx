@@ -127,17 +127,18 @@ export function DashboardPageNew() {
       {/* Main content */}
       <div className="relative z-10">
         {/* Header */}
-        <header className="sticky top-0 z-40 backdrop-blur-md bg-gradient-to-r from-purple-500/80 via-pink-400/80 to-red-400/80 border-b border-white/20 shadow-lg">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-white drop-shadow-lg">
+        <header className="sticky top-0 z-40 backdrop-blur-md bg-gradient-to-r from-purple-500/80 via-pink-400/80 to-red-400/80 border-b border-white/20 shadow-lg overflow-hidden">
+          <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center gap-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg truncate">
                 Welcome back! 🌿
               </h1>
-              <p className="text-sm text-white/80">Tuesday, Sep 24 • Your wellness journey continues</p>
+              <p className="text-xs sm:text-sm text-white/80 truncate">Tuesday, Sep 24 • Your wellness journey continues</p>
             </div>
             <button
               onClick={() => navigate('/profile')}
-              className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-300 via-green-300 to-blue-300 hover:shadow-xl hover:scale-110 transition-all duration-300 font-bold text-white"
+              className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-yellow-300 via-green-300 to-blue-300 hover:shadow-xl hover:scale-110 transition-all duration-300 font-bold text-white shadow-lg"
+              title="Profile"
             />
           </div>
         </header>
