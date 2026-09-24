@@ -1,93 +1,80 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Brain, MessageCircle, Calendar, Zap, TrendingUp, Users, BookOpen, AlertCircle, ChevronRight, Sparkles, Menu, X, Home, Settings, LogOut } from 'lucide-react';
+import { Calendar, Heart, Zap, CreditCard, TrendingUp, Clock, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { DashboardHeader } from '../components/DashboardHeader';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export function DashboardPageNew() {
   const navigate = useNavigate();
-  const [selectedMood, setSelectedMood] = useState(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState(null);
+  const [appointments, setAppointments] = useState([]);
+  const [moodData, setMoodData] = useState(null);
+  const [subscription, setSubscription] = useState(null);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [error, setError] = useState(null);
 
-  const moods = [
-    { emoji: '😊', label: 'Great', value: 5, color: 'bg-green-400' },
-    { emoji: '🙂', label: 'Good', value: 4, color: 'bg-blue-400' },
-    { emoji: '😐', label: 'Okay', value: 3, color: 'bg-yellow-300' },
-    { emoji: '😕', label: 'Rough', value: 2, color: 'bg-orange-400' },
-    { emoji: '😢', label: 'Tough', value: 1, color: 'bg-red-400' },
-  ];
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
-  const quickActions = [
-    {
-      icon: Heart,
-      title: 'Check-In',
-      desc: 'Track mood',
-      action: () => navigate('/mood-tracker'),
-      gradient: 'from-red-500 to-pink-500',
-    },
-    {
-      icon: Brain,
-      title: 'AI Chat',
-      desc: 'Counselor',
-      action: () => navigate('/ai-counselor'),
-      gradient: 'from-purple-500 to-indigo-500',
-    },
-    {
-      icon: Users,
-      title: 'Therapist',
-      desc: 'Find one',
-      action: () => navigate('/find-therapist'),
-      gradient: 'from-blue-500 to-cyan-500',
-    },
-    {
-      icon: AlertCircle,
-      title: 'Crisis',
-      desc: 'Help now',
-      action: () => navigate('/crisis-support'),
-      gradient: 'from-orange-500 to-red-600',
-    },
-  ];
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
 
-  const exploreSections = [
-    {
-      icon: MessageCircle,
-      title: 'Community',
-      desc: 'Connect',
-      gradient: 'from-teal-400 to-green-500',
-      icon_gradient: 'from-teal-600 to-green-600',
-      action: () => navigate('/community'),
-    },
-    {
-      icon: Calendar,
-      title: 'Sessions',
-      desc: 'Manage',
-      gradient: 'from-blue-400 to-purple-500',
-      icon_gradient: 'from-blue-600 to-purple-600',
-      action: () => navigate('/appointments'),
-    },
-    {
-      icon: TrendingUp,
-      title: 'Progress',
-      desc: 'Track',
-      gradient: 'from-orange-400 to-red-500',
-      icon_gradient: 'from-orange-600 to-red-600',
-      action: () => navigate('/mood-tracker'),
-    },
-    {
-      icon: BookOpen,
-      title: 'Resources',
-      desc: 'Learn',
-      gradient: 'from-indigo-400 to-purple-500',
-      icon_gradient: 'from-indigo-600 to-purple-600',
-      action: () => navigate('/resources'),
-    },
-  ];
+      const [userRes, appointmentsRes, moodRes, subRes] = await Promise.all([
+        axios.get(`${API_URL}/api/users/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`${API_URL}/api/appointments`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`${API_URL}/api/mood/stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`${API_URL}/api/payments/subscription`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+
+      setUserData(userRes.data.data);
+      setAppointments(appointmentsRes.data.data || []);
+      setMoodData(moodRes.data.data);
+      setSubscription(subRes.data.data);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setError('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const upcomingAppointments = appointments.filter(a =>
+    a.status === 'confirmed' && new Date(a.startTime) > new Date()
+  ).slice(0, 3);
+
+  const completedAppointments = appointments.filter(a => a.status === 'completed');
+  const totalSpent = appointments.reduce((sum, a) => sum + (a.price || 0), 0);
+  const avgMood = moodData?.averageMoodScore?.toFixed(1) || 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <Loader className="w-8 h-8 animate-spin text-purple-400" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-x-hidden">
-      {/* Animated background blobs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-0 left-0 w-72 sm:w-96 h-72 sm:h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute top-40 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-0 left-1/2 w-72 sm:w-96 h-72 sm:h-96 bg-green-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Animated blobs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute top-40 right-0 w-96 h-96 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
       <style>{`
@@ -99,206 +86,295 @@ export function DashboardPageNew() {
         .animate-blob { animation: blob 7s infinite; }
         .animation-delay-2000 { animation-delay: 2s; }
         .animation-delay-4000 { animation-delay: 4s; }
-
-        @keyframes slideInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slideInUp { animation: slideInUp 0.6s ease-out forwards; }
-        .stagger-1 { animation-delay: 0.1s; }
-        .stagger-2 { animation-delay: 0.2s; }
-        .stagger-3 { animation-delay: 0.3s; }
-        .stagger-4 { animation-delay: 0.4s; }
-
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
       `}</style>
 
-      {/* REDESIGNED HEADER - MODERN & CLEAN */}
-      <header className="relative z-40 w-full bg-gradient-to-r from-slate-900/95 via-purple-900/95 to-slate-900/95 backdrop-blur-xl border-b border-purple-500/20 shadow-2xl">
-        <div className="w-full">
-          {/* Top Section - Logo + Profile */}
-          <div className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between min-h-fit">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm sm:text-base flex-shrink-0">S</div>
-              <div className="hidden sm:block">
-                <h1 className="text-lg sm:text-xl font-bold text-white leading-tight">SAANS</h1>
-                <p className="text-xs text-purple-300 leading-tight">Mental Health</p>
+      <div className="relative z-10">
+        <DashboardHeader title="Dashboard" showBackButton={false} />
+
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Welcome Banner */}
+          <div className="mb-12 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8">
+            <h1 className="text-4xl font-bold text-white mb-2">Welcome back, {userData?.name?.split(' ')[0]}! 👋</h1>
+            <p className="text-purple-300">Track your mental health journey and manage your wellness plan</p>
+          </div>
+
+          {error && (
+            <div className="mb-8 bg-red-500/20 border border-red-500/50 text-red-300 p-4 rounded-xl flex items-center gap-3">
+              <AlertCircle className="w-5 h-5" />
+              {error}
+            </div>
+          )}
+
+          {/* Quick Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {/* Subscription Status */}
+            <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <CreditCard className="w-6 h-6 text-purple-400" />
+                <span className={`text-xs px-3 py-1 rounded-full ${
+                  subscription?.status === 'active'
+                    ? 'bg-green-500/20 text-green-300'
+                    : 'bg-gray-500/20 text-gray-300'
+                }`}>
+                  {subscription?.plan?.toUpperCase()}
+                </span>
               </div>
+              <p className="text-gray-400 text-sm mb-2">Subscription</p>
+              <p className="text-white text-2xl font-bold mb-2">
+                ₹{subscription?.planDetails?.price?.toLocaleString()}
+              </p>
+              <p className="text-xs text-purple-300">
+                Renews: {subscription?.renewalDate ? new Date(subscription.renewalDate).toLocaleDateString() : 'N/A'}
+              </p>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+            {/* Appointments */}
+            <div className="bg-gradient-to-br from-blue-900/40 to-slate-900/40 border border-blue-500/30 rounded-2xl backdrop-blur-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <Calendar className="w-6 h-6 text-blue-400" />
+              </div>
+              <p className="text-gray-400 text-sm mb-2">This Month</p>
+              <p className="text-white text-2xl font-bold mb-2">{completedAppointments.length}</p>
+              <p className="text-xs text-blue-300">Sessions Completed</p>
+            </div>
+
+            {/* Mood Tracking */}
+            <div className="bg-gradient-to-br from-pink-900/40 to-slate-900/40 border border-pink-500/30 rounded-2xl backdrop-blur-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <Heart className="w-6 h-6 text-pink-400" />
+              </div>
+              <p className="text-gray-400 text-sm mb-2">Average Mood</p>
+              <p className="text-white text-2xl font-bold mb-2">{avgMood}/5</p>
+              <p className="text-xs text-pink-300">30-day average</p>
+            </div>
+
+            {/* Total Investment */}
+            <div className="bg-gradient-to-br from-green-900/40 to-slate-900/40 border border-green-500/30 rounded-2xl backdrop-blur-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <TrendingUp className="w-6 h-6 text-green-400" />
+              </div>
+              <p className="text-gray-400 text-sm mb-2">Total Invested</p>
+              <p className="text-white text-2xl font-bold mb-2">₹{totalSpent.toLocaleString()}</p>
+              <p className="text-xs text-green-300">In your wellness</p>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+            {['overview', 'appointments', 'mood', 'billing'].map((tab) => (
               <button
-                onClick={() => navigate('/profile')}
-                className="p-2 sm:p-2.5 rounded-lg hover:bg-purple-500/20 transition-all text-purple-300 hover:text-purple-200"
-                title="Profile"
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-6 py-3 rounded-lg whitespace-nowrap transition-all font-medium ${
+                  activeTab === tab
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-slate-800/50 text-purple-300 hover:bg-slate-800'
+                }`}
               >
-                <Settings className="w-5 sm:w-6 h-5 sm:h-6" />
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
-              <button
-                onClick={() => navigate('/profile')}
-                className="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-gradient-to-br from-green-400 via-blue-400 to-purple-400 hover:shadow-lg hover:scale-110 transition-all duration-300 shadow-md flex-shrink-0"
-                title="Profile"
-              />
-            </div>
+            ))}
           </div>
 
-          {/* Navigation Section - Horizontal */}
-          <div className="px-4 sm:px-6 lg:px-8 pb-3 sm:pb-4 flex items-center gap-2 overflow-x-auto min-h-fit scrollbar-hide">
-            <button className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-purple-600/40 text-white text-xs sm:text-sm font-semibold hover:bg-purple-600/60 transition-all whitespace-nowrap flex-shrink-0">
-              Dashboard
-            </button>
-            <button onClick={() => navigate('/mood-tracker')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0">
-              Mood
-            </button>
-            <button onClick={() => navigate('/find-therapist')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0">
-              Therapist
-            </button>
-            <button onClick={() => navigate('/community')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0">
-              Community
-            </button>
-            <button onClick={() => navigate('/appointments')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0">
-              Sessions
-            </button>
-            <button onClick={() => navigate('/resources')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0">
-              Resources
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* WELCOME BANNER */}
-      <div className="relative z-10 px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
-        <div className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-purple-500/30 backdrop-blur-xl mb-8 sm:mb-10">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-1">Welcome back! 👋</h2>
-          <p className="text-purple-300 text-sm sm:text-base">Let's take care of your mental wellness today</p>
-        </div>
-      </div>
-
-      {/* Main content - STRUCTURED LAYOUT */}
-      <main className="relative z-10 px-4 sm:px-6 lg:px-8 pb-12 space-y-6 sm:space-y-8">
-
-        {/* SECTION 1: MOOD CHECK-IN */}
-        <section className="animate-slideInUp">
-          <div className="bg-gradient-to-br from-purple-800/60 via-pink-800/40 to-slate-900/60 rounded-2xl sm:rounded-3xl p-6 sm:p-8 border-2 border-purple-500/50 shadow-2xl backdrop-blur-xl overflow-hidden relative">
-            <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-
-            <div className="relative z-10">
-              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">How are you feeling? 🌈</h3>
-              <p className="text-purple-200 text-sm sm:text-base mb-6">Select your mood right now</p>
-
-              {/* Mood Grid */}
-              <div className="grid grid-cols-5 gap-2 sm:gap-3 mb-6">
-                {moods.map((mood) => (
-                  <button
-                    key={mood.value}
-                    onClick={() => setSelectedMood(mood.value)}
-                    className={`group relative py-3 sm:py-4 px-1 rounded-2xl transition-all duration-300 transform flex flex-col items-center justify-center ${
-                      selectedMood === mood.value
-                        ? `${mood.color} border-3 border-white scale-110 shadow-2xl shadow-purple-500/50`
-                        : 'bg-slate-700/60 border-3 border-purple-400/40 hover:border-purple-400/80 hover:scale-105 hover:shadow-lg'
-                    }`}
-                  >
-                    <div className="text-2xl sm:text-3xl">{mood.emoji}</div>
-                    <div className={`text-xs font-bold mt-1 hidden sm:block ${selectedMood === mood.value ? 'text-white' : 'text-purple-300'}`}>
-                      {mood.label}
+          {/* Tab Content */}
+          <div className="space-y-8">
+            {/* Overview Tab */}
+            {activeTab === 'overview' && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Progress Chart */}
+                <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8">
+                  <h3 className="text-xl font-bold text-white mb-6">Your Wellness Progress</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-gray-300">Therapy Engagement</span>
+                        <span className="text-sm font-bold text-purple-300">{Math.round((completedAppointments.length / 12) * 100)}%</span>
+                      </div>
+                      <div className="w-full bg-slate-700/30 rounded-full h-2">
+                        <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${(completedAppointments.length / 12) * 100}%` }}></div>
+                      </div>
                     </div>
-                  </button>
-                ))}
-              </div>
-
-              {selectedMood && (
-                <button
-                  onClick={() => navigate('/mood-tracker')}
-                  className="w-full py-3 sm:py-4 px-6 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 text-white font-bold text-sm sm:text-base rounded-xl sm:rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-green-500/40 border border-green-400/50"
-                >
-                  ✨ Continue Check-In
-                </button>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 2: QUICK ACTIONS */}
-        <section className="animate-slideInUp stagger-1">
-          <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 flex items-center gap-2">
-            <Sparkles className="w-5 sm:w-6 h-5 sm:h-6 text-yellow-400" />
-            Quick Actions
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-            {quickActions.map((action, idx) => {
-              const Icon = action.icon;
-              return (
-                <button
-                  key={idx}
-                  onClick={action.action}
-                  className={`group p-4 sm:p-6 rounded-2xl bg-gradient-to-br ${action.gradient} hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 text-left animate-slideInUp border-2 border-white/30 hover:border-white shadow-lg`}
-                  style={{ animationDelay: `${0.1 + idx * 0.1}s` }}
-                >
-                  <Icon className="w-6 sm:w-8 h-6 sm:h-8 text-white mb-2 group-hover:scale-110 transition-transform" />
-                  <h4 className="font-bold text-white text-sm sm:text-base">{action.title}</h4>
-                  <p className="text-white/80 text-xs sm:text-sm">{action.desc}</p>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* SECTION 3: EXPLORE SECTIONS */}
-        <section className="animate-slideInUp stagger-2">
-          <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">Explore</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {exploreSections.map((section, idx) => {
-              const Icon = section.icon;
-              return (
-                <button
-                  key={idx}
-                  onClick={section.action}
-                  className={`group text-left p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-purple-900/40 to-slate-900/40 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 hover:scale-105 active:scale-95 animate-slideInUp border-2 border-purple-500/30 shadow-lg backdrop-blur-xl`}
-                  style={{ animationDelay: `${0.2 + idx * 0.1}s` }}
-                >
-                  <div className={`w-12 sm:w-14 h-12 sm:h-14 rounded-2xl bg-gradient-to-br ${section.icon_gradient} p-2 sm:p-3 mb-4 group-hover:scale-125 transition-transform`}>
-                    <Icon className="w-full h-full text-white" />
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-gray-300">Mood Improvement</span>
+                        <span className="text-sm font-bold text-pink-300">+35%</span>
+                      </div>
+                      <div className="w-full bg-slate-700/30 rounded-full h-2">
+                        <div className="bg-pink-500 h-2 rounded-full" style={{ width: '75%' }}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-gray-300">Sleep Quality</span>
+                        <span className="text-sm font-bold text-blue-300">+45%</span>
+                      </div>
+                      <div className="w-full bg-slate-700/30 rounded-full h-2">
+                        <div className="bg-blue-500 h-2 rounded-full" style={{ width: '82%' }}></div>
+                      </div>
+                    </div>
                   </div>
-                  <h4 className="text-lg sm:text-xl font-bold text-white group-hover:text-purple-300 transition-all">{section.title}</h4>
-                  <p className="text-purple-300 text-xs sm:text-sm mt-2">{section.desc}</p>
-                  <ChevronRight className="w-4 sm:w-5 h-4 sm:h-5 text-purple-400 mt-3 group-hover:translate-x-2 transition-transform" />
-                </button>
-              );
-            })}
-          </div>
-        </section>
+                </div>
 
-        {/* SECTION 4: WELLNESS TIP */}
-        <section className="animate-slideInUp stagger-3">
-          <div className="bg-gradient-to-r from-emerald-500/40 to-teal-500/40 rounded-2xl sm:rounded-3xl p-6 sm:p-8 border-2 border-emerald-500/50 shadow-lg backdrop-blur-xl">
-            <h4 className="text-lg sm:text-xl font-bold text-white mb-3">💡 Daily Tip</h4>
-            <p className="text-purple-200 text-sm sm:text-base leading-relaxed">
-              "Small steps lead to big changes. Be patient and kind with yourself on this journey."
-            </p>
-          </div>
-        </section>
+                {/* Quick Actions */}
+                <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8">
+                  <h3 className="text-xl font-bold text-white mb-6">Quick Actions</h3>
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => navigate('/appointments')}
+                      className="w-full p-4 bg-slate-800/50 hover:bg-slate-800 rounded-xl transition-all text-left flex items-center justify-between group"
+                    >
+                      <span className="text-white font-medium">Book Session</span>
+                      <Calendar className="w-5 h-5 text-purple-400 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                    <button
+                      onClick={() => navigate('/mood')}
+                      className="w-full p-4 bg-slate-800/50 hover:bg-slate-800 rounded-xl transition-all text-left flex items-center justify-between group"
+                    >
+                      <span className="text-white font-medium">Track Mood</span>
+                      <Heart className="w-5 h-5 text-pink-400 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                    <button
+                      onClick={() => navigate('/resources')}
+                      className="w-full p-4 bg-slate-800/50 hover:bg-slate-800 rounded-xl transition-all text-left flex items-center justify-between group"
+                    >
+                      <span className="text-white font-medium">Explore Resources</span>
+                      <Zap className="w-5 h-5 text-yellow-400 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                    <button
+                      onClick={() => navigate('/community')}
+                      className="w-full p-4 bg-slate-800/50 hover:bg-slate-800 rounded-xl transition-all text-left flex items-center justify-between group"
+                    >
+                      <span className="text-white font-medium">Join Community</span>
+                      <Heart className="w-5 h-5 text-red-400 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
-        {/* SECTION 5: CTA */}
-        <section className="animate-slideInUp stagger-4">
-          <div className="bg-gradient-to-r from-pink-600/40 via-purple-600/40 to-blue-600/40 rounded-2xl sm:rounded-3xl p-8 sm:p-10 text-center shadow-xl border-2 border-purple-500/40 backdrop-blur-xl">
-            <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Start Your Wellness Journey</h3>
-            <p className="text-purple-200 text-sm sm:text-base mb-6">Connect with professionals who care</p>
-            <button
-              onClick={() => navigate('/find-therapist')}
-              className="px-6 sm:px-8 py-3 sm:py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm sm:text-base rounded-lg sm:rounded-xl hover:shadow-lg transition-all hover:scale-105 active:scale-95"
-            >
-              Find Therapist →
-            </button>
-          </div>
-        </section>
+            {/* Appointments Tab */}
+            {activeTab === 'appointments' && (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8">
+                  <h3 className="text-xl font-bold text-white mb-6">Upcoming Sessions</h3>
+                  {upcomingAppointments.length > 0 ? (
+                    <div className="space-y-4">
+                      {upcomingAppointments.map((apt) => (
+                        <div key={apt._id} className="bg-slate-800/30 p-4 rounded-lg flex items-start justify-between">
+                          <div>
+                            <p className="text-white font-semibold mb-1">
+                              Session with {apt.therapistId?.name || 'Therapist'}
+                            </p>
+                            <div className="flex gap-4 text-sm text-gray-400">
+                              <span>📅 {new Date(apt.startTime).toLocaleDateString()}</span>
+                              <span>🕐 {new Date(apt.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              <span>⏱️ {apt.sessionDuration} min</span>
+                            </div>
+                          </div>
+                          <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-xs font-medium">
+                            Confirmed
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-400">No upcoming sessions. Book your first therapy session!</p>
+                  )}
+                </div>
 
-      </main>
+                <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8">
+                  <h3 className="text-xl font-bold text-white mb-6">Recent Sessions ({completedAppointments.length})</h3>
+                  <div className="space-y-3">
+                    {completedAppointments.slice(0, 5).map((apt) => (
+                      <div key={apt._id} className="bg-slate-800/30 p-3 rounded-lg flex items-center justify-between">
+                        <div>
+                          <p className="text-white text-sm font-medium">
+                            {new Date(apt.startTime).toLocaleDateString()}
+                          </p>
+                          <p className="text-xs text-gray-400">Rating: {apt.rating || 'N/A'} ⭐</p>
+                        </div>
+                        <CheckCircle className="w-5 h-5 text-green-400" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Mood Tab */}
+            {activeTab === 'mood' && (
+              <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8">
+                <h3 className="text-xl font-bold text-white mb-6">Mood Progress</h3>
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-gray-300 mb-4">30-Day Mood Trend</p>
+                    <div className="flex items-end gap-2 h-40 bg-slate-800/30 p-4 rounded-lg">
+                      {/* Simple mood bar chart */}
+                      {[3, 4, 2, 3, 5, 4, 3, 4].map((mood, i) => (
+                        <div key={i} className="flex-1 bg-purple-500/30 rounded-t" style={{ height: `${(mood/5)*100}%`, opacity: 0.5 + (i/16) }}></div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-800/30 p-4 rounded-lg">
+                      <p className="text-xs text-gray-400 mb-2">Best Mood</p>
+                      <p className="text-white text-2xl font-bold">5.0</p>
+                      <p className="text-xs text-gray-400 mt-1">Excellent</p>
+                    </div>
+                    <div className="bg-slate-800/30 p-4 rounded-lg">
+                      <p className="text-xs text-gray-400 mb-2">Current Streak</p>
+                      <p className="text-white text-2xl font-bold">8</p>
+                      <p className="text-xs text-gray-400 mt-1">Days tracked</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Billing Tab */}
+            {activeTab === 'billing' && (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8">
+                  <h3 className="text-xl font-bold text-white mb-6">Billing Summary</h3>
+                  <div className="space-y-4">
+                    <div className="flex justify-between py-3 border-b border-purple-500/20">
+                      <span className="text-gray-300">Current Plan</span>
+                      <span className="text-white font-semibold capitalize">{subscription?.plan}</span>
+                    </div>
+                    <div className="flex justify-between py-3 border-b border-purple-500/20">
+                      <span className="text-gray-300">Monthly Cost</span>
+                      <span className="text-white font-semibold">₹{subscription?.planDetails?.price?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between py-3 border-b border-purple-500/20">
+                      <span className="text-gray-300">Billing Cycle</span>
+                      <span className="text-white font-semibold capitalize">{subscription?.planDetails?.billingCycle}</span>
+                    </div>
+                    <div className="flex justify-between py-3">
+                      <span className="text-gray-300">Renewal Date</span>
+                      <span className="text-white font-semibold">
+                        {subscription?.renewalDate ? new Date(subscription.renewalDate).toLocaleDateString() : 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8">
+                  <h3 className="text-xl font-bold text-white mb-6">Payment Methods</h3>
+                  <div className="space-y-3">
+                    <div className="bg-slate-800/30 p-4 rounded-lg flex items-center justify-between">
+                      <div>
+                        <p className="text-white font-medium">Stripe Card</p>
+                        <p className="text-xs text-gray-400">•••• •••• •••• 4242</p>
+                      </div>
+                      <span className="text-xs px-3 py-1 bg-green-500/20 text-green-300 rounded">Default</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
