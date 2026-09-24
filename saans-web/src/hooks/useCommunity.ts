@@ -106,9 +106,15 @@ export function useActivityFeed() {
   return useQuery({
     queryKey: ['activity-feed'],
     queryFn: async () => {
-      const response = await apiClient.get('/activity-feed').catch(() => ({ data: { data: [] } }));
-      return response.data.data || [];
+      try {
+        const response = await apiClient.get<CommunityPost[]>('/community/posts');
+        return response.data || [];
+      } catch (error) {
+        console.error('Failed to fetch activity feed:', error);
+        return [];
+      }
     },
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -116,9 +122,16 @@ export function useRecentActivity() {
   return useQuery({
     queryKey: ['activity-feed', 'recent'],
     queryFn: async () => {
-      const response = await apiClient.get('/activity-feed/recent').catch(() => ({ data: { data: [] } }));
-      return response.data.data || [];
+      try {
+        const response = await apiClient.get<CommunityPost[]>('/community/posts');
+        // Return most recent posts (assuming they're sorted by date)
+        return (response.data || []).slice(0, 5);
+      } catch (error) {
+        console.error('Failed to fetch recent activity:', error);
+        return [];
+      }
     },
+    staleTime: 1000 * 60 * 5,
   });
 }
 
