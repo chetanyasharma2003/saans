@@ -82,9 +82,9 @@ export function DashboardPageNew() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-x-hidden">
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-x-hidden">
       {/* Animated background blobs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-0 left-0 w-72 sm:w-96 h-72 sm:h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
         <div className="absolute top-40 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         <div className="absolute bottom-0 left-1/2 w-72 sm:w-96 h-72 sm:h-96 bg-green-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
@@ -109,22 +109,30 @@ export function DashboardPageNew() {
         .stagger-2 { animation-delay: 0.2s; }
         .stagger-3 { animation-delay: 0.3s; }
         .stagger-4 { animation-delay: 0.4s; }
+
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
       `}</style>
 
       {/* REDESIGNED HEADER - MODERN & CLEAN */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-slate-900/95 via-purple-900/95 to-slate-900/95 backdrop-blur-xl border-b border-purple-500/20 shadow-2xl">
+      <header className="relative z-40 w-full bg-gradient-to-r from-slate-900/95 via-purple-900/95 to-slate-900/95 backdrop-blur-xl border-b border-purple-500/20 shadow-2xl">
         <div className="w-full">
           {/* Top Section - Logo + Profile */}
-          <div className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
+          <div className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between min-h-fit">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm sm:text-base">S</div>
+              <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm sm:text-base flex-shrink-0">S</div>
               <div className="hidden sm:block">
-                <h1 className="text-lg sm:text-xl font-bold text-white">SAANS</h1>
-                <p className="text-xs text-purple-300">Mental Health</p>
+                <h1 className="text-lg sm:text-xl font-bold text-white leading-tight">SAANS</h1>
+                <p className="text-xs text-purple-300 leading-tight">Mental Health</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
               <button
                 onClick={() => navigate('/profile')}
                 className="p-2 sm:p-2.5 rounded-lg hover:bg-purple-500/20 transition-all text-purple-300 hover:text-purple-200"
@@ -141,27 +149,25 @@ export function DashboardPageNew() {
           </div>
 
           {/* Navigation Section - Horizontal */}
-          <div className="px-4 sm:px-6 lg:px-8 pb-3 sm:pb-4 flex items-center justify-between gap-2 overflow-x-auto">
-            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-              <button className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-purple-600/40 text-white text-xs sm:text-sm font-semibold hover:bg-purple-600/60 transition-all whitespace-nowrap">
-                Dashboard
-              </button>
-              <button onClick={() => navigate('/mood-tracker')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap">
-                Mood
-              </button>
-              <button onClick={() => navigate('/find-therapist')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap">
-                Therapist
-              </button>
-              <button onClick={() => navigate('/community')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap">
-                Community
-              </button>
-              <button onClick={() => navigate('/appointments')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap">
-                Sessions
-              </button>
-              <button onClick={() => navigate('/resources')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap">
-                Resources
-              </button>
-            </div>
+          <div className="px-4 sm:px-6 lg:px-8 pb-3 sm:pb-4 flex items-center gap-2 overflow-x-auto min-h-fit scrollbar-hide">
+            <button className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-purple-600/40 text-white text-xs sm:text-sm font-semibold hover:bg-purple-600/60 transition-all whitespace-nowrap flex-shrink-0">
+              Dashboard
+            </button>
+            <button onClick={() => navigate('/mood-tracker')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0">
+              Mood
+            </button>
+            <button onClick={() => navigate('/find-therapist')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0">
+              Therapist
+            </button>
+            <button onClick={() => navigate('/community')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0">
+              Community
+            </button>
+            <button onClick={() => navigate('/appointments')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0">
+              Sessions
+            </button>
+            <button onClick={() => navigate('/resources')} className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-purple-300 hover:bg-purple-500/20 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0">
+              Resources
+            </button>
           </div>
         </div>
       </header>

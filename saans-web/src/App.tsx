@@ -110,13 +110,15 @@ function AppRoutes() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            isAuthenticated ? (
               <React.Suspense fallback={<SuspenseLoading />}>
                 <PageTransition>
                   <DashboardPage />
                 </PageTransition>
               </React.Suspense>
-            </ProtectedRoute>
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
         <Route
