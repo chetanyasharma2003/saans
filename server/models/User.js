@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
   emailVerified: { type: Boolean, default: false },
 
   // OAuth Integration
-  oauthProvider: { type: String, enum: ['google', 'apple'], default: null },
+  oauthProvider: { type: String, enum: ['google', 'apple', null], default: null },
   oauthId: { type: String, default: null },
 
   // Security
