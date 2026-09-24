@@ -82,7 +82,7 @@ export function DashboardPageNew() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Animated background blobs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-0 w-72 sm:w-96 h-72 sm:h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
@@ -114,12 +114,12 @@ export function DashboardPageNew() {
       {/* Main content */}
       <div className="relative z-10">
         {/* Header - FULLY RESPONSIVE */}
-        <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg border-b-2 border-purple-200 shadow-md">
+        <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-lg border-b-2 border-purple-500/30 shadow-md">
           <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4">
             <div className="flex justify-between items-center gap-2 sm:gap-4">
               <div className="flex-1 min-w-0">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 truncate">Welcome! 🌿</h1>
-                <p className="text-xs sm:text-sm text-gray-600 hidden sm:block truncate">Your wellness journey</p>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white truncate">Welcome! 🌿</h1>
+                <p className="text-xs sm:text-sm text-purple-300 hidden sm:block truncate">Your wellness journey</p>
               </div>
               <button
                 onClick={() => navigate('/profile')}
@@ -134,9 +134,9 @@ export function DashboardPageNew() {
         <main className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-12">
           {/* Hero Section - Mood Check-in */}
           <section className="animate-slideInUp">
-            <div className="bg-gradient-to-br from-sky-100 to-purple-100 rounded-2xl sm:rounded-3xl p-6 sm:p-8 border-2 border-white shadow-lg">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">How are you feeling today?</h2>
-              <p className="text-gray-700 mb-6 sm:mb-8 text-sm sm:text-base">Share your emotions in this moment</p>
+            <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 rounded-2xl sm:rounded-3xl p-6 sm:p-8 border-2 border-purple-500/30 shadow-lg backdrop-blur-xl">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">How are you feeling today?</h2>
+              <p className="text-purple-300 mb-6 sm:mb-8 text-sm sm:text-base">Share your emotions in this moment</p>
 
               {/* Mood selector - RESPONSIVE GRID */}
               <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 mb-6 sm:mb-8">
@@ -147,11 +147,11 @@ export function DashboardPageNew() {
                     className={`py-3 sm:py-4 px-2 sm:px-3 md:px-6 rounded-xl sm:rounded-2xl transition-all duration-300 transform border-3 ${
                       selectedMood === mood.value
                         ? `${mood.color} border-white scale-105 sm:scale-110 shadow-xl`
-                        : 'bg-white border-white/30 hover:scale-105 hover:shadow-lg'
+                        : 'bg-slate-800/50 border-purple-500/30 hover:scale-105 hover:shadow-lg'
                     }`}
                   >
                     <div className="text-3xl sm:text-4xl mb-1">{mood.emoji}</div>
-                    <div className={`text-xs font-bold ${selectedMood === mood.value ? 'text-white' : 'text-gray-700'}`}>
+                    <div className={`text-xs font-bold ${selectedMood === mood.value ? 'text-white' : 'text-purple-300'}`}>
                       {mood.label}
                     </div>
                   </button>
@@ -172,11 +172,11 @@ export function DashboardPageNew() {
 
           {/* Quick Actions - MOBILE RESPONSIVE */}
           <section className="animate-slideInUp stagger-1">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-              <Sparkles className="w-6 sm:w-8 h-6 sm:h-8 text-yellow-500" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2 flex items-center gap-2">
+              <Sparkles className="w-6 sm:w-8 h-6 sm:h-8 text-yellow-400" />
               Quick Actions
             </h2>
-            <p className="text-gray-600 mb-6 text-sm sm:text-base">What would you like to do right now?</p>
+            <p className="text-purple-300 mb-6 text-sm sm:text-base">What would you like to do right now?</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
               {quickActions.map((action, idx) => {
@@ -200,8 +200,8 @@ export function DashboardPageNew() {
 
           {/* Explore Sections - RESPONSIVE GRID */}
           <section className="animate-slideInUp stagger-2">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Explore SAANS</h2>
-            <p className="text-gray-600 mb-6 text-sm sm:text-base">Discover features for your wellness</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Explore SAANS</h2>
+            <p className="text-purple-300 mb-6 text-sm sm:text-base">Discover features for your wellness</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               {exploreSections.map((section, idx) => {
@@ -210,15 +210,15 @@ export function DashboardPageNew() {
                   <button
                     key={idx}
                     onClick={section.action}
-                    className={`group text-left p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br ${section.gradient} hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 animate-slideInUp border-2 border-white/40 shadow-lg`}
+                    className={`group text-left p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-purple-900/40 to-slate-900/40 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 hover:scale-105 active:scale-95 animate-slideInUp border-2 border-purple-500/30 shadow-lg backdrop-blur-xl`}
                     style={{ animationDelay: `${0.2 + idx * 0.1}s` }}
                   >
                     <div className={`w-12 sm:w-14 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br ${section.icon_gradient} p-2 sm:p-3 mb-4 group-hover:scale-125 transition-transform`}>
                       <Icon className="w-full h-full text-white" />
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-white drop-shadow group-hover:text-yellow-100 transition-all">{section.title}</h3>
-                    <p className="text-white/90 text-xs sm:text-sm mt-2">{section.desc}</p>
-                    <ChevronRight className="w-4 sm:w-5 h-4 sm:h-5 text-white/80 mt-3 group-hover:translate-x-2 transition-transform" />
+                    <h3 className="text-lg sm:text-xl font-bold text-white drop-shadow group-hover:text-purple-300 transition-all">{section.title}</h3>
+                    <p className="text-purple-300 text-xs sm:text-sm mt-2">{section.desc}</p>
+                    <ChevronRight className="w-4 sm:w-5 h-4 sm:h-5 text-purple-400 mt-3 group-hover:translate-x-2 transition-transform" />
                   </button>
                 );
               })}
@@ -227,12 +227,12 @@ export function DashboardPageNew() {
 
           {/* Wellness Tip */}
           <section className="animate-slideInUp stagger-3">
-            <div className="bg-gradient-to-r from-emerald-400 to-teal-400 rounded-2xl sm:rounded-3xl p-6 sm:p-8 border-2 border-white shadow-lg">
+            <div className="bg-gradient-to-r from-emerald-500/40 to-teal-500/40 rounded-2xl sm:rounded-3xl p-6 sm:p-8 border-2 border-emerald-500/50 shadow-lg backdrop-blur-xl">
               <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">💡 Daily Wellness Tip</h3>
-              <p className="text-white text-sm sm:text-base leading-relaxed mb-4">
+              <p className="text-purple-200 text-sm sm:text-base leading-relaxed mb-4">
                 "Your mental health is a priority, not a luxury. Take time to care for yourself today."
               </p>
-              <button className="text-white font-bold hover:text-gray-100 flex items-center gap-2 text-sm sm:text-base">
+              <button className="text-purple-300 font-bold hover:text-purple-200 flex items-center gap-2 text-sm sm:text-base">
                 Learn more <ChevronRight className="w-4 sm:w-5 h-4 sm:h-5" />
               </button>
             </div>
@@ -240,19 +240,19 @@ export function DashboardPageNew() {
 
           {/* Bottom CTA */}
           <section className="animate-slideInUp stagger-4 pb-4">
-            <div className="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 rounded-2xl sm:rounded-3xl p-8 sm:p-10 text-center shadow-xl border-2 border-white/50">
+            <div className="bg-gradient-to-r from-pink-600/40 via-purple-600/40 to-blue-600/40 rounded-2xl sm:rounded-3xl p-8 sm:p-10 text-center shadow-xl border-2 border-purple-500/40 backdrop-blur-xl">
               <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">Ready for next step?</h3>
-              <p className="text-white/95 text-sm sm:text-base mb-6 sm:mb-8">Connect with a therapist or explore resources</p>
+              <p className="text-purple-200 text-sm sm:text-base mb-6 sm:mb-8">Connect with a therapist or explore resources</p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <button
                   onClick={() => navigate('/find-therapist')}
-                  className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-purple-600 font-bold text-sm sm:text-base rounded-lg sm:rounded-2xl hover:shadow-lg transition-all hover:scale-105 active:scale-95"
+                  className="px-6 sm:px-8 py-3 sm:py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm sm:text-base rounded-lg sm:rounded-2xl hover:shadow-lg transition-all hover:scale-105 active:scale-95"
                 >
                   👤 Find Therapist
                 </button>
                 <button
                   onClick={() => navigate('/resources')}
-                  className="px-6 sm:px-8 py-3 sm:py-4 bg-white/30 border-2 border-white text-white font-bold text-sm sm:text-base rounded-lg sm:rounded-2xl hover:bg-white/50 transition-all hover:scale-105 active:scale-95"
+                  className="px-6 sm:px-8 py-3 sm:py-4 bg-slate-800/50 border-2 border-purple-500/30 text-purple-300 font-bold text-sm sm:text-base rounded-lg sm:rounded-2xl hover:bg-slate-800/70 transition-all hover:scale-105 active:scale-95"
                 >
                   📚 Explore
                 </button>
