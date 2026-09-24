@@ -85,12 +85,13 @@ export function DashboardPageNew() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-sky-50 to-emerald-50">
-      {/* Animated background elements */}
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      {/* Animated background elements - MORE VIBRANT */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-green-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-20 left-10 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-20 left-1/2 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-green-400 rounded-full mix-blend-multiply filter blur-3xl opacity-25 animate-blob animation-delay-2000"></div>
       </div>
 
       <style>{`
@@ -126,17 +127,17 @@ export function DashboardPageNew() {
       {/* Main content */}
       <div className="relative z-10">
         {/* Header */}
-        <header className="sticky top-0 z-40 backdrop-blur-md bg-white/50 border-b border-white/20">
+        <header className="sticky top-0 z-40 backdrop-blur-md bg-gradient-to-r from-purple-500/80 via-pink-400/80 to-red-400/80 border-b border-white/20 shadow-lg">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold text-white drop-shadow-lg">
                 Welcome back! 🌿
               </h1>
-              <p className="text-sm text-gray-500">Tuesday, Sep 24 • Your wellness journey continues</p>
+              <p className="text-sm text-white/80">Tuesday, Sep 24 • Your wellness journey continues</p>
             </div>
             <button
               onClick={() => navigate('/profile')}
-              className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-blue-400 hover:shadow-lg transition-all duration-300"
+              className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-300 via-green-300 to-blue-300 hover:shadow-xl hover:scale-110 transition-all duration-300 font-bold text-white"
             />
           </div>
         </header>
@@ -145,10 +146,10 @@ export function DashboardPageNew() {
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
           {/* Hero Section - How are you feeling? */}
           <section className="animate-slideInUp">
-            <div className="bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-xl rounded-3xl p-8 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="bg-gradient-to-br from-cyan-400/40 via-blue-400/40 to-purple-500/40 backdrop-blur-xl rounded-3xl p-8 border-2 border-white/50 shadow-2xl hover:shadow-2xl transition-all duration-300">
               <div className="mb-6">
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">How are you feeling today?</h2>
-                <p className="text-gray-600">Your emotions matter. Share how you're doing in this moment.</p>
+                <h2 className="text-4xl font-bold text-white drop-shadow-lg mb-2">How are you feeling today?</h2>
+                <p className="text-white/90 text-lg">Your emotions matter. Share how you're doing in this moment.</p>
               </div>
 
               {/* Mood selector */}
@@ -159,12 +160,12 @@ export function DashboardPageNew() {
                     onClick={() => setSelectedMood(mood.value)}
                     className={`flex-1 py-4 px-3 rounded-2xl transition-all duration-300 transform ${
                       selectedMood === mood.value
-                        ? `bg-gradient-to-br ${mood.color} scale-110 shadow-lg`
-                        : 'bg-white/50 hover:bg-white/80 hover:scale-105'
-                    } border-2 ${selectedMood === mood.value ? 'border-white/50' : 'border-white/20'}`}
+                        ? `bg-gradient-to-br ${mood.color} scale-110 shadow-2xl border-2 border-white`
+                        : 'bg-white/30 hover:bg-white/60 hover:scale-105 border-2 border-white/40'
+                    }`}
                   >
-                    <div className="text-3xl mb-2">{mood.emoji}</div>
-                    <div className="text-xs font-semibold text-gray-700">{mood.label}</div>
+                    <div className="text-4xl mb-2">{mood.emoji}</div>
+                    <div className={`text-xs font-bold ${selectedMood === mood.value ? 'text-white drop-shadow' : 'text-gray-700'}`}>{mood.label}</div>
                   </button>
                 ))}
               </div>
@@ -173,9 +174,9 @@ export function DashboardPageNew() {
               {selectedMood && (
                 <button
                   onClick={() => navigate('/mood-tracker')}
-                  className="w-full py-3 px-6 bg-gradient-to-r from-green-400 to-emerald-400 hover:from-green-500 hover:to-emerald-500 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg"
+                  className="w-full py-4 px-6 bg-gradient-to-r from-yellow-300 via-orange-300 to-red-400 hover:from-yellow-400 hover:via-orange-400 hover:to-red-500 text-white font-bold text-lg rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl drop-shadow-lg"
                 >
-                  Continue with Check-In
+                  ✨ Continue with Check-In
                 </button>
               )}
             </div>
@@ -184,27 +185,33 @@ export function DashboardPageNew() {
           {/* Quick Actions */}
           <section className="animate-slideInUp stagger-1">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-yellow-500" />
+              <h2 className="text-3xl font-bold text-white drop-shadow-lg flex items-center gap-2">
+                <Sparkles className="w-8 h-8 text-yellow-300" />
                 Quick Actions
               </h2>
-              <p className="text-gray-600 text-sm">What would you like to do right now?</p>
+              <p className="text-white/80 text-sm">What would you like to do right now?</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {quickActions.map((action, idx) => {
                 const Icon = action.icon;
+                const gradients = [
+                  'from-red-400 to-pink-500',
+                  'from-purple-400 to-indigo-500',
+                  'from-blue-400 to-cyan-500',
+                  'from-red-500 to-orange-500',
+                ];
                 return (
                   <button
                     key={idx}
                     onClick={action.action}
-                    className={`group p-6 rounded-2xl bg-gradient-to-br ${action.color} border-2 ${action.borderColor} hover:border-white/50 transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95 text-left animate-slideInUp`}
+                    className={`group p-6 rounded-3xl bg-gradient-to-br ${gradients[idx]} border-2 border-white/40 hover:border-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 text-left animate-slideInUp`}
                     style={{ animationDelay: `${0.1 + idx * 0.1}s` }}
                   >
-                    <Icon className="w-8 h-8 text-gray-700 mb-3 group-hover:scale-110 transition-transform" />
-                    <h3 className="font-bold text-gray-800">{action.title}</h3>
-                    <p className="text-sm text-gray-600">{action.desc}</p>
-                    <ChevronRight className="w-4 h-4 text-gray-400 mt-3 group-hover:translate-x-1 transition-transform" />
+                    <Icon className="w-10 h-10 text-white mb-3 group-hover:scale-125 transition-transform drop-shadow" />
+                    <h3 className="font-bold text-white text-lg drop-shadow">{action.title}</h3>
+                    <p className="text-sm text-white/90">{action.desc}</p>
+                    <ChevronRight className="w-5 h-5 text-white/80 mt-3 group-hover:translate-x-2 transition-transform" />
                   </button>
                 );
               })}
@@ -214,32 +221,38 @@ export function DashboardPageNew() {
           {/* Explore Sections */}
           <section className="animate-slideInUp stagger-2">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">Explore SAANS</h2>
-              <p className="text-gray-600 text-sm">Discover features that support your mental wellness</p>
+              <h2 className="text-3xl font-bold text-white drop-shadow-lg">Explore SAANS</h2>
+              <p className="text-white/80 text-sm">Discover features that support your mental wellness</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {exploreSections.map((section, idx) => {
                 const Icon = section.icon;
+                const bgGradients = [
+                  'from-teal-400/60 to-green-400/60',
+                  'from-blue-400/60 to-purple-500/60',
+                  'from-orange-400/60 to-red-500/60',
+                  'from-indigo-400/60 to-purple-500/60',
+                ];
                 return (
                   <button
                     key={idx}
                     onClick={section.action}
-                    className="group text-left p-8 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/30 hover:border-white/60 transition-all duration-300 hover:shadow-xl hover:scale-105 active:scale-95 animate-slideInUp"
+                    className={`group text-left p-8 rounded-3xl bg-gradient-to-br ${bgGradients[idx]} backdrop-blur-md border-2 border-white/50 hover:border-white shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 animate-slideInUp`}
                     style={{ animationDelay: `${0.2 + idx * 0.1}s` }}
                   >
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${section.gradient} p-2.5 mb-4 group-hover:scale-110 transition-transform`}>
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${section.gradient} p-3 mb-4 group-hover:scale-125 transition-transform shadow-lg drop-shadow`}>
                       <Icon className="w-full h-full text-white" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-800 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-green-600 group-hover:to-blue-600 group-hover:bg-clip-text transition-all">
+                    <h3 className="text-xl font-bold text-white drop-shadow group-hover:text-yellow-100 transition-all">
                       {section.title}
                     </h3>
-                    <p className="text-sm text-gray-600 my-2">{section.desc}</p>
+                    <p className="text-sm text-white/90 my-2">{section.desc}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                      <span className="text-xs font-bold text-white bg-white/20 px-3 py-1 rounded-full backdrop-blur">
                         {section.stats}
                       </span>
-                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="w-5 h-5 text-white/80 group-hover:translate-x-2 transition-transform" />
                     </div>
                   </button>
                 );
@@ -249,38 +262,38 @@ export function DashboardPageNew() {
 
           {/* Wellness tip */}
           <section className="animate-slideInUp stagger-3">
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 border-l-4 border-green-400 rounded-xl p-6">
-              <h3 className="font-bold text-gray-800 mb-2">💡 Daily Wellness Tip</h3>
-              <p className="text-gray-700">
+            <div className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 border-l-4 border-white rounded-3xl p-8 shadow-xl">
+              <h3 className="font-bold text-white text-lg mb-3 drop-shadow">💡 Daily Wellness Tip</h3>
+              <p className="text-white/95 text-lg">
                 "Taking care of your mind is just as important as taking care of your body. Even small moments of mindfulness can make a big difference in your day."
               </p>
-              <button className="mt-4 text-green-600 font-semibold hover:text-green-700 flex items-center gap-2">
-                Learn more <ChevronRight className="w-4 h-4" />
+              <button className="mt-4 text-white font-bold hover:text-yellow-100 flex items-center gap-2 drop-shadow">
+                Learn more <ChevronRight className="w-5 h-5" />
               </button>
             </div>
           </section>
 
           {/* Bottom CTA */}
           <section className="animate-slideInUp stagger-4 pb-8">
-            <div className="bg-gradient-to-br from-purple-400/20 to-pink-400/20 border border-purple-200/30 rounded-2xl p-8 text-center">
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">
+            <div className="bg-gradient-to-br from-pink-400 via-red-400 to-orange-500 border-2 border-white/50 rounded-3xl p-10 text-center shadow-2xl">
+              <h3 className="text-3xl font-bold text-white mb-3 drop-shadow">
                 Ready to take the next step?
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-white/95 text-lg mb-8">
                 Connect with a therapist today or explore our resources
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={() => navigate('/find-therapist')}
-                  className="px-8 py-3 bg-gradient-to-r from-green-400 to-emerald-400 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95"
+                  className="px-8 py-4 bg-gradient-to-r from-yellow-300 to-yellow-200 text-gray-800 font-bold rounded-2xl hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 drop-shadow"
                 >
-                  Find a Therapist
+                  👤 Find a Therapist
                 </button>
                 <button
                   onClick={() => navigate('/resources')}
-                  className="px-8 py-3 bg-white/60 text-gray-800 font-semibold rounded-xl border-2 border-white/30 hover:bg-white/80 transition-all duration-300 hover:scale-105 active:scale-95"
+                  className="px-8 py-4 bg-white/30 text-white font-bold rounded-2xl border-2 border-white hover:bg-white/50 transition-all duration-300 hover:scale-110 active:scale-95 drop-shadow"
                 >
-                  Explore Resources
+                  📚 Explore Resources
                 </button>
               </div>
             </div>
