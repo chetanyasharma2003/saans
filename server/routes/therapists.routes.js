@@ -1,144 +1,304 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
-const { authenticateToken } = require('../middleware/auth');
+const { body, query, validationResult } = require('express-validator');
+const auth = require('../middleware/auth');
+const Therapist = require('../models/Therapist');
+const locationMatcher = require('../services/dataPipeline/locationMatcher');
+const dataValidator = require('../services/dataPipeline/dataValidator');
+const logger = require('../utils/logger');
 
-// ============ GET SPECIALTIES ============
+// Get nearby therapists based on user location
+router.get(
+  '/nearby',
+  auth,
+  [
+    query('lat').isFloat({ min: -90, max: 90 }).toFloat(),
+    query('lon').isFloat({ min: -180, max: 180 }).toFloat(),
+    query('radius').optional().isInt({ min: 1, max: 500 }).toInt(),
+    query('specialty').optional().isString().trim(),
+    query('language').optional().isString().trim(),
+    query('maxPrice').optional().isInt({ min: 1 }).toInt(),
+    query('minRating').optional().isFloat({ min: 0, max: 5 }).toFloat()
+  ],
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
+
+      const { lat, lon, radius = 50, specialty, language, maxPrice, minRating } = req.query;
+      const userCoordinates = [parseFloat(lon), parseFloat(lat)];
+
+      const filters = {};
+      if (specialty) filters.specialties = [specialty];
+      if (language) filters.languages = [language];
+      if (maxPrice) filters.maxPrice = maxPrice;
+      if (minRating) filters.minRating = minRating;
+
+      const therapists = await locationMatcher.findTherapistsByMultipleCriteria(
+        filters,
+        userCoordinates,
+        radius
+      );
+
+      // Enrich with distances
+      const enrichedTherapists = await Promise.all(
+        therapists.map((t) => locationMatcher.enrichTherapistWithDistance(t, userCoordinates))
+      );
+
+      logger.info(`Found ${enrichedTherapists.length} nearby therapists`, {
+        userId: req.user._id,
+        lat,
+        lon,
+        radius
+      });
+
+      res.json({
+        success: true,
+        data: enrichedTherapists,
+        count: enrichedTherapists.length
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Search therapists by name or keyword
+router.get(
+  '/search',
+  auth,
+  [query('q').notEmpty().isString().trim()],
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
+
+      const { q } = req.query;
+
+      const therapists = await Therapist.find({
+        $or: [
+          { firstName: { $regex: q, $options: 'i' } },
+          { lastName: { $regex: q, $options: 'i' } },
+          { specialties: { $regex: q, $options: 'i' } }
+        ],
+        isActive: true,
+        'verification.status': 'approved'
+      })
+        .select('-license.licenseDocument')
+        .limit(20);
+
+      res.json({
+        success: true,
+        data: therapists,
+        count: therapists.length
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Get therapist profile by ID
+router.get('/:id', auth, async (req, res, next) => {
+  try {
+    const therapist = await Therapist.findById(req.params.id)
+      .populate('ratings.reviews.userId', 'firstName lastName profileImage')
+      .select('-license.licenseDocument');
+
+    if (!therapist || !therapist.isActive) {
+      return res.status(404).json({ success: false, error: 'Therapist not found' });
+    }
+
+    logger.info(`Therapist profile viewed`, { therapistId: req.params.id, userId: req.user._id });
+
+    res.json({ success: true, data: therapist });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get all specialties
 router.get('/options/specialties', async (req, res) => {
-  try {
-    const specialties = [
-      { id: '1', name: 'Anxiety & Stress', count: 45 },
-      { id: '2', name: 'Depression', count: 38 },
-      { id: '3', name: 'Relationships', count: 42 },
-      { id: '4', name: 'PTSD & Trauma', count: 28 },
-      { id: '5', name: 'Addiction', count: 22 },
-      { id: '6', name: 'Grief & Loss', count: 18 },
-    ];
+  const specialties = [
+    'anxiety',
+    'depression',
+    'trauma',
+    'ptsd',
+    'relationships',
+    'grief',
+    'stress',
+    'addiction',
+    'eating-disorders',
+    'sleep-issues',
+    'self-esteem',
+    'career-counseling',
+    'parenting',
+    'teen-issues',
+    'family-therapy'
+  ];
 
-    res.json({
-      success: true,
-      data: specialties,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  res.json({ success: true, data: specialties });
 });
 
-// ============ GET LANGUAGES ============
+// Get all languages
 router.get('/options/languages', async (req, res) => {
-  try {
-    const languages = ['English', 'Hindi', 'Spanish', 'Mandarin', 'French', 'German'];
+  const languages = ['English', 'Hindi', 'Spanish', 'French', 'Marathi', 'Tamil', 'Telugu'];
 
-    res.json({
-      success: true,
-      data: languages,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  res.json({ success: true, data: languages });
 });
 
-// ============ GET ALL THERAPISTS ============
-router.get('/', async (req, res) => {
-  try {
-    const { specialty, language, minRating, maxPrice } = req.query;
+// Get top rated therapists
+router.get(
+  '/featured/top-rated',
+  [query('limit').optional().isInt({ min: 1, max: 50 }).toInt()],
+  async (req, res, next) => {
+    try {
+      const limit = req.query.limit || 10;
 
-    // Always return mock therapist data (will use DB in production)
-    const mockTherapists = [
-      {
-        _id: '1',
-        name: 'Dr. Priya Singh',
-        specialty: 'Anxiety & Stress',
-        rating: 4.9,
-        reviews: 128,
-        price: 500,
-        image: '👩‍⚕️',
-        bio: 'Specializes in anxiety management and stress relief with 8+ years experience',
-        languages: ['English', 'Hindi'],
-        availability: 'Available Today',
-      },
-      {
-        _id: '2',
-        name: 'Dr. Rajesh Patel',
-        specialty: 'Depression',
-        rating: 4.8,
-        reviews: 95,
-        price: 450,
-        image: '👨‍⚕️',
-        bio: 'Expert in depression and mood disorders with compassionate approach',
-        languages: ['English', 'Gujarati'],
-        availability: 'Available Tomorrow',
-      },
-      {
-        _id: '3',
-        name: 'Dr. Meera Kapoor',
-        specialty: 'Relationships',
-        rating: 5.0,
-        reviews: 156,
-        price: 600,
-        image: '👩‍⚕️',
-        bio: 'Relationship counselor helping couples and individuals build healthy connections',
-        languages: ['English', 'Hindi', 'Punjabi'],
-        availability: 'Available Today',
-      },
-      {
-        _id: '4',
-        name: 'Dr. Amit Sharma',
-        specialty: 'PTSD & Trauma',
-        rating: 4.7,
-        reviews: 82,
-        price: 550,
-        image: '👨‍⚕️',
-        bio: 'Trauma-informed therapist specializing in PTSD and recovery',
-        languages: ['English', 'Hindi'],
-        availability: 'Available in 2 days',
-      },
-    ];
+      const therapists = await Therapist.find({
+        isActive: true,
+        'verification.status': 'approved',
+        'ratings.count': { $gte: 5 }
+      })
+        .sort({ 'ratings.average': -1 })
+        .limit(limit)
+        .select('-license.licenseDocument');
 
-    // Filter by specialty or language if provided
-    let filtered = mockTherapists;
-    if (specialty) {
-      filtered = filtered.filter(t => t.specialty.toLowerCase().includes(specialty.toLowerCase()));
+      res.json({ success: true, data: therapists, count: therapists.length });
+    } catch (error) {
+      next(error);
     }
-    if (language) {
-      filtered = filtered.filter(t => t.languages.includes(language));
-    }
-    if (minRating) {
-      filtered = filtered.filter(t => t.rating >= parseFloat(minRating));
-    }
-    if (maxPrice) {
-      filtered = filtered.filter(t => t.price <= parseInt(maxPrice));
-    }
-
-    res.status(200).json({
-      success: true,
-      data: filtered,
-      total: filtered.length,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
-});
+);
 
-// ============ GET SINGLE THERAPIST ============
-router.get('/:id', async (req, res) => {
+// Submit review for therapist
+router.post(
+  '/:id/review',
+  auth,
+  [
+    body('rating').isInt({ min: 1, max: 5 }),
+    body('text').optional().isString().trim().isLength({ max: 500 })
+  ],
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
+
+      const { rating, text } = req.body;
+      const therapistId = req.params.id;
+
+      const therapist = await Therapist.findById(therapistId);
+      if (!therapist) {
+        return res.status(404).json({ success: false, error: 'Therapist not found' });
+      }
+
+      // Check if user already reviewed
+      const existingReview = therapist.ratings.reviews.find((r) => r.userId.equals(req.user._id));
+      if (existingReview) {
+        return res.status(400).json({ success: false, error: 'You already reviewed this therapist' });
+      }
+
+      therapist.ratings.reviews.push({
+        userId: req.user._id,
+        rating,
+        text: text || '',
+        date: new Date(),
+        verified: true // User authenticated
+      });
+
+      await therapist.save();
+
+      logger.info(`Review submitted for therapist`, {
+        therapistId,
+        userId: req.user._id,
+        rating
+      });
+
+      res.json({
+        success: true,
+        message: 'Review submitted successfully',
+        data: therapist.ratings
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Get therapist availability
+router.get('/:id/availability', async (req, res, next) => {
   try {
-    const therapist = await User.findOne({
-      _id: req.params.id,
-      role: 'therapist',
-    }).select('-password');
+    const therapist = await Therapist.findById(req.params.id).select('availability pricing');
 
     if (!therapist) {
-      return res.status(404).json({ error: 'Therapist not found' });
+      return res.status(404).json({ success: false, error: 'Therapist not found' });
     }
 
     res.json({
       success: true,
-      data: therapist,
+      data: {
+        availability: therapist.availability,
+        pricing: therapist.pricing
+      }
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
+
+// Filter therapists with multiple criteria
+router.post(
+  '/filter',
+  auth,
+  [
+    body('specialties').optional().isArray(),
+    body('languages').optional().isArray(),
+    body('minRating').optional().isFloat({ min: 0, max: 5 }),
+    body('maxPrice').optional().isInt({ min: 1 }),
+    body('sessionFormat').optional().isArray(),
+    body('lat').isFloat({ min: -90, max: 90 }).toFloat(),
+    body('lon').isFloat({ min: -180, max: 180 }).toFloat(),
+    body('radius').optional().isInt({ min: 1, max: 500 }).toInt()
+  ],
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, errors: errors.array() });
+      }
+
+      const { specialties, languages, minRating, maxPrice, sessionFormat, lat, lon, radius = 50 } =
+        req.body;
+
+      const filters = {};
+      if (specialties) filters.specialties = specialties;
+      if (languages) filters.languages = languages;
+      if (minRating) filters.minRating = minRating;
+      if (maxPrice) filters.maxPrice = maxPrice;
+      if (sessionFormat) filters.sessionFormat = sessionFormat;
+
+      const therapists = await locationMatcher.findTherapistsByMultipleCriteria(
+        filters,
+        [lon, lat],
+        radius
+      );
+
+      res.json({
+        success: true,
+        data: therapists,
+        count: therapists.length,
+        filters: req.body
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 module.exports = router;
