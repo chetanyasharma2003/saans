@@ -32,12 +32,12 @@ const DashboardPage = React.lazy(() => import('./pages/DashboardPageNew'));
 const AICounselorPage = React.lazy(() => import('./pages/AICounselorPage'));
 const FindTherapistPage = React.lazy(() => import('./pages/FindTherapistPageNew'));
 const MoodTrackerPage = React.lazy(() => import('./pages/MoodTrackerPageNew'));
-const CommunityPage = React.lazy(() => import('./pages/CommunityPage.integrated'));
-const AppointmentPage = React.lazy(() => import('./pages/AppointmentPage.integrated'));
-const WellnessResourcesPage = React.lazy(() => import('./pages/WellnessResourcesPage.integrated'));
-const StoriesPage = React.lazy(() => import('./pages/StoriesPage.integrated'));
-const CrisisSupportPage = React.lazy(() => import('./pages/CrisisSupportPage'));
-const MyProfilePage = React.lazy(() => import('./pages/MyProfilePage'));
+const CommunityPage = React.lazy(() => import('./pages/CommunityPageNew'));
+const AppointmentPage = React.lazy(() => import('./pages/AppointmentsPageNew'));
+const WellnessResourcesPage = React.lazy(() => import('./pages/ResourcesPageNew'));
+const StoriesPage = React.lazy(() => import('./pages/StoriesPageNew'));
+const CrisisSupportPage = React.lazy(() => import('./pages/CrisisSupportPageNew'));
+const MyProfilePage = React.lazy(() => import('./pages/ProfilePageNew'));
 
 // Protected Route with Navbar
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
