@@ -120,6 +120,8 @@ app.use('/api/mood', require('./routes/mood.routes'));
 app.use('/api/therapists', require('./routes/therapists.routes'));
 app.use('/api/community', require('./routes/community.routes'));
 app.use('/api/ai', require('./routes/ai.routes'));
+app.use('/api/email', require('./routes/email.routes'));
+app.use('/api/files', require('./routes/files.routes'));
 
 // 404 Handler
 app.use((req, res) => {
