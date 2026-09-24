@@ -14,7 +14,32 @@ class ApiError extends Error {
   }
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// Determine API base URL - must include /api prefix
+const getApiBaseUrl = (): string => {
+  const envUrl = import.meta.env.VITE_API_URL;
+
+  // If environment variable is set, use it
+  if (envUrl) {
+    // Ensure /api suffix
+    return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
+  }
+
+  // Fallback for local development
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:3001/api';
+  }
+
+  // Production fallback - use same host as frontend but with backend port/path
+  const currentHost = typeof window !== 'undefined' ? window.location.origin : '';
+  if (currentHost.includes('vercel.app')) {
+    // For Vercel, use the Render backend URL
+    return 'https://saans-backend-tt8p.onrender.com/api';
+  }
+
+  return 'http://localhost:3001/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 interface ApiResponse<T = any> {
   success: boolean;
