@@ -1,4 +1,5 @@
 const rateLimit = require('express-rate-limit');
+const { ipKeyGenerator } = require('express-rate-limit');
 const logger = require('../utils/logger');
 
 let redisStore = null;
@@ -50,11 +51,7 @@ const loginLimiter = rateLimit(createLimiterConfig({
   message: 'Too many login attempts, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.body.email || req.ip,
-  skip: (req) => {
-    if (!req.body.email) return false;
-    return false;
-  },
+  keyGenerator: (req) => req.body.email || ipKeyGenerator(req),
   handler: (req, res) => {
     logger.warn('Login rate limit exceeded', {
       email: req.body.email,
@@ -77,7 +74,7 @@ const registrationLimiter = rateLimit(createLimiterConfig({
   message: 'Too many accounts created from this IP, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.body.email || req.ip,
+  keyGenerator: (req) => req.body.email || ipKeyGenerator(req),
   handler: (req, res) => {
     logger.warn('Registration rate limit exceeded', {
       email: req.body.email,
@@ -99,7 +96,7 @@ const apiLimiter = rateLimit(createLimiterConfig({
   max: 100, // 100 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.user?._id || req.ip,
+  keyGenerator: (req) => req.user?._id || ipKeyGenerator(req),
   handler: (req, res) => {
     logger.warn('API rate limit exceeded', {
       userId: req.user?._id,
@@ -121,7 +118,7 @@ const uploadLimiter = rateLimit(createLimiterConfig({
   max: 10, // 10 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.user?._id || req.ip,
+  keyGenerator: (req) => req.user?._id || ipKeyGenerator(req),
   handler: (req, res) => {
     logger.warn('Upload rate limit exceeded', {
       userId: req.user?._id,
@@ -143,7 +140,7 @@ const passwordResetLimiter = rateLimit(createLimiterConfig({
   max: 3, // 3 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.body.email || req.ip,
+  keyGenerator: (req) => req.body.email || ipKeyGenerator(req),
   handler: (req, res) => {
     logger.warn('Password reset rate limit exceeded', {
       email: req.body.email,
@@ -165,7 +162,7 @@ const aiLimiter = rateLimit(createLimiterConfig({
   max: 20, // 20 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.user?._id || req.ip,
+  keyGenerator: (req) => req.user?._id || ipKeyGenerator(req),
   handler: (req, res) => {
     logger.warn('AI rate limit exceeded', {
       userId: req.user?._id,
