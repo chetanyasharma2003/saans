@@ -1,3 +1,4 @@
+import { DashboardHeader } from '../components/DashboardHeader';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, MessageSquare, Share2 } from 'lucide-react';
@@ -18,12 +19,7 @@ export function StoriesPageNew() {
       </div>
 
       <div className="relative z-10">
-        <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-purple-500/20">
-          <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-6">
-            <button onClick={() => navigate('/dashboard')} className="text-purple-400 text-sm sm:text-base mb-4">← Back</button>
-            <h1 className="text-2xl sm:text-4xl font-bold text-white">Inspiring Stories</h1>
-          </div>
-        </header>
+        <DashboardHeader title="Stories" showBackButton={false} />
 
         <main className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-12 space-y-6 sm:space-y-8 max-w-3xl mx-auto">
           {stories.map((story, idx) => (

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Plus, TrendingUp, Calendar, Tag, MessageSquare, ChevronRight } from 'lucide-react';
+import { DashboardHeader } from '../components/DashboardHeader';
 
 export function MoodTrackerPageNew() {
   const navigate = useNavigate();
@@ -72,18 +73,7 @@ export function MoodTrackerPageNew() {
 
       <div className="relative z-10">
         {/* Header */}
-        <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-purple-500/20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="text-purple-400 hover:text-purple-300 mb-4 flex items-center gap-2 font-semibold"
-            >
-              ← Back to Dashboard
-            </button>
-            <h1 className="text-4xl font-bold text-white mb-2">Mood Tracker</h1>
-            <p className="text-purple-200">Track your emotions and discover patterns</p>
-          </div>
-        </header>
+        <DashboardHeader title="Mood Tracker" showBackButton={false} />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
           {/* New Entry Section */}
