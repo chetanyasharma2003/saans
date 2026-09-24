@@ -6,6 +6,17 @@ class VideoCallService {
     this.appId = process.env.AGORA_APP_ID;
     this.appCertificate = process.env.AGORA_APP_CERTIFICATE;
     this.expirationTimeInSeconds = 3600; // 1 hour
+
+    // Validate Agora credentials
+    if (!this.appId || !this.appCertificate) {
+      logger.warn('⚠️  Agora credentials not configured. Video calls will fail.');
+      logger.warn('Set AGORA_APP_ID and AGORA_APP_CERTIFICATE in .env');
+    }
+  }
+
+  // Check if video calls are enabled
+  isConfigured() {
+    return !!(this.appId && this.appCertificate);
   }
 
   // ==================== TOKEN GENERATION ====================

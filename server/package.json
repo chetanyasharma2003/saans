@@ -52,7 +52,9 @@
     "swagger-ui-express": "^5.0.1",
     "swagger-jsdoc": "^6.3.0",
     "razorpay": "^2.9.1",
-    "stripe": "^14.0.0"
+    "stripe": "^14.0.0",
+    "agora-access-token": "^2.3.0",
+    "twilio": "^4.0.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^7.0.1",

@@ -15,6 +15,15 @@ router.post('/token', auth, [
   body('role').isIn(['publisher', 'subscriber']).optional()
 ], async (req, res, next) => {
   try {
+    // Check if video service is configured
+    if (!videoCallService.isConfigured()) {
+      return res.status(503).json({
+        success: false,
+        error: 'Video calling service is not configured',
+        code: 'VIDEO_SERVICE_UNAVAILABLE'
+      });
+    }
+
     const { appointmentId, role = 'publisher' } = req.body;
 
     const appointment = await Appointment.findById(appointmentId);
