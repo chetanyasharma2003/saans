@@ -42,19 +42,78 @@ router.get('/options/languages', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { specialty, language, minRating, maxPrice } = req.query;
-    const query = { role: 'therapist', status: 'active' };
 
-    if (specialty) query['therapistProfile.specialties'] = specialty;
-    if (language) query['therapistProfile.languages'] = language;
-    if (minRating) query['therapistProfile.rating'] = { $gte: parseFloat(minRating) };
-    if (maxPrice) query['therapistProfile.price'] = { $lte: parseInt(maxPrice) };
+    // Mock therapist data
+    const mockTherapists = [
+      {
+        _id: '1',
+        name: 'Dr. Priya Singh',
+        specialty: 'Anxiety & Stress',
+        rating: 4.9,
+        reviews: 128,
+        price: 500,
+        image: '👩‍⚕️',
+        bio: 'Specializes in anxiety management and stress relief with 8+ years experience',
+        languages: ['English', 'Hindi'],
+        availability: 'Available Today',
+      },
+      {
+        _id: '2',
+        name: 'Dr. Rajesh Patel',
+        specialty: 'Depression',
+        rating: 4.8,
+        reviews: 95,
+        price: 450,
+        image: '👨‍⚕️',
+        bio: 'Expert in depression and mood disorders with compassionate approach',
+        languages: ['English', 'Gujarati'],
+        availability: 'Available Tomorrow',
+      },
+      {
+        _id: '3',
+        name: 'Dr. Meera Kapoor',
+        specialty: 'Relationships',
+        rating: 5.0,
+        reviews: 156,
+        price: 600,
+        image: '👩‍⚕️',
+        bio: 'Relationship counselor helping couples and individuals build healthy connections',
+        languages: ['English', 'Hindi', 'Punjabi'],
+        availability: 'Available Today',
+      },
+      {
+        _id: '4',
+        name: 'Dr. Amit Sharma',
+        specialty: 'PTSD & Trauma',
+        rating: 4.7,
+        reviews: 82,
+        price: 550,
+        image: '👨‍⚕️',
+        bio: 'Trauma-informed therapist specializing in PTSD and recovery',
+        languages: ['English', 'Hindi'],
+        availability: 'Available in 2 days',
+      },
+    ];
 
-    const therapists = await User.find(query).select('-password');
+    // Filter by specialty or language if provided
+    let filtered = mockTherapists;
+    if (specialty) {
+      filtered = filtered.filter(t => t.specialty.toLowerCase().includes(specialty.toLowerCase()));
+    }
+    if (language) {
+      filtered = filtered.filter(t => t.languages.includes(language));
+    }
+    if (minRating) {
+      filtered = filtered.filter(t => t.rating >= parseFloat(minRating));
+    }
+    if (maxPrice) {
+      filtered = filtered.filter(t => t.price <= parseInt(maxPrice));
+    }
 
     res.json({
       success: true,
-      data: therapists,
-      total: therapists.length,
+      data: filtered,
+      total: filtered.length,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

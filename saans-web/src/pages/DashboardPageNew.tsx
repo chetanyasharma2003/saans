@@ -132,41 +132,54 @@ export function DashboardPageNew() {
 
         {/* Main container - RESPONSIVE PADDING */}
         <main className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-12">
-          {/* Hero Section - Mood Check-in */}
+          {/* REDESIGNED Hero Section - Mood Check-in */}
           <section className="animate-slideInUp">
-            <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 rounded-2xl sm:rounded-3xl p-6 sm:p-8 border-2 border-purple-500/30 shadow-lg backdrop-blur-xl">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">How are you feeling today?</h2>
-              <p className="text-purple-300 mb-6 sm:mb-8 text-sm sm:text-base">Share your emotions in this moment</p>
+            <div className="bg-gradient-to-br from-purple-800/60 via-pink-800/40 to-slate-900/60 rounded-3xl sm:rounded-4xl p-8 sm:p-12 md:p-16 border-2 border-purple-500/50 shadow-2xl backdrop-blur-xl overflow-hidden relative">
+              {/* Glow effect */}
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
 
-              {/* Mood selector - RESPONSIVE GRID */}
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 mb-6 sm:mb-8">
-                {moods.map((mood) => (
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">How are you feeling today? 🌈</h2>
+                    <p className="text-purple-200 text-sm sm:text-base md:text-lg">Take a moment for yourself - your emotional wellness matters</p>
+                  </div>
+                  <div className="hidden md:block text-6xl opacity-30">💭</div>
+                </div>
+
+                {/* Mood selector - FULLY RESPONSIVE */}
+                <div className="mb-8 sm:mb-10">
+                  <p className="text-purple-300 text-xs sm:text-sm font-semibold mb-4 uppercase tracking-wide">Select your mood</p>
+                  <div className="grid grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+                    {moods.map((mood) => (
+                      <button
+                        key={mood.value}
+                        onClick={() => setSelectedMood(mood.value)}
+                        className={`group relative py-3 sm:py-5 md:py-6 px-1 sm:px-2 rounded-2xl sm:rounded-3xl transition-all duration-300 transform ${
+                          selectedMood === mood.value
+                            ? `${mood.color} border-3 border-white scale-110 shadow-2xl shadow-purple-500/50`
+                            : 'bg-slate-700/60 border-3 border-purple-400/40 hover:border-purple-400/80 hover:scale-110 hover:shadow-xl hover:shadow-purple-500/30'
+                        }`}
+                      >
+                        <div className="text-3xl sm:text-4xl md:text-5xl mb-1 group-hover:scale-110 transition-transform">{mood.emoji}</div>
+                        <div className={`text-xs sm:text-sm font-bold hidden sm:block ${selectedMood === mood.value ? 'text-white' : 'text-purple-300'}`}>
+                          {mood.label}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Action button - PREMIUM STYLING */}
+                {selectedMood && (
                   <button
-                    key={mood.value}
-                    onClick={() => setSelectedMood(mood.value)}
-                    className={`py-3 sm:py-4 px-2 sm:px-3 md:px-6 rounded-xl sm:rounded-2xl transition-all duration-300 transform border-3 ${
-                      selectedMood === mood.value
-                        ? `${mood.color} border-white scale-105 sm:scale-110 shadow-xl`
-                        : 'bg-slate-800/50 border-purple-500/30 hover:scale-105 hover:shadow-lg'
-                    }`}
+                    onClick={() => navigate('/mood-tracker')}
+                    className="w-full py-4 sm:py-5 md:py-6 px-6 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 text-white font-bold text-sm sm:text-base md:text-lg rounded-2xl sm:rounded-3xl transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-green-500/40 border-2 border-green-400/50 hover:border-green-300"
                   >
-                    <div className="text-3xl sm:text-4xl mb-1">{mood.emoji}</div>
-                    <div className={`text-xs font-bold ${selectedMood === mood.value ? 'text-white' : 'text-purple-300'}`}>
-                      {mood.label}
-                    </div>
+                    ✨ Continue Check-In →
                   </button>
-                ))}
+                )}
               </div>
-
-              {/* Action button */}
-              {selectedMood && (
-                <button
-                  onClick={() => navigate('/mood-tracker')}
-                  className="w-full py-3 sm:py-4 px-4 sm:px-6 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold text-sm sm:text-base rounded-lg sm:rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-lg"
-                >
-                  ✨ Continue Check-In
-                </button>
-              )}
             </div>
           </section>
 
