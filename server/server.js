@@ -147,6 +147,8 @@ app.use('/api/oauth', require('./routes/oauth.routes'));
 app.use('/api/audit', require('./routes/audit.routes'));
 app.use('/api/chat', require('./routes/chat.routes'));
 app.use('/api/notifications', require('./routes/notifications.routes'));
+app.use('/api/payments', require('./routes/payment.routes'));
+app.use('/api/analytics', require('./routes/analytics.routes'));
 
 // 404 Handler
 app.use((req, res) => {
