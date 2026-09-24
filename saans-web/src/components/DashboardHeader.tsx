@@ -14,7 +14,7 @@ export function DashboardHeader({ title, showBackButton = false }: DashboardHead
   const navItems = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Mood', path: '/mood-tracker' },
-    { label: 'Therapist', path: '/find-therapist' },
+    { label: 'Therapist', path: '/therapist' },
     { label: 'Community', path: '/community' },
     { label: 'Sessions', path: '/appointments' },
     { label: 'Resources', path: '/resources' },
