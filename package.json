@@ -17,5 +17,13 @@
     "dev": "concurrently \"cd server && npm run dev\" \"cd saans-web && npm run dev\"",
     "lint": "eslint 'saans-web/src/**/*.{ts,tsx}' --fix",
     "format": "prettier --write 'saans-web/src/**/*.{ts,tsx,json}'"
+  },
+  "dependencies": {
+    "@stripe/stripe-js": "^9.17.0",
+    "cors": "^2.8.6",
+    "razorpay": "^2.9.8",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
+    "stripe": "^22.6.2"
   }
 }
