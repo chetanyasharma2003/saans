@@ -1,12 +1,62 @@
 services:
   - type: web
-    name: saans-web
-    runtime: node
-    rootDir: saans-web
-    buildCommand: cd saans-web && npm install && npm run build
-    startCommand: cd saans-web && npx serve -l 0.0.0.0:8080 -s dist
+    name: saans-api
+    env: node
+    plan: standard
+    region: ohio  # Change to oregon/frankfurt as needed
+    buildCommand: cd server && npm install --legacy-peer-deps
+    startCommand: cd server && npm start
     envVars:
-      - key: VITE_API_URL
-        value: https://saans-api.onrender.com
-      - key: PORT
-        value: 8080
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false  # Set in dashboard
+      - key: JWT_SECRET
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_PHONE_NUMBER
+        sync: false
+      - key: AGORA_APP_ID
+        sync: false
+      - key: AGORA_APP_CERTIFICATE
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_S3_BUCKET
+        value: saans-prod
+      - key: CLIENT_URL
+        value: https://saans.vercel.app
+      - key: SENTRY_DSN
+        sync: false
+    healthCheckPath: /api/health
