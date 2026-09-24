@@ -1,406 +1,235 @@
-const stripe = process.env.STRIPE_SECRET_KEY ? require('stripe')(process.env.STRIPE_SECRET_KEY) : null;
-const Razorpay = process.env.RAZORPAY_KEY_ID ? require('razorpay') : null;
-const mongoose = require('mongoose');
-const Payment = require('../models/Payment');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const axios = require('axios');
 const logger = require('../utils/logger');
-const crypto = require('crypto');
-
-/**
- * Payment Service
- * Handles Stripe, Razorpay, and wallet payments
- */
 
 class PaymentService {
-  constructor() {
-    if (Razorpay && process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
-      this.razorpay = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID,
-        key_secret: process.env.RAZORPAY_KEY_SECRET
-      });
-    }
-  }
+  // ==================== STRIPE ====================
 
-  // ============ STRIPE PAYMENT ============
-
-  async createStripePaymentIntent(userId, amount, description, metadata = {}) {
+  async createStripePaymentIntent(amount, currency = 'inr', metadata = {}) {
     try {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to paise
-        currency: 'inr',
-        description,
-        metadata: {
-          userId,
-          ...metadata
-        }
+        currency,
+        metadata,
+        automatic_payment_methods: { enabled: true }
       });
 
-      const payment = new Payment({
-        userId,
-        amount,
-        currency: 'INR',
-        paymentMethod: 'stripe',
-        status: 'pending',
-        paymentGatewayId: paymentIntent.id,
-        metadata: { description, ...metadata }
-      });
-
-      await payment.save();
-
-      logger.info('Stripe payment intent created', {
-        userId,
-        amount,
-        paymentId: payment._id
-      });
-
+      logger.info('Stripe payment intent created', { id: paymentIntent.id, amount });
       return {
+        success: true,
         clientSecret: paymentIntent.client_secret,
-        paymentId: payment._id,
-        amount,
-        currency: 'INR'
+        paymentIntentId: paymentIntent.id
       };
     } catch (error) {
-      logger.error('Stripe payment intent creation failed', { error: error.message });
+      logger.error('Stripe payment intent error', { error: error.message });
       throw error;
     }
   }
 
-  async confirmStripePayment(paymentIntentId, paymentId) {
+  async confirmStripePayment(paymentIntentId) {
     try {
       const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-
-      if (paymentIntent.status === 'succeeded') {
-        const payment = await Payment.findByIdAndUpdate(
-          paymentId,
-          {
-            status: 'completed',
-            transactionId: paymentIntentId,
-            completedAt: new Date()
-          },
-          { new: true }
-        );
-
-        logger.info('Stripe payment confirmed', {
-          paymentId,
-          transactionId: paymentIntentId
-        });
-
-        return payment;
-      }
-
-      throw new Error(`Payment status: ${paymentIntent.status}`);
-    } catch (error) {
-      logger.error('Stripe payment confirmation failed', { error: error.message });
-      throw error;
-    }
-  }
-
-  async createStripeRefund(paymentId, amount) {
-    try {
-      const payment = await Payment.findById(paymentId);
-
-      if (!payment || payment.paymentMethod !== 'stripe') {
-        throw new Error('Payment not found or not a Stripe payment');
-      }
-
-      const refund = await stripe.refunds.create({
-        payment_intent: payment.transactionId,
-        amount: Math.round(amount * 100)
-      });
-
-      await Payment.findByIdAndUpdate(paymentId, {
-        'refund.refundId': refund.id,
-        'refund.amount': amount,
-        'refund.status': 'completed',
-        'refund.refundedAt': new Date(),
-        status: 'refunded'
-      });
-
-      logger.info('Stripe refund created', {
-        paymentId,
-        refundId: refund.id,
-        amount
-      });
-
-      return refund;
-    } catch (error) {
-      logger.error('Stripe refund creation failed', { error: error.message });
-      throw error;
-    }
-  }
-
-  // ============ RAZORPAY PAYMENT ============
-
-  async createRazorpayOrder(userId, amount, description, metadata = {}) {
-    try {
-      const options = {
-        amount: Math.round(amount * 100), // Convert to paise
-        currency: 'INR',
-        receipt: `receipt_${Date.now()}`,
-        notes: {
-          userId,
-          ...metadata
-        }
-      };
-
-      const order = await this.razorpay.orders.create(options);
-
-      const payment = new Payment({
-        userId,
-        amount,
-        currency: 'INR',
-        paymentMethod: 'razorpay',
-        status: 'pending',
-        paymentGatewayId: order.id,
-        orderId: order.id,
-        metadata: { description, ...metadata }
-      });
-
-      await payment.save();
-
-      logger.info('Razorpay order created', {
-        userId,
-        amount,
-        orderId: order.id
-      });
-
       return {
-        orderId: order.id,
-        paymentId: payment._id,
-        amount,
-        currency: 'INR',
-        key: process.env.RAZORPAY_KEY_ID
+        success: paymentIntent.status === 'succeeded',
+        status: paymentIntent.status,
+        paymentIntentId: paymentIntent.id
       };
     } catch (error) {
-      logger.error('Razorpay order creation failed', { error: error.message });
+      logger.error('Stripe payment confirmation error', { error: error.message });
       throw error;
     }
   }
 
-  async verifyRazorpaySignature(razorpayOrderId, razorpayPaymentId, razorpaySignature) {
+  async createStripeSubscription(customerId, priceId, metadata = {}) {
     try {
-      const body = `${razorpayOrderId}|${razorpayPaymentId}`;
-      const expectedSignature = crypto
-        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-        .update(body)
-        .digest('hex');
-
-      if (expectedSignature !== razorpaySignature) {
-        throw new Error('Invalid signature');
-      }
-
-      const payment = await Payment.findOneAndUpdate(
-        { orderId: razorpayOrderId },
-        {
-          status: 'completed',
-          transactionId: razorpayPaymentId,
-          paymentGatewayId: razorpayPaymentId,
-          completedAt: new Date()
-        },
-        { new: true }
-      );
-
-      logger.info('Razorpay payment verified', {
-        orderId: razorpayOrderId,
-        paymentId: razorpayPaymentId
+      const subscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [{ price: priceId }],
+        metadata,
+        expand: ['latest_invoice.payment_intent']
       });
 
-      return payment;
-    } catch (error) {
-      logger.error('Razorpay verification failed', { error: error.message });
-      throw error;
-    }
-  }
-
-  async createRazorpayRefund(paymentId, amount) {
-    try {
-      const payment = await Payment.findById(paymentId);
-
-      if (!payment || payment.paymentMethod !== 'razorpay') {
-        throw new Error('Payment not found or not a Razorpay payment');
-      }
-
-      const refund = await this.razorpay.payments.refund(payment.transactionId, {
-        amount: Math.round(amount * 100)
-      });
-
-      await Payment.findByIdAndUpdate(paymentId, {
-        'refund.refundId': refund.id,
-        'refund.amount': amount,
-        'refund.status': 'completed',
-        'refund.refundedAt': new Date(),
-        status: 'refunded'
-      });
-
-      logger.info('Razorpay refund created', {
-        paymentId,
-        refundId: refund.id,
-        amount
-      });
-
-      return refund;
-    } catch (error) {
-      logger.error('Razorpay refund creation failed', { error: error.message });
-      throw error;
-    }
-  }
-
-  // ============ WALLET PAYMENT ============
-
-  async createWalletPayment(userId, amount, description, metadata = {}) {
-    try {
-      const payment = new Payment({
-        userId,
-        amount,
-        currency: 'INR',
-        paymentMethod: 'wallet',
-        status: 'pending',
-        metadata: { description, ...metadata }
-      });
-
-      await payment.save();
-
-      logger.info('Wallet payment created', {
-        userId,
-        amount,
-        paymentId: payment._id
-      });
-
-      return payment;
-    } catch (error) {
-      logger.error('Wallet payment creation failed', { error: error.message });
-      throw error;
-    }
-  }
-
-  async completeWalletPayment(paymentId) {
-    try {
-      const payment = await Payment.findByIdAndUpdate(
-        paymentId,
-        {
-          status: 'completed',
-          transactionId: `wallet_${paymentId}`,
-          completedAt: new Date()
-        },
-        { new: true }
-      );
-
-      logger.info('Wallet payment completed', { paymentId });
-
-      return payment;
-    } catch (error) {
-      logger.error('Wallet payment completion failed', { error: error.message });
-      throw error;
-    }
-  }
-
-  // ============ PAYMENT QUERIES ============
-
-  async getPaymentHistory(userId, limit = 20, offset = 0) {
-    try {
-      const payments = await Payment.find({ userId })
-        .sort({ createdAt: -1 })
-        .skip(offset)
-        .limit(limit);
-
-      const total = await Payment.countDocuments({ userId });
-
+      logger.info('Stripe subscription created', { id: subscription.id });
       return {
-        payments,
-        total,
-        limit,
-        offset
+        success: true,
+        subscriptionId: subscription.id,
+        clientSecret: subscription.latest_invoice?.payment_intent?.client_secret,
+        status: subscription.status
       };
     } catch (error) {
-      logger.error('Payment history retrieval failed', { error: error.message });
+      logger.error('Stripe subscription error', { error: error.message });
       throw error;
     }
   }
 
-  async getPaymentById(paymentId, userId) {
+  async cancelStripeSubscription(subscriptionId) {
     try {
-      const payment = await Payment.findById(paymentId);
-
-      if (!payment || payment.userId.toString() !== userId.toString()) {
-        throw new Error('Payment not found or unauthorized');
-      }
-
-      return payment;
+      const subscription = await stripe.subscriptions.del(subscriptionId);
+      logger.info('Stripe subscription cancelled', { id: subscriptionId });
+      return { success: true, status: subscription.status };
     } catch (error) {
-      logger.error('Payment retrieval failed', { error: error.message });
+      logger.error('Stripe cancellation error', { error: error.message });
       throw error;
     }
   }
 
-  async getPaymentStats(userId) {
+  // ==================== RAZORPAY ====================
+
+  async createRazorpayOrder(amount, currency = 'INR', receipt = '', notes = {}) {
     try {
-      const stats = await Payment.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      const response = await axios.post(
+        'https://api.razorpay.com/v1/orders',
         {
-          $group: {
-            _id: '$status',
-            count: { $sum: 1 },
-            totalAmount: { $sum: '$amount' }
+          amount: Math.round(amount * 100), // Convert to paise
+          currency,
+          receipt,
+          notes
+        },
+        {
+          auth: {
+            username: process.env.RAZORPAY_KEY_ID,
+            password: process.env.RAZORPAY_KEY_SECRET
           }
         }
-      ]);
+      );
 
-      return stats.reduce((acc, stat) => {
-        acc[stat._id] = {
-          count: stat.count,
-          amount: stat.totalAmount
-        };
-        return acc;
-      }, {});
+      logger.info('Razorpay order created', { id: response.data.id, amount });
+      return {
+        success: true,
+        orderId: response.data.id,
+        amount: response.data.amount,
+        currency: response.data.currency,
+        status: response.data.status
+      };
     } catch (error) {
-      logger.error('Payment stats retrieval failed', { error: error.message });
+      logger.error('Razorpay order error', { error: error.message });
       throw error;
     }
   }
 
-  // ============ PAYMENT VALIDATION ============
-
-  async validatePaymentAmount(amount) {
-    if (!amount || amount <= 0) {
-      throw new Error('Invalid payment amount');
-    }
-
-    // Minimum 1 INR, maximum 10,00,000 INR
-    if (amount < 1 || amount > 1000000) {
-      throw new Error('Payment amount out of range');
-    }
-
-    return true;
-  }
-
-  // ============ INVOICE GENERATION ============
-
-  async generateInvoice(paymentId) {
+  async verifyRazorpayPayment(orderId, paymentId, signature) {
     try {
-      const payment = await Payment.findById(paymentId)
-        .populate('userId', 'firstName lastName email')
-        .populate('appointmentId');
+      const crypto = require('crypto');
+      const generatedSignature = crypto
+        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+        .update(`${orderId}|${paymentId}`)
+        .digest('hex');
 
-      if (!payment) {
-        throw new Error('Payment not found');
+      const isValid = generatedSignature === signature;
+
+      if (isValid) {
+        logger.info('Razorpay payment verified', { orderId, paymentId });
+      } else {
+        logger.warn('Razorpay payment verification failed', { orderId, paymentId });
       }
 
-      const invoice = {
-        invoiceId: `INV-${paymentId.toString().substring(0, 8).toUpperCase()}`,
-        date: new Date().toISOString(),
-        amount: payment.amount,
-        currency: payment.currency,
-        status: payment.status,
-        description: payment.metadata?.description,
-        user: payment.userId,
-        transactionId: payment.transactionId,
-        paymentMethod: payment.paymentMethod
-      };
-
-      logger.info('Invoice generated', { paymentId });
-
-      return invoice;
+      return { success: isValid };
     } catch (error) {
-      logger.error('Invoice generation failed', { error: error.message });
+      logger.error('Razorpay verification error', { error: error.message });
+      throw error;
+    }
+  }
+
+  async createRazorpaySubscription(planId, customerId, notes = {}) {
+    try {
+      const response = await axios.post(
+        'https://api.razorpay.com/v1/subscriptions',
+        {
+          plan_id: planId,
+          customer_notify: 1,
+          quantity: 1,
+          notes
+        },
+        {
+          auth: {
+            username: process.env.RAZORPAY_KEY_ID,
+            password: process.env.RAZORPAY_KEY_SECRET
+          }
+        }
+      );
+
+      logger.info('Razorpay subscription created', { id: response.data.id });
+      return {
+        success: true,
+        subscriptionId: response.data.id,
+        status: response.data.status
+      };
+    } catch (error) {
+      logger.error('Razorpay subscription error', { error: error.message });
+      throw error;
+    }
+  }
+
+  // ==================== REFUNDS ====================
+
+  async refundStripePayment(paymentIntentId, amount = null, reason = 'requested_by_customer') {
+    try {
+      const refund = await stripe.refunds.create({
+        payment_intent: paymentIntentId,
+        amount: amount ? Math.round(amount * 100) : undefined,
+        reason
+      });
+
+      logger.info('Stripe refund processed', { id: refund.id });
+      return { success: true, refundId: refund.id, status: refund.status };
+    } catch (error) {
+      logger.error('Stripe refund error', { error: error.message });
+      throw error;
+    }
+  }
+
+  async refundRazorpayPayment(paymentId, amount = null) {
+    try {
+      const response = await axios.post(
+        `https://api.razorpay.com/v1/payments/${paymentId}/refund`,
+        amount ? { amount: Math.round(amount * 100) } : {},
+        {
+          auth: {
+            username: process.env.RAZORPAY_KEY_ID,
+            password: process.env.RAZORPAY_KEY_SECRET
+          }
+        }
+      );
+
+      logger.info('Razorpay refund processed', { paymentId });
+      return { success: true, refundId: response.data.id, status: response.data.status };
+    } catch (error) {
+      logger.error('Razorpay refund error', { error: error.message });
+      throw error;
+    }
+  }
+
+  // ==================== WEBHOOKS ====================
+
+  handleStripeWebhook(body, signature) {
+    try {
+      const event = stripe.webhooks.constructEvent(
+        body,
+        signature,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+
+      logger.info('Stripe webhook received', { type: event.type });
+      return event;
+    } catch (error) {
+      logger.error('Stripe webhook error', { error: error.message });
+      throw error;
+    }
+  }
+
+  handleRazorpayWebhook(payload, signature) {
+    try {
+      const crypto = require('crypto');
+      const generatedSignature = crypto
+        .createHmac('sha256', process.env.RAZORPAY_WEBHOOK_SECRET)
+        .update(JSON.stringify(payload))
+        .digest('hex');
+
+      const isValid = generatedSignature === signature;
+      logger.info('Razorpay webhook received', { valid: isValid });
+      return { valid: isValid, payload };
+    } catch (error) {
+      logger.error('Razorpay webhook error', { error: error.message });
       throw error;
     }
   }

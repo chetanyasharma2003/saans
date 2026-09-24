@@ -147,6 +147,9 @@ app.use('/api/therapist-register', require('./routes/therapistRegistration.route
 app.use('/api/community', require('./routes/community.routes'));
 app.use('/api/resources', require('./routes/resources.routes'));
 app.use('/api/admin/analytics', require('./routes/admin.analytics.routes'));
+app.use('/api/payments-enhanced', require('./routes/payments.enhanced.routes'));
+app.use('/api/video-calls', require('./routes/videocalls.routes'));
+app.use('/api/recommendations', require('./routes/recommendations.routes'));
 app.use('/api/ai', require('./routes/ai.routes'));
 app.use('/api/email', require('./routes/email.routes'));
 app.use('/api/files', require('./routes/files.routes'));
