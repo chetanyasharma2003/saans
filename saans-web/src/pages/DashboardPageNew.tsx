@@ -25,28 +25,47 @@ export function DashboardPageNew() {
       setLoading(true);
       const token = localStorage.getItem('accessToken');
 
-      const [userRes, appointmentsRes, moodRes, subRes] = await Promise.all([
-        axios.get(`${API_URL}/api/users/profile`, {
+      // Fetch each endpoint separately to handle partial failures
+      try {
+        const userRes = await axios.get(`${API_URL}/api/users/profile`, {
           headers: { Authorization: `Bearer ${token}` }
-        }),
-        axios.get(`${API_URL}/api/appointments`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        axios.get(`${API_URL}/api/mood/stats`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        axios.get(`${API_URL}/api/payments/subscription`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-      ]);
+        });
+        setUserData(userRes.data.data);
+      } catch (e) {
+        console.error('User profile error:', e);
+      }
 
-      setUserData(userRes.data.data);
-      setAppointments(appointmentsRes.data.data || []);
-      setMoodData(moodRes.data.data);
-      setSubscription(subRes.data.data);
+      try {
+        const appointmentsRes = await axios.get(`${API_URL}/api/appointments`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setAppointments(appointmentsRes.data.data || []);
+      } catch (e) {
+        console.error('Appointments error:', e);
+      }
+
+      try {
+        const moodRes = await axios.get(`${API_URL}/api/mood/stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setMoodData(moodRes.data.data);
+      } catch (e) {
+        console.error('Mood stats error:', e);
+      }
+
+      try {
+        const subRes = await axios.get(`${API_URL}/api/payments/subscription`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setSubscription(subRes.data.data);
+      } catch (e) {
+        console.error('Subscription error:', e);
+        // Set default subscription data if endpoint fails
+        setSubscription({ status: 'inactive', plan: null });
+      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      setError('Failed to load dashboard data');
+      setError('Some dashboard data could not be loaded');
     } finally {
       setLoading(false);
     }
