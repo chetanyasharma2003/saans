@@ -19,10 +19,10 @@ function generateMoodEntries() {
 
     const moodScore = Math.min(5, Math.floor(2 + (30 - i) * 0.08)); // Progressive improvement
     entries.push({
-      userId: userId1,
+      mood: moodScore, userId: userId1,
       date,
       moodScore,
-      mood: moods[moodScore - 1],
+      moodLabel: moods[moodScore - 1],
       energyLevel: Math.max(1, moodScore - 1),
       sleepQuality: Math.floor(Math.random() * 5) + 1,
       sleepHours: Math.floor(Math.random() * 3) + 5,
@@ -45,10 +45,10 @@ function generateMoodEntries() {
 
     const moodScore = (i % 5) === 0 ? 2 : (i % 3) === 0 ? 4 : 3;
     entries.push({
-      userId: userId2,
+      mood: moodScore, userId: userId2,
       date,
       moodScore,
-      mood: moods[moodScore - 1],
+      moodLabel: moods[moodScore - 1],
       energyLevel: Math.max(1, moodScore - 1),
       sleepQuality: Math.floor(Math.random() * 5) + 1,
       sleepHours: Math.floor(Math.random() * 4) + 5,
@@ -68,10 +68,10 @@ function generateMoodEntries() {
 
     const moodScore = Math.max(3, Math.floor(4 + Math.random() * 2));
     entries.push({
-      userId: userId3,
+      mood: moodScore, userId: userId3,
       date,
       moodScore,
-      mood: moods[moodScore - 1],
+      moodLabel: moods[moodScore - 1],
       energyLevel: Math.max(2, moodScore - 1),
       sleepQuality: Math.floor(Math.random() * 5) + 2,
       sleepHours: Math.floor(Math.random() * 2) + 7,
