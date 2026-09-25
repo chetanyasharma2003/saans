@@ -3,7 +3,7 @@
 
 const posts = [
   // DEPRESSION Posts
-  {
+  { userId: new (require('mongoose')).Types.ObjectId('507f1f77bcf86cd799439010'),
     title: 'How I stopped my negative self-talk - 6 months later',
     content: `I posted 6 months ago about struggling with constant negative self-talk. I said I would try cognitive behavioral therapy techniques. I'm happy to report that it's actually working!
 
@@ -22,7 +22,7 @@ To anyone struggling - it does get better. Therapy works if you're willing to pu
       saves: 87
     }
   },
-  {
+  { userId: new (require('mongoose')).Types.ObjectId('507f1f77bcf86cd799439010'),
     title: "I've been depressed for 5 years. Just started medication yesterday.",
     content: `I'm 28 years old and have been struggling with depression since I was 23. I tried everything - exercise, meditation, therapy, changing my diet. Nothing worked.
 
@@ -41,7 +41,7 @@ Anyone else on SSRIs? What was your experience?`,
       saves: 203
     }
   },
-  {
+  { userId: new (require('mongoose')).Types.ObjectId('507f1f77bcf86cd799439010'),
     title: 'Depression lies to you - remember this',
     content: `Depression told me I'm a burden.
 Depression told me I'm not good enough.
@@ -68,7 +68,7 @@ If you're struggling, remember: your brain is lying to you. Depression is a liar
   },
 
   // ANXIETY Posts
-  {
+  { userId: new (require('mongoose')).Types.ObjectId('507f1f77bcf86cd799439010'),
     title: "My panic attack routine that actually helps",
     content: `I used to have 3-4 panic attacks per week. Now I have them maybe once a month. Here's what my therapist taught me:
 
@@ -94,7 +94,7 @@ If anyone wants to talk about anxiety, I'm here. You're not alone.`,
       saves: 267
     }
   },
-  {
+  { userId: new (require('mongoose')).Types.ObjectId('507f1f77bcf86cd799439010'),
     title: 'Anxiety ruined my job interview',
     content: `I had an interview for my dream job yesterday. I was so anxious before it that I:
 
@@ -118,7 +118,7 @@ Has anyone else struggled with interview anxiety? How do you manage it?`,
   },
 
   // STRESS Posts
-  {
+  { userId: new (require('mongoose')).Types.ObjectId('507f1f77bcf86cd799439010'),
     title: 'Work stress is destroying my health',
     content: `I work in IT, 60 hour weeks, constant deadlines. For the past year:
 
@@ -143,7 +143,7 @@ Is anyone else trapped in this cycle? How do you manage work stress when you can
   },
 
   // RELATIONSHIPS Posts
-  {
+  { userId: new (require('mongoose')).Types.ObjectId('507f1f77bcf86cd799439010'),
     title: "I think my relationship is over",
     content: `Been with my girlfriend for 4 years. We used to be so close, but for the past 8 months we barely talk.
 
@@ -164,7 +164,7 @@ I love her, but I'm so sad all the time. I don't know if we can come back from t
   },
 
   // TRAUMA Posts
-  {
+  { userId: new (require('mongoose')).Types.ObjectId('507f1f77bcf86cd799439010'),
     title: 'PTSD from car accident - 1 year update',
     content: `One year ago, I was in a serious car accident. For months after, I couldn't:
 - Drive
@@ -194,7 +194,7 @@ Recovery is possible. Don't give up.`,
   },
 
   // SLEEP Posts
-  {
+  { userId: new (require('mongoose')).Types.ObjectId('507f1f77bcf86cd799439010'),
     title: 'Finally sleeping through the night - here is what worked',
     content: `I've had insomnia for 10 years. Every night: 2-3 hours of sleep. I tried everything.
 
@@ -220,7 +220,7 @@ It's not instant, but it WORKS. Don't give up on sleep recovery!`,
   },
 
   // SELF-ESTEEM Posts
-  {
+  { userId: new (require('mongoose')).Types.ObjectId('507f1f77bcf86cd799439010'),
     title: "I'm finally learning to love myself",
     content: `I spent 25 years hating myself. Criticizing my looks, my abilities, my voice, everything.
 
@@ -250,7 +250,7 @@ If you struggle with self-esteem like I did, know that it CAN change. You don't 
   },
 
   // WORK Posts
-  {
+  { userId: new (require('mongoose')).Types.ObjectId('507f1f77bcf86cd799439010'),
     title: 'Changed jobs and my mental health improved instantly',
     content: `I spent 3 years at a toxic company with:
 - Micromanaging boss
@@ -282,7 +282,7 @@ If you're job hunting, feel free to ask me questions!`,
   },
 
   // COMMUNITY WISDOM Posts
-  {
+  { userId: new (require('mongoose')).Types.ObjectId('507f1f77bcf86cd799439010'),
     title: 'What helped you the most in your mental health recovery?',
     content: `I'm starting therapy next week and I'm both excited and nervous. I'd love to hear from this community:
 
