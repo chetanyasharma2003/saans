@@ -9,20 +9,18 @@ module.exports = [
     status: 'completed',
     appointmentType: 'first-session',
     sessionDuration: 60,
-    startTime: new Date('2026-09-20T10:00:00Z'),
-    endTime: new Date('2026-09-20T11:00:00Z'),
+    scheduledAt: new Date('2026-09-20T10:00:00Z'),
+    duration: 60,
     price: 800,
-    currency: 'INR',
-    mode: 'video',
+    type: 'video',
     notes: 'Initial consultation for anxiety management',
-    therapistNotes: 'Patient showed good engagement. Recommended CBT approach. Follow-up in 1 week.',
     paymentStatus: 'completed',
-    paymentId: 'pay_001',
-    rating: 4.8,
-    review: 'Excellent therapist! Very understanding and professional.',
-    rescheduleCount: 0,
-    noShowCount: 0,
-    createdAt: new Date('2026-09-19T15:30:00Z')
+    transactionId: 'pay_001',
+    feedback: {
+      rating: 4.8,
+      comment: 'Excellent therapist! Very understanding and professional.',
+      helpful: true
+    }
   },
   {
     therapistId: new mongoose.Types.ObjectId('507f1f77bcf86cd799439001'),
