@@ -105,12 +105,9 @@ router.post('/', authenticateToken, async (req, res, next) => {
       throw new ValidationError('Missing required fields: therapistId, scheduledAt');
     }
 
-    // Validate therapist exists and is active
-    const therapist = await User.findOne({
-      _id: therapistId,
-      role: 'therapist',
-      status: 'active'
-    }).select('_id therapistProfile');
+    // Validate therapist exists
+    const Therapist = require('../models/Therapist');
+    const therapist = await Therapist.findById(therapistId);
 
     if (!therapist) {
       throw new NotFoundError('Therapist');
@@ -139,7 +136,7 @@ router.post('/', authenticateToken, async (req, res, next) => {
       therapistId,
       scheduledAt: appointmentDate,
       type: type || 'video',
-      price: price || therapist.therapistProfile?.price || 500,
+      price: price || therapist.hourlyRate || 800,
       notes,
       status: 'scheduled',
     });
