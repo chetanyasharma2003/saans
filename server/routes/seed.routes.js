@@ -46,9 +46,9 @@ router.post('/seed-all', async (req, res) => {
     const resources = await MentalHealthResource.insertMany(seedResources);
     logger.info(`Seeded ${resources.length} resources`);
 
-    // Seed appointments
-    const appointments = await Appointment.insertMany(seedAppointments);
-    logger.info(`Seeded ${appointments.length} appointments`);
+    // Skip appointments for now (Render cache issue)
+    const appointments = [];
+    logger.info(`Seeded 0 appointments (skipped - will add next)`);
 
     // Seed mood entries
     const moods = await MoodEntry.insertMany(seedMoodEntries);
