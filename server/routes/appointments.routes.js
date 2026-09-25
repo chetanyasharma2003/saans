@@ -19,7 +19,7 @@ router.get('/', authenticateToken, async (req, res, next) => {
     }
 
     const appointments = await Appointment.find(query)
-      .populate('therapistId', 'firstName lastName specialty rating')
+      .populate('therapistId', 'firstName lastName specialties rating')
       .sort({ scheduledAt: -1 });
 
     res.json({
@@ -41,7 +41,7 @@ router.get('/upcoming', authenticateToken, async (req, res, next) => {
       scheduledAt: { $gte: now },
       status: { $ne: 'cancelled' },
     })
-      .populate('therapistId', 'firstName lastName specialty rating')
+      .populate('therapistId', 'firstName lastName specialties rating')
       .sort({ scheduledAt: 1 })
       .limit(5);
 
@@ -63,7 +63,7 @@ router.get('/next', authenticateToken, async (req, res, next) => {
       scheduledAt: { $gte: now },
       status: { $ne: 'cancelled' },
     })
-      .populate('therapistId', 'firstName lastName specialty rating')
+      .populate('therapistId', 'firstName lastName specialties rating')
       .sort({ scheduledAt: 1 });
 
     res.json({
@@ -81,7 +81,7 @@ router.get('/:id', authenticateToken, async (req, res, next) => {
     const appointment = await Appointment.findOne({
       _id: req.params.id,
       userId: req.userId,
-    }).populate('therapistId', 'firstName lastName specialty rating');
+    }).populate('therapistId', 'firstName lastName specialties rating');
 
     if (!appointment) {
       throw new NotFoundError('Appointment');
@@ -122,7 +122,7 @@ router.post('/', authenticateToken, async (req, res, next) => {
 
     // Check for double-booking
     const existingAppointment = await Appointment.findOne({
-      therapistId,
+      therapistId: therapist._id,
       scheduledAt: appointmentDate,
       status: { $ne: 'cancelled' }
     });
@@ -133,7 +133,7 @@ router.post('/', authenticateToken, async (req, res, next) => {
 
     const appointment = new Appointment({
       userId: req.userId,
-      therapistId,
+      therapistId: therapist._id,
       scheduledAt: appointmentDate,
       type: type || 'video',
       price: price || therapist.hourlyRate || 800,
@@ -142,7 +142,7 @@ router.post('/', authenticateToken, async (req, res, next) => {
     });
 
     await appointment.save();
-    await appointment.populate('therapistId', 'firstName lastName specialty rating');
+    await appointment.populate('therapistId', 'firstName lastName specialties rating');
 
     res.status(201).json({
       success: true,

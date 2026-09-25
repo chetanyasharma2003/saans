@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const appointmentSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-  therapistId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  therapistId: { type: mongoose.Schema.Types.ObjectId, ref: 'Therapist', required: true, index: true },
 
   // Schedule - Combined date and time into single field
   scheduledAt: {

@@ -1,88 +1,57 @@
 const mongoose = require('mongoose');
 
-// Generate mood entries showing progression over 30 days
 function generateMoodEntries() {
   const entries = [];
-  const userId1 = new mongoose.Types.ObjectId('507f1f77bcf86cd799439010');
-  const userId2 = new mongoose.Types.ObjectId('507f1f77bcf86cd799439012');
-  const userId3 = new mongoose.Types.ObjectId('507f1f77bcf86cd799439014');
+  const userIds = [
+    new mongoose.Types.ObjectId('507f1f77bcf86cd799439010'),
+    new mongoose.Types.ObjectId('507f1f77bcf86cd799439012'),
+    new mongoose.Types.ObjectId('507f1f77bcf86cd799439014')
+  ];
 
-  const moods = ['very-sad', 'sad', 'neutral', 'happy', 'very-happy'];
-  const activities = ['exercise', 'meditation', 'journaling', 'socializing', 'sleep', 'therapy', 'work', 'hobby'];
-  const triggers = ['work-stress', 'family', 'health', 'finances', 'relationships', 'sleep-deprivation'];
+  const moodLabels = {
+    1: 'very-sad',
+    2: 'sad',
+    3: 'neutral',
+    4: 'happy',
+    5: 'very-happy',
+    6: 'happy',
+    7: 'very-happy',
+    8: 'very-happy',
+    9: 'very-happy',
+    10: 'very-happy'
+  };
 
-  // User 1: Showing improvement over time (starting low, going up)
-  for (let i = 30; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    date.setHours(20, 0, 0, 0);
+  const activities = ['exercise', 'meditation', 'journaling', 'socializing', 'therapy', 'work', 'hobby', 'reading'];
+  const triggers = ['work-stress', 'family', 'sleep-deprivation', 'relationships'];
 
-    const moodScore = Math.min(5, Math.floor(2 + (30 - i) * 0.08)); // Progressive improvement
-    entries.push({
-      mood: moodScore, userId: userId1,
-      date,
-      moodScore,
-      moodLabel: moods[moodScore - 1],
-      energyLevel: Math.max(1, moodScore - 1),
-      sleepQuality: Math.floor(Math.random() * 5) + 1,
-      sleepHours: Math.floor(Math.random() * 3) + 5,
-      activitiesTracked: [activities[Math.floor(Math.random() * activities.length)]],
-      positiveEvents: i % 5 === 0 ? ['Completed therapy session', 'Good day at work'] : [],
-      triggers: i % 7 === 0 ? [triggers[Math.floor(Math.random() * triggers.length)]] : [],
-      notes: i % 3 === 0 ? `Day ${30 - i}: Feeling ${moods[moodScore - 1].replace('-', ' ')}` : '',
-      gratitudeList: i % 2 === 0 ? ['Family support', 'Good health', 'Therapy helping'] : [],
-      anxietyLevel: Math.max(1, 6 - moodScore),
-      stressLevel: Math.max(1, 6 - moodScore),
-      createdAt: date
-    });
-  }
+  // Generate 90 mood entries (30 per user, over 30 days)
+  userIds.forEach((userId, userIdx) => {
+    for (let i = 30; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      date.setHours(20 + userIdx, 0, 0, 0);
 
-  // User 2: Fluctuating mood
-  for (let i = 30; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    date.setHours(21, 30, 0, 0);
+      let mood;
+      if (userIdx === 0) {
+        mood = Math.min(10, Math.floor(4 + (30 - i) * 0.15)); // Progressive improvement
+      } else if (userIdx === 1) {
+        mood = (i % 5) === 0 ? 4 : (i % 3) === 0 ? 6 : 5; // Fluctuating
+      } else {
+        mood = Math.max(6, Math.floor(7 + Math.random() * 3)); // Stable/positive
+      }
 
-    const moodScore = (i % 5) === 0 ? 2 : (i % 3) === 0 ? 4 : 3;
-    entries.push({
-      mood: moodScore, userId: userId2,
-      date,
-      moodScore,
-      moodLabel: moods[moodScore - 1],
-      energyLevel: Math.max(1, moodScore - 1),
-      sleepQuality: Math.floor(Math.random() * 5) + 1,
-      sleepHours: Math.floor(Math.random() * 4) + 5,
-      activitiesTracked: [activities[Math.floor(Math.random() * activities.length)]],
-      triggers: i % 5 === 0 ? [triggers[Math.floor(Math.random() * triggers.length)]] : [],
-      anxietyLevel: 6 - moodScore,
-      stressLevel: 6 - moodScore,
-      createdAt: date
-    });
-  }
-
-  // User 3: Mostly stable/positive
-  for (let i = 30; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    date.setHours(19, 0, 0, 0);
-
-    const moodScore = Math.max(3, Math.floor(4 + Math.random() * 2));
-    entries.push({
-      mood: moodScore, userId: userId3,
-      date,
-      moodScore,
-      moodLabel: moods[moodScore - 1],
-      energyLevel: Math.max(2, moodScore - 1),
-      sleepQuality: Math.floor(Math.random() * 5) + 2,
-      sleepHours: Math.floor(Math.random() * 2) + 7,
-      activitiesTracked: [activities[Math.floor(Math.random() * activities.length)]],
-      positiveEvents: i % 4 === 0 ? ['Work success', 'Good social interaction'] : [],
-      gratitudeList: ['Therapy progress', 'Family', 'Health improvements'],
-      anxietyLevel: Math.max(1, 4 - moodScore),
-      stressLevel: Math.max(1, 4 - moodScore),
-      createdAt: date
-    });
-  }
+      entries.push({
+        userId,
+        mood: Math.min(10, mood),
+        moodLabel: moodLabels[Math.min(10, mood)],
+        activities: [activities[Math.floor(Math.random() * activities.length)]],
+        triggers: i % 7 === 0 ? [triggers[Math.floor(Math.random() * triggers.length)]] : [],
+        notes: i % 5 === 0 ? `Feeling ${moodLabels[Math.min(10, mood)].replace('-', ' ')} today` : '',
+        date,
+        createdAt: date
+      });
+    }
+  });
 
   return entries;
 }

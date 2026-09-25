@@ -52,13 +52,13 @@ router.post('/seed-all', async (req, res) => {
     const resources = await MentalHealthResource.insertMany(seedResources);
     logger.info(`Seeded ${resources.length} resources`);
 
-    // Skip appointments for now (Render cache issue)
-    const appointments = [];
-    logger.info(`Seeded 0 appointments (skipped - will add next)`);
+    // Seed appointments
+    const appointments = await Appointment.insertMany(seedAppointments);
+    logger.info(`Seeded ${appointments.length} appointments`);
 
-    // Skip mood entries for now (schema mismatch - will fix next)
-    const moods = [];
-    logger.info(`Seeded 0 mood entries (skipped - will add next)`);
+    // Seed mood entries
+    const moods = await MoodEntry.insertMany(seedMoodEntries);
+    logger.info(`Seeded ${moods.length} mood entries`);
 
     // Seed subscriptions
     const subs = await Subscription.insertMany(seedSubscriptions);

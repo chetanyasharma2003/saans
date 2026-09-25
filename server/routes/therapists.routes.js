@@ -6,6 +6,26 @@ const Therapist = require('../models/Therapist');
 // Simplified for MVP - locationMatcher not needed yet
 const logger = require('../utils/logger');
 
+// Get all active therapists (public endpoint)
+router.get('/', async (req, res, next) => {
+  try {
+    const therapists = await Therapist.find({
+      isActive: true,
+      'verification.status': 'approved'
+    })
+      .select('-license.licenseDocument')
+      .limit(100);
+
+    res.json({
+      success: true,
+      data: therapists,
+      count: therapists.length
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Get nearby therapists based on user location
 router.get(
   '/nearby',
