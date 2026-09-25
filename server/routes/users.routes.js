@@ -103,4 +103,36 @@ router.post('/change-password', authenticateToken, async (req, res) => {
   }
 });
 
+// ============ GET USER PROFILE (ALIAS FOR /me) ============
+router.get('/profile', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============ LOGOUT ============
+router.post('/logout', authenticateToken, async (req, res) => {
+  try {
+    // Frontend handles token removal from localStorage
+    // Backend just confirms logout
+    res.json({
+      success: true,
+      message: 'Logged out successfully',
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
