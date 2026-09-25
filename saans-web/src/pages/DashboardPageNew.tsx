@@ -23,7 +23,7 @@ export function DashboardPageNew() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken');
 
       const [userRes, appointmentsRes, moodRes, subRes] = await Promise.all([
         axios.get(`${API_URL}/api/users/profile`, {

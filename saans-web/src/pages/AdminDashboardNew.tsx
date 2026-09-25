@@ -25,7 +25,7 @@ export function AdminDashboardNew() {
   const fetchAdminData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken');
       const headers = { Authorization: `Bearer ${token}` };
 
       const [overviewRes, revenueRes, engagementRes, therapistsRes, subscriptionsRes, appointmentsRes] = await Promise.all([

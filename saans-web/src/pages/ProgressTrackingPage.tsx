@@ -35,13 +35,13 @@ const ProgressTrackingPage: React.FC = () => {
       setLoading(true);
       const [progressRes, milestonesRes, trendRes] = await Promise.all([
         axios.get('/api/progress/recovery-percentage', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         }),
         axios.get('/api/progress/milestones', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         }),
         axios.get('/api/progress/mood-trend', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         }),
       ]);
 
@@ -59,7 +59,7 @@ const ProgressTrackingPage: React.FC = () => {
     e.preventDefault();
     try {
       await axios.post('/api/progress/milestones/add', newMilestone, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
       });
       setNewMilestone({ title: '', description: '' });
       setShowAddMilestone(false);

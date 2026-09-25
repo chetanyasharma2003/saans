@@ -36,7 +36,7 @@ const SafetyPlanPage: React.FC = () => {
   const fetchSafetyPlan = async () => {
     try {
       const response = await axios.get('/api/safety/plan', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
       });
       setSafetyPlan(response.data.data);
       setContacts(response.data.data?.contacts || []);
@@ -51,7 +51,7 @@ const SafetyPlanPage: React.FC = () => {
     e.preventDefault();
     try {
       await axios.post('/api/safety/contacts/add', newContact, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
       });
       setNewContact({ name: '', phone: '', relationship: '', contactType: 'SOCIAL' });
       setShowAddContact(false);

@@ -32,7 +32,7 @@ const MedicalRecordsPage: React.FC = () => {
   const fetchMedications = async () => {
     try {
       const response = await axios.get('/api/medical-records/medications', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
       });
       setMedications(response.data.data || []);
     } catch (error) {
@@ -46,7 +46,7 @@ const MedicalRecordsPage: React.FC = () => {
     e.preventDefault();
     try {
       await axios.post('/api/medical-records/medications/add', formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
       });
       setFormData({ name: '', dosage: '', frequency: '', startDate: '', prescribedBy: '' });
       setShowAddForm(false);
@@ -59,7 +59,7 @@ const MedicalRecordsPage: React.FC = () => {
   const handleDeleteMedication = async (id: string) => {
     try {
       await axios.delete(`/api/medical-records/medications/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
       });
       fetchMedications();
     } catch (error) {
