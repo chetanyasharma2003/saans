@@ -23,6 +23,16 @@ export function FindTherapistPageNew() {
     radius: 50
   });
 
+  // Booking modal state
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedTherapist, setSelectedTherapist] = useState(null);
+  const [bookingForm, setBookingForm] = useState({
+    date: '',
+    time: '',
+    sessionType: 'video'
+  });
+  const [bookingLoading, setBookingLoading] = useState(false);
+
   const specialties = [
     'Anxiety & Stress',
     'Depression',
@@ -121,8 +131,50 @@ export function FindTherapistPageNew() {
     }
   };
 
-  const handleViewProfile = (therapistId) => {
-    navigate(`/therapist/${therapistId}`);
+  const handleOpenBooking = (therapist) => {
+    setSelectedTherapist(therapist);
+    setShowBookingModal(true);
+  };
+
+  const handleConfirmBooking = async () => {
+    if (!bookingForm.date || !bookingForm.time) {
+      alert('Please select date and time');
+      return;
+    }
+
+    try {
+      setBookingLoading(true);
+      const token = localStorage.getItem('accessToken');
+
+      // Combine date and time
+      const scheduledAt = new Date(`${bookingForm.date}T${bookingForm.time}`);
+
+      const appointmentData = {
+        therapistId: selectedTherapist._id,
+        scheduledAt: scheduledAt.toISOString(),
+        type: bookingForm.sessionType,
+        sessionDuration: 60,
+        appointmentType: 'first-session'
+      };
+
+      const response = await axios.post(
+        `${API_URL}/api/appointments`,
+        appointmentData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      alert('✅ Appointment booked successfully!');
+      setShowBookingModal(false);
+      setBookingForm({ date: '', time: '', sessionType: 'video' });
+
+      // Redirect to sessions page
+      setTimeout(() => navigate('/appointments'), 1000);
+    } catch (err) {
+      console.error('Booking error:', err);
+      alert('Failed to book appointment. Please try again.');
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
   const formatPrice = (price) => {
@@ -338,7 +390,7 @@ export function FindTherapistPageNew() {
                           <Heart className="w-5 h-5" />
                         </button>
                         <button
-                          onClick={() => navigate('/appointments')}
+                          onClick={() => handleOpenBooking(therapist)}
                           className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:shadow-lg transition-all hover:scale-105 active:scale-95 text-sm whitespace-nowrap"
                         >
                           Book Now →
@@ -393,6 +445,90 @@ export function FindTherapistPageNew() {
             </section>
           )}
         </main>
+
+        {/* BOOKING MODAL */}
+        {showBookingModal && selectedTherapist && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-gradient-to-br from-purple-900 to-slate-900 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8 max-w-md w-full">
+              <h3 className="text-2xl font-bold text-white mb-2">Book Appointment</h3>
+              <p className="text-purple-300 mb-6">With Dr. {selectedTherapist.firstName} {selectedTherapist.lastName}</p>
+
+              {/* Therapist Info */}
+              <div className="bg-purple-900/30 rounded-lg p-4 mb-6">
+                <p className="text-sm text-gray-300 mb-2">{selectedTherapist.bio}</p>
+                <div className="flex items-center gap-4 text-sm">
+                  <span className="text-yellow-400">⭐ {selectedTherapist.ratings?.average || 4.5}</span>
+                  <span className="text-green-400">₹{selectedTherapist.pricing?.perSession || 800}/session</span>
+                </div>
+              </div>
+
+              {/* Booking Form */}
+              <div className="space-y-4">
+                {/* Date Picker */}
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2">Select Date</label>
+                  <input
+                    type="date"
+                    value={bookingForm.date}
+                    onChange={(e) => setBookingForm({ ...bookingForm, date: e.target.value })}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-purple-500 outline-none"
+                  />
+                </div>
+
+                {/* Time Picker */}
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2">Select Time</label>
+                  <input
+                    type="time"
+                    value={bookingForm.time}
+                    onChange={(e) => setBookingForm({ ...bookingForm, time: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-purple-500 outline-none"
+                  />
+                </div>
+
+                {/* Session Type */}
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2">Session Type</label>
+                  <select
+                    value={bookingForm.sessionType}
+                    onChange={(e) => setBookingForm({ ...bookingForm, sessionType: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-purple-500 outline-none"
+                  >
+                    <option value="video">📹 Video Call</option>
+                    <option value="audio">☎️ Audio Call</option>
+                    <option value="chat">💬 Chat</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-6">
+                <button
+                  onClick={() => {
+                    setShowBookingModal(false);
+                    setBookingForm({ date: '', time: '', sessionType: 'video' });
+                  }}
+                  disabled={bookingLoading}
+                  className="flex-1 px-4 py-3 bg-slate-800 text-gray-300 rounded-lg hover:bg-slate-700 transition-all disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmBooking}
+                  disabled={bookingLoading}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                >
+                  {bookingLoading ? 'Booking...' : 'Confirm Booking'}
+                </button>
+              </div>
+
+              <p className="text-xs text-gray-500 text-center pt-4">
+                ✨ You'll see your appointment in the Sessions page after booking
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
