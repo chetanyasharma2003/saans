@@ -415,4 +415,37 @@ router.get('/:paymentId/invoice', authenticateToken, async (req, res) => {
   }
 });
 
+// ============ SUBSCRIPTIONS ============
+
+// Get user's active subscription
+router.get('/subscription', authenticateToken, async (req, res) => {
+  try {
+    const Subscription = require('../models/Subscription');
+
+    const subscription = await Subscription.findOne({
+      userId: req.userId,
+      status: { $in: ['active', 'pending'] }
+    }).sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: subscription || {
+        status: 'inactive',
+        plan: null,
+        renewsAt: null,
+        price: 0
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    logger.error('Get subscription failed', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      statusCode: 500,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 module.exports = router;
