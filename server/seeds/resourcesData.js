@@ -46,22 +46,22 @@ const resources = [
     ],
     causes: [
       {
-        type: 'Genetic predisposition',
+        name: 'Genetic predisposition',
         description: 'Family history of depression increases risk',
         likelihood: 40
       },
       {
-        type: 'Life events',
+        name: 'Life events',
         description: 'Loss, trauma, major changes',
         likelihood: 35
       },
       {
-        type: 'Brain chemistry',
+        name: 'Brain chemistry',
         description: 'Imbalance in neurotransmitters (serotonin, dopamine)',
         likelihood: 50
       },
       {
-        type: 'Medical conditions',
+        name: 'Medical conditions',
         description: 'Thyroid problems, chronic illness',
         likelihood: 25
       }

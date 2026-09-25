@@ -37,7 +37,7 @@ const mentalHealthResourceSchema = new mongoose.Schema({
   // Causes & Risk Factors
   causes: [
     {
-      type: String, // 'Genetics', 'Life events', 'Brain chemistry'
+      name: String, // 'Genetics', 'Life events', 'Brain chemistry'
       description: String,
       likelihood: Number, // 0-100%
       _id: false
