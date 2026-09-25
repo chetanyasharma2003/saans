@@ -58,13 +58,11 @@ router.post('/seed-all', async (req, res) => {
     const subs = await Subscription.insertMany(seedSubscriptions);
     logger.info(`Seeded ${subs.length} subscriptions`);
 
-    // Seed community posts
-    const posts = await CommunityPost.insertMany(seedCommunityPosts);
-    logger.info(`Seeded ${posts.length} community posts`);
-
-    // Seed analytics
-    const analytics = await Analytics.insertMany(seedAnalytics);
-    logger.info(`Seeded ${analytics.length} analytics events`);
+    // Skip community posts & analytics (Render cache issues)
+    const posts = [];
+    const analytics = [];
+    logger.info(`Seeded 0 community posts (skipped)`);
+    logger.info(`Seeded 0 analytics events (skipped)`);
 
     res.json({
       success: true,
