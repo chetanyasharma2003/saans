@@ -50,9 +50,9 @@ router.post('/seed-all', async (req, res) => {
     const appointments = [];
     logger.info(`Seeded 0 appointments (skipped - will add next)`);
 
-    // Seed mood entries
-    const moods = await MoodEntry.insertMany(seedMoodEntries);
-    logger.info(`Seeded ${moods.length} mood entries`);
+    // Skip mood entries for now (schema mismatch - will fix next)
+    const moods = [];
+    logger.info(`Seeded 0 mood entries (skipped - will add next)`);
 
     // Seed subscriptions
     const subs = await Subscription.insertMany(seedSubscriptions);
