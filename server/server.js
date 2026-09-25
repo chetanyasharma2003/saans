@@ -114,9 +114,13 @@ const connectDB = async () => {
     // Migrate old user roles
     const User = require('./models/User');
     await User.migrateOldRoles();
+    return true;
   } catch (error) {
     console.error('❌ MongoDB Connection Error:', error.message);
-    process.exit(1);
+    console.warn('⚠️  Server will start without database. Retrying connection in 10 seconds...');
+    // Retry connection after 10 seconds
+    setTimeout(connectDB, 10000);
+    return false;
   }
 };
 
@@ -179,7 +183,10 @@ app.use(errorHandler);
 
 const startServer = async () => {
   try {
-    await connectDB();
+    // Try to connect to database (won't crash if it fails)
+    connectDB().catch(err => console.error('DB connection failed:', err.message));
+
+    // Start server regardless of DB connection
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📍 API Base: http://localhost:${PORT}/api`);
