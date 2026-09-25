@@ -100,14 +100,14 @@ export function FindTherapistPageNew() {
   };
 
   const applyLocalFilters = (therapistList) => {
-    let filtered = therapistList;
+    let filtered = therapistList || [];
 
     if (searchQuery) {
       filtered = filtered.filter(
         (t) =>
-          t.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          t.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          t.specialties.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
+          (t?.firstName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (t?.lastName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (t?.specialties || []).some((s) => (s || '').toLowerCase().includes(searchQuery.toLowerCase()))
       );
     }
 
@@ -330,57 +330,64 @@ export function FindTherapistPageNew() {
                         {/* Name & Location */}
                         <div className="mb-3">
                           <h3 className="text-xl font-bold text-white">
-                            Dr. {therapist.firstName} {therapist.lastName}
+                            Dr. {therapist?.firstName || 'Unknown'} {therapist?.lastName || ''}
                           </h3>
                           <div className="flex items-center gap-2 text-purple-300 text-sm mt-1">
                             <MapPin className="w-4 h-4" />
-                            {therapist.location.city}, {therapist.location.state}
-                            {therapist.distanceKm && (
+                            {therapist?.location?.city || 'City'}, {therapist?.location?.state || 'State'}
+                            {therapist?.distanceKm && (
                               <span className="ml-2">({therapist.distanceKm} km away)</span>
                             )}
                           </div>
                         </div>
 
                         {/* Bio */}
-                        <p className="text-gray-300 text-sm mb-3">{therapist.bio}</p>
+                        <p className="text-gray-300 text-sm mb-3">{therapist?.bio || ''}</p>
 
                         {/* Specialties */}
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {therapist.specialties.slice(0, 3).map((spec) => (
-                            <span
-                              key={spec}
-                              className="px-3 py-1 bg-purple-600/30 text-purple-200 text-xs rounded-full"
-                            >
-                              {spec}
-                            </span>
-                          ))}
-                          {therapist.specialties.length > 3 && (
-                            <span className="px-3 py-1 bg-purple-600/30 text-purple-200 text-xs rounded-full">
-                              +{therapist.specialties.length - 3}
-                            </span>
-                          )}
-                        </div>
+                        {(therapist?.specialties?.length || 0) > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {(therapist?.specialties || []).slice(0, 3).map((spec) => (
+                              <span
+                                key={spec}
+                                className="px-3 py-1 bg-purple-600/30 text-purple-200 text-xs rounded-full"
+                              >
+                                {spec}
+                              </span>
+                            ))}
+                            {(therapist?.specialties?.length || 0) > 3 && (
+                              <span className="px-3 py-1 bg-purple-600/30 text-purple-200 text-xs rounded-full">
+                                +{(therapist?.specialties?.length || 0) - 3}
+                              </span>
+                            )}
+                          </div>
+                        )}
 
                         {/* Info Row */}
                         <div className="flex flex-wrap gap-6 text-sm">
                           {/* Rating */}
-                          <div className="flex items-center gap-2">
-                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                            <span className="text-white font-semibold">{therapist.ratings.average}</span>
-                            <span className="text-gray-400">({therapist.ratings.count} reviews)</span>
-                          </div>
+                          {therapist?.rating && (
+                            <div className="flex items-center gap-2">
+                              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                              <span className="text-white font-semibold">{therapist?.rating || 'N/A'}</span>
+                            </div>
+                          )}
 
                           {/* Price */}
-                          <div className="flex items-center gap-2">
-                            <Award className="w-4 h-4 text-green-400" />
-                            <span className="text-white font-semibold">{formatPrice(therapist.pricing.perSession)}</span>
-                          </div>
+                          {therapist?.hourlyRate && (
+                            <div className="flex items-center gap-2">
+                              <Award className="w-4 h-4 text-green-400" />
+                              <span className="text-white font-semibold">₹{therapist?.hourlyRate || 'N/A'}</span>
+                            </div>
+                          )}
 
                           {/* Experience */}
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-blue-400" />
-                            <span className="text-white font-semibold">{therapist.experience}+ yrs</span>
-                          </div>
+                          {therapist?.experience && (
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-blue-400" />
+                              <span className="text-white font-semibold">{therapist?.experience || 0}+ yrs</span>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -451,14 +458,14 @@ export function FindTherapistPageNew() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-gradient-to-br from-purple-900 to-slate-900 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8 max-w-md w-full">
               <h3 className="text-2xl font-bold text-white mb-2">Book Appointment</h3>
-              <p className="text-purple-300 mb-6">With Dr. {selectedTherapist.firstName} {selectedTherapist.lastName}</p>
+              <p className="text-purple-300 mb-6">With Dr. {selectedTherapist?.firstName || 'Unknown'} {selectedTherapist?.lastName || ''}</p>
 
               {/* Therapist Info */}
               <div className="bg-purple-900/30 rounded-lg p-4 mb-6">
-                <p className="text-sm text-gray-300 mb-2">{selectedTherapist.bio}</p>
+                <p className="text-sm text-gray-300 mb-2">{selectedTherapist?.bio || 'Experienced therapist'}</p>
                 <div className="flex items-center gap-4 text-sm">
-                  <span className="text-yellow-400">⭐ {selectedTherapist.ratings?.average || 4.5}</span>
-                  <span className="text-green-400">₹{selectedTherapist.pricing?.perSession || 800}/session</span>
+                  <span className="text-yellow-400">⭐ {selectedTherapist?.rating || 4.5}</span>
+                  <span className="text-green-400">₹{selectedTherapist?.hourlyRate || 800}/session</span>
                 </div>
               </div>
 

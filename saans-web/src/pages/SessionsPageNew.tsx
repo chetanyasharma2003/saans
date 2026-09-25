@@ -232,7 +232,7 @@ export function SessionsPageNew() {
                                 </h3>
                                 {apt.therapistId?.specialties && (
                                   <p className="text-purple-300 text-sm mb-2">
-                                    {apt.therapistId.specialties.join(', ')}
+                                    {apt.therapistId?.specialties?.join(', ')}
                                   </p>
                                 )}
                               </div>
@@ -240,7 +240,7 @@ export function SessionsPageNew() {
                             {apt.therapistId?.rating && (
                               <div className="flex items-center gap-1 text-yellow-400">
                                 <Star className="w-4 h-4 fill-yellow-400" />
-                                <span className="font-bold">{apt.therapistId.rating}</span>
+                                <span className="font-bold">{apt.therapistId?.rating}</span>
                               </div>
                             )}
                           </div>
