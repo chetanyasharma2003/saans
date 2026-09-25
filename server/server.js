@@ -159,6 +159,7 @@ app.use('/api/chat', require('./routes/chat.routes'));
 app.use('/api/notifications', require('./routes/notifications.routes'));
 app.use('/api/payments', require('./routes/payment.routes'));
 app.use('/api/analytics', require('./routes/analytics.routes'));
+app.use('/api', require('./routes/seed.routes'));
 
 // 404 Handler
 app.use((req, res) => {
