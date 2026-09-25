@@ -21,8 +21,26 @@ router.get('/me', authenticateToken, async (req, res) => {
   }
 });
 
-// ============ GET USER PROFILE ============
-router.get('/:id', async (req, res) => {
+// ============ GET PROFILE (alias for /me) ============
+router.get('/profile', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============ GET USER BY ID ============
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
 
