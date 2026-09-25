@@ -68,7 +68,7 @@ const resources = [
     ],
     treatments: [
       {
-        type: 'therapy',
+        name: 'therapy',
         name: 'Cognitive Behavioral Therapy (CBT)',
         description: 'Identify and change negative thought patterns',
         effectiveness: 85,
@@ -79,7 +79,7 @@ const resources = [
         cost: '₹1000-₹2500 per session'
       },
       {
-        type: 'medication',
+        name: 'medication',
         name: 'SSRIs (Selective Serotonin Reuptake Inhibitors)',
         description: 'Antidepressants like Sertraline, Fluoxetine',
         effectiveness: 70,
@@ -91,7 +91,7 @@ const resources = [
         cost: '₹200-₹500 per month'
       },
       {
-        type: 'lifestyle',
+        name: 'lifestyle',
         name: 'Exercise & Sunlight',
         description: 'Regular physical activity and natural light exposure',
         effectiveness: 65,
@@ -136,7 +136,7 @@ const resources = [
         website: 'www.aasra.info',
         country: 'India',
         availability: '24/7',
-        type: 'helpline',
+        name: 'helpline',
         language: ['English', 'Hindi'],
         cost: 'Free'
       },
@@ -147,7 +147,7 @@ const resources = [
         website: 'www.icallhelpline.org',
         country: 'India',
         availability: '24/7',
-        type: 'helpline',
+        name: 'helpline',
         language: ['English', 'Hindi'],
         cost: 'Free'
       }
@@ -226,24 +226,24 @@ const resources = [
     ],
     causes: [
       {
-        type: 'Genetics',
+        name: 'Genetics',
         description: 'Inherited predisposition to anxiety',
         likelihood: 30
       },
       {
-        type: 'Stress',
+        name: 'Stress',
         description: 'Work pressure, relationships, life changes',
         likelihood: 60
       },
       {
-        type: 'Brain chemistry',
+        name: 'Brain chemistry',
         description: 'Low GABA and serotonin levels',
         likelihood: 40
       }
     ],
     treatments: [
       {
-        type: 'therapy',
+        name: 'therapy',
         name: 'Cognitive Behavioral Therapy (CBT)',
         description: 'Challenge anxious thoughts and face fears gradually',
         effectiveness: 85,
@@ -271,7 +271,7 @@ const resources = [
         website: 'www.aasra.info',
         country: 'India',
         availability: '24/7',
-        type: 'helpline',
+        name: 'helpline',
         language: ['English', 'Hindi'],
         cost: 'Free'
       }
@@ -337,24 +337,24 @@ const resources = [
     ],
     causes: [
       {
-        type: 'Stress and anxiety',
+        name: 'Stress and anxiety',
         description: 'Work pressure, life events',
         likelihood: 70
       },
       {
-        type: 'Poor sleep habits',
+        name: 'Poor sleep habits',
         description: 'Screen time, caffeine, irregular schedule',
         likelihood: 60
       },
       {
-        type: 'Medical conditions',
+        name: 'Medical conditions',
         description: 'Sleep apnea, restless legs, thyroid',
         likelihood: 40
       }
     ],
     treatments: [
       {
-        type: 'therapy',
+        name: 'therapy',
         name: 'CBT-I (Cognitive Behavioral Therapy for Insomnia)',
         description: 'Restructure sleep thoughts and habits',
         effectiveness: 90,
@@ -437,19 +437,19 @@ const resources = [
     ],
     causes: [
       {
-        type: 'Work pressure',
+        name: 'Work pressure',
         description: 'Deadlines, difficult boss, job insecurity',
         likelihood: 80
       },
       {
-        type: 'Relationships',
+        name: 'Relationships',
         description: 'Family conflicts, breakups',
         likelihood: 60
       }
     ],
     treatments: [
       {
-        type: 'lifestyle',
+        name: 'lifestyle',
         name: 'Regular Exercise',
         description: 'Physical activity reduces stress hormones',
         effectiveness: 80,
@@ -534,14 +534,14 @@ const resources = [
     ],
     causes: [
       {
-        type: 'Traumatic event',
+        name: 'Traumatic event',
         description: 'Combat, assault, accident, disaster',
         likelihood: 100
       }
     ],
     treatments: [
       {
-        type: 'therapy',
+        name: 'therapy',
         name: 'EMDR (Eye Movement Desensitization & Reprocessing)',
         description: 'Process trauma through bilateral stimulation',
         effectiveness: 90,
@@ -552,7 +552,7 @@ const resources = [
         cost: '₹2000-₹5000 per session'
       },
       {
-        type: 'therapy',
+        name: 'therapy',
         name: 'CPT (Cognitive Processing Therapy)',
         description: 'Change how you process trauma memories',
         effectiveness: 85,
@@ -580,7 +580,7 @@ const resources = [
         website: 'www.aasra.info',
         country: 'India',
         availability: '24/7',
-        type: 'helpline',
+        name: 'helpline',
         language: ['English', 'Hindi'],
         cost: 'Free'
       }
