@@ -53,12 +53,12 @@ export function DashboardPageNew() {
   };
 
   const upcomingAppointments = appointments.filter(a =>
-    a.status === 'confirmed' && new Date(a.startTime) > new Date()
+    a.status === 'confirmed' && new Date(a.scheduledAt) > new Date()
   ).slice(0, 3);
 
   const completedAppointments = appointments.filter(a => a.status === 'completed');
   const totalSpent = appointments.reduce((sum, a) => sum + (a.price || 0), 0);
-  const avgMood = moodData?.averageMoodScore?.toFixed(1) || 0;
+  const avgMood = moodData?.average || '0/5';
 
   if (loading) {
     return (
