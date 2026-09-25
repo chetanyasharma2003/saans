@@ -9,7 +9,7 @@ module.exports = [
     status: 'completed',
     appointmentType: 'first-session',
     sessionDuration: 60,
-    scheduledAt: new Date('2026-09-20T10:00:00Z'),
+    scheduledAt: new Date('2026-09-26T10:00:00Z'),
     duration: 60,
     price: 800,
     type: 'video',
@@ -37,7 +37,7 @@ module.exports = [
     paymentStatus: 'pending',
     rescheduleCount: 0,
     noShowCount: 0,
-    createdAt: new Date('2026-09-22T10:15:00Z')
+    createdAt: new Date('2026-09-28T10:15:00Z')
   },
 
   // Rajesh Kumar (Jaipur) - Depression/Relationships
@@ -77,7 +77,7 @@ module.exports = [
     paymentStatus: 'pending',
     rescheduleCount: 1,
     noShowCount: 0,
-    createdAt: new Date('2026-09-21T14:00:00Z')
+    createdAt: new Date('2026-09-27T14:00:00Z')
   },
 
   // Meera Kapoor (Jaipur) - Anxiety/Career
@@ -87,8 +87,8 @@ module.exports = [
     status: 'completed',
     appointmentType: 'first-session',
     sessionDuration: 60,
-    startTime: new Date('2026-09-19T09:00:00Z'),
-    endTime: new Date('2026-09-19T10:00:00Z'),
+    startTime: new Date('2026-09-25T09:00:00Z'),
+    endTime: new Date('2026-09-25T10:00:00Z'),
     price: 750,
     currency: 'INR',
     mode: 'video',
@@ -117,7 +117,7 @@ module.exports = [
     paymentStatus: 'pending',
     rescheduleCount: 0,
     noShowCount: 0,
-    createdAt: new Date('2026-09-22T11:20:00Z')
+    createdAt: new Date('2026-09-28T11:20:00Z')
   },
 
   // Amit Sharma (Jaipur) - PTSD/Trauma
@@ -150,8 +150,8 @@ module.exports = [
     status: 'completed',
     appointmentType: 'first-session',
     sessionDuration: 60,
-    startTime: new Date('2026-09-21T16:00:00Z'),
-    endTime: new Date('2026-09-21T17:00:00Z'),
+    startTime: new Date('2026-09-27T16:00:00Z'),
+    endTime: new Date('2026-09-27T17:00:00Z'),
     price: 1200,
     currency: 'INR',
     mode: 'video',
@@ -163,7 +163,7 @@ module.exports = [
     review: 'Excellent therapist. Changed my perspective completely.',
     rescheduleCount: 0,
     noShowCount: 0,
-    createdAt: new Date('2026-09-20T12:30:00Z')
+    createdAt: new Date('2026-09-26T12:30:00Z')
   },
 
   // Sanjana Desai (Mumbai) - Anxiety/Eating Disorders
@@ -182,6 +182,6 @@ module.exports = [
     paymentStatus: 'pending',
     rescheduleCount: 0,
     noShowCount: 0,
-    createdAt: new Date('2026-09-22T09:15:00Z')
+    createdAt: new Date('2026-09-28T09:15:00Z')
   }
 ];
