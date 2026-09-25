@@ -271,8 +271,7 @@ export function FindTherapistPageNew() {
                 {filteredTherapists.map((therapist) => (
                   <div
                     key={therapist._id}
-                    className="group p-6 bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl hover:border-purple-500/60 transition-all hover:shadow-lg hover:shadow-purple-500/20 backdrop-blur-xl cursor-pointer"
-                    onClick={() => handleViewProfile(therapist._id)}
+                    className="group p-6 bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl hover:border-purple-500/60 transition-all hover:shadow-lg hover:shadow-purple-500/20 backdrop-blur-xl"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -334,14 +333,16 @@ export function FindTherapistPageNew() {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex flex-col gap-2 ml-4">
+                      <div className="flex flex-col gap-2 ml-4 justify-between">
                         <button className="p-2 rounded-lg hover:bg-purple-600/20 transition text-purple-300 hover:text-purple-200">
                           <Heart className="w-5 h-5" />
                         </button>
-                        <button className="p-2 rounded-lg hover:bg-purple-600/20 transition text-purple-300 hover:text-purple-200">
-                          <MessageSquare className="w-5 h-5" />
+                        <button
+                          onClick={() => navigate('/appointments')}
+                          className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:shadow-lg transition-all hover:scale-105 active:scale-95 text-sm whitespace-nowrap"
+                        >
+                          Book Now →
                         </button>
-                        <ChevronRight className="w-5 h-5 text-purple-400 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
                   </div>
