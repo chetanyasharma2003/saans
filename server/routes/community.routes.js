@@ -81,7 +81,7 @@ router.post('/posts', auth, [
     }
 
     const post = new CommunityPost({
-      userId: req.user._id,
+      userId: req.userId,
       title,
       content,
       category,
@@ -104,7 +104,7 @@ router.post('/posts', auth, [
 
     logger.info('Community post created', {
       postId: post._id,
-      userId: req.user._id,
+      userId: req.userId,
       category
     });
 
@@ -177,7 +177,7 @@ router.post('/posts/:id/comments', auth, [
 
     const comment = {
       _id: require('mongoose').Types.ObjectId(),
-      userId: req.user._id,
+      userId: req.userId,
       text,
       upvotes: 0,
       createdAt: new Date()
@@ -206,13 +206,13 @@ router.delete('/posts/:id', auth, async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Post not found' });
     }
 
-    if (post.userId.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    if (post.userId.toString() !== req.userId.toString() && req.user.role !== 'admin') {
       return res.status(403).json({ success: false, error: 'Unauthorized' });
     }
 
     await CommunityPost.findByIdAndDelete(req.params.id);
 
-    logger.info('Post deleted', { postId: req.params.id, userId: req.user._id });
+    logger.info('Post deleted', { postId: req.params.id, userId: req.userId });
 
     res.json({ success: true, message: 'Post deleted' });
   } catch (error) {
@@ -286,11 +286,11 @@ router.post('/groups', auth, [
       privacy,
       rules: rules || [],
       tags: tags || [],
-      createdBy: req.user._id,
-      admins: [req.user._id],
+      createdBy: req.userId,
+      admins: [req.userId],
       members: [
         {
-          userId: req.user._id,
+          userId: req.userId,
           role: 'admin',
           joinedAt: new Date()
         }
@@ -306,7 +306,7 @@ router.post('/groups', auth, [
 
     logger.info('Community group created', {
       groupId: group._id,
-      creatorId: req.user._id,
+      creatorId: req.userId,
       category
     });
 
@@ -330,13 +330,13 @@ router.post('/groups/:id/join', auth, async (req, res, next) => {
     }
 
     // Check if already member
-    const isMember = group.members.some(m => m.userId.equals(req.user._id));
+    const isMember = group.members.some(m => m.userId.equals(req.userId));
     if (isMember) {
       return res.status(400).json({ success: false, error: 'Already a member' });
     }
 
     group.members.push({
-      userId: req.user._id,
+      userId: req.userId,
       role: 'member',
       joinedAt: new Date()
     });
@@ -359,11 +359,11 @@ router.post('/groups/:id/leave', auth, async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Group not found' });
     }
 
-    group.members = group.members.filter(m => !m.userId.equals(req.user._id));
+    group.members = group.members.filter(m => !m.userId.equals(req.userId));
     group.stats.memberCount = group.members.length;
     await group.save();
 
-    logger.info('User left group', { groupId: req.params.id, userId: req.user._id });
+    logger.info('User left group', { groupId: req.params.id, userId: req.userId });
 
     res.json({ success: true, message: 'Left group' });
   } catch (error) {

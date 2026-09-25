@@ -63,7 +63,7 @@ router.get(
       }));
 
       logger.info(`Found ${enrichedTherapists.length} nearby therapists`, {
-        userId: req.user._id,
+        userId: req.userId,
         lat,
         lon,
         radius
@@ -128,7 +128,7 @@ router.get('/:id', auth, async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Therapist not found' });
     }
 
-    logger.info(`Therapist profile viewed`, { therapistId: req.params.id, userId: req.user._id });
+    logger.info(`Therapist profile viewed`, { therapistId: req.params.id, userId: req.userId });
 
     res.json({ success: true, data: therapist });
   } catch (error) {
@@ -214,13 +214,13 @@ router.post(
       }
 
       // Check if user already reviewed
-      const existingReview = therapist.ratings.reviews.find((r) => r.userId.equals(req.user._id));
+      const existingReview = therapist.ratings.reviews.find((r) => r.userId.equals(req.userId));
       if (existingReview) {
         return res.status(400).json({ success: false, error: 'You already reviewed this therapist' });
       }
 
       therapist.ratings.reviews.push({
-        userId: req.user._id,
+        userId: req.userId,
         rating,
         text: text || '',
         date: new Date(),
@@ -231,7 +231,7 @@ router.post(
 
       logger.info(`Review submitted for therapist`, {
         therapistId,
-        userId: req.user._id,
+        userId: req.userId,
         rating
       });
 

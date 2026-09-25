@@ -32,13 +32,13 @@ router.post('/token', auth, [
     }
 
     // Verify user is part of this appointment
-    if (appointment.userId.toString() !== req.user._id.toString() &&
-        appointment.therapistId.toString() !== req.user._id.toString()) {
+    if (appointment.userId.toString() !== req.userId.toString() &&
+        appointment.therapistId.toString() !== req.userId.toString()) {
       return res.status(403).json({ success: false, error: 'Unauthorized' });
     }
 
     const channelName = `appointment_${appointmentId}`;
-    const tokenData = videoCallService.generateToken(channelName, req.user._id.toString(), role);
+    const tokenData = videoCallService.generateToken(channelName, req.userId.toString(), role);
 
     res.json({
       success: true,
@@ -63,8 +63,8 @@ router.post('/start', auth, [
       return res.status(404).json({ success: false, error: 'Appointment not found' });
     }
 
-    const isTherapist = appointment.therapistId.toString() === req.user._id.toString();
-    const isUser = appointment.userId.toString() === req.user._id.toString();
+    const isTherapist = appointment.therapistId.toString() === req.userId.toString();
+    const isUser = appointment.userId.toString() === req.userId.toString();
 
     if (!isTherapist && !isUser) {
       return res.status(403).json({ success: false, error: 'Unauthorized' });
@@ -218,7 +218,7 @@ router.post('/screen/token', auth, [
     const channelName = `appointment_${appointmentId}`;
     const screenToken = videoCallService.generateScreenShareToken(
       channelName,
-      req.user._id.toString()
+      req.userId.toString()
     );
 
     logger.info('Screen share token generated', { appointmentId });
@@ -249,7 +249,7 @@ router.post('/status', auth, [
 
     const channelName = `appointment_${appointmentId}`;
     const statusUpdate = await videoCallService.updateUserStatus(
-      req.user._id.toString(),
+      req.userId.toString(),
       channelName,
       status
     );
@@ -282,7 +282,7 @@ router.post('/backup-token', auth, [
     const channelName = `appointment_${appointmentId}`;
     const backupToken = await videoCallService.getBackupToken(
       channelName,
-      req.user._id.toString()
+      req.userId.toString()
     );
 
     logger.info('Backup token generated for reconnection', { appointmentId });

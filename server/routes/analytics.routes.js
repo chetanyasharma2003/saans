@@ -16,7 +16,7 @@ router.get('/dashboard/stats', authenticateToken, requireRole(['admin']), async 
 
     const stats = await analyticsService.getDashboardStats(parseInt(days));
 
-    await analyticsService.trackEvent(req.user._id, 'analytics_viewed', {
+    await analyticsService.trackEvent(req.userId, 'analytics_viewed', {
       type: 'dashboard',
       days
     });
@@ -45,7 +45,7 @@ router.get('/engagement/:userId', authenticateToken, async (req, res) => {
     const { days = 30 } = req.query;
 
     // Check permission
-    if (req.user._id.toString() !== userId && req.user.role !== 'admin') {
+    if (req.userId.toString() !== userId && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         error: 'Unauthorized',
@@ -101,7 +101,7 @@ router.get('/revenue/report', authenticateToken, requireRole(['admin']), async (
 
     const report = await analyticsService.getRevenueReport(start, end);
 
-    await analyticsService.trackEvent(req.user._id, 'analytics_viewed', {
+    await analyticsService.trackEvent(req.userId, 'analytics_viewed', {
       type: 'revenue',
       startDate,
       endDate
@@ -132,7 +132,7 @@ router.get('/therapist/performance/:therapistId', authenticateToken, async (req,
 
     // Check permission
     if (
-      req.user._id.toString() !== therapistId &&
+      req.userId.toString() !== therapistId &&
       req.user.role !== 'admin'
     ) {
       return res.status(403).json({

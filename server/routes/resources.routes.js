@@ -42,7 +42,7 @@ router.get('/guide/:conditionName', auth, async (req, res, next) => {
     // Log access
     logger.info('Resource guide viewed', {
       condition: resource.condition.name,
-      userId: req.user._id
+      userId: req.userId
     });
 
     res.json({ success: true, data: resource });

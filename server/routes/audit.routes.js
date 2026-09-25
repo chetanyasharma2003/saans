@@ -15,12 +15,12 @@ router.get('/my-activity', authenticateToken, async (req, res) => {
   try {
     const days = req.query.days ? parseInt(req.query.days) : 30;
 
-    const logs = await auditLogService.getUserAuditTrail(req.user._id, days);
+    const logs = await auditLogService.getUserAuditTrail(req.userId, days);
 
     res.json({
       success: true,
       data: {
-        userId: req.user._id,
+        userId: req.userId,
         period: `Last ${days} days`,
         totalEvents: logs.length,
         logs
@@ -47,7 +47,7 @@ router.get('/user/:userId', authenticateToken, requireRole(['admin']), async (re
 
     const logs = await auditLogService.getUserAuditTrail(userId, days);
 
-    await auditLogService.logAdminAction(req.user._id, 'VIEW_AUDIT_LOG', userId, {
+    await auditLogService.logAdminAction(req.userId, 'VIEW_AUDIT_LOG', userId, {
       days
     });
 
@@ -81,7 +81,7 @@ router.get('/resource/:resourceType/:resourceId', authenticateToken, requireRole
 
     const logs = await auditLogService.getResourceAuditTrail(resourceType, resourceId, limit);
 
-    await auditLogService.logAdminAction(req.user._id, 'VIEW_AUDIT_LOG', resourceId, {
+    await auditLogService.logAdminAction(req.userId, 'VIEW_AUDIT_LOG', resourceId, {
       resourceType
     });
 
@@ -115,7 +115,7 @@ router.post('/detect-suspicious/:userId', authenticateToken, requireRole(['admin
     const result = await auditLogService.detectSuspiciousActivity(userId);
 
     if (result.suspicious) {
-      await auditLogService.logAdminAction(req.user._id, 'SUSPICIOUS_ACTIVITY_DETECTED', userId, {
+      await auditLogService.logAdminAction(req.userId, 'SUSPICIOUS_ACTIVITY_DETECTED', userId, {
         type: result.type,
         count: result.count
       });
@@ -167,7 +167,7 @@ router.post('/export', authenticateToken, requireRole(['admin']), async (req, re
     const exportFormat = format || 'json';
     const result = await auditLogService.exportAuditLog(start, end, exportFormat);
 
-    await auditLogService.logAdminAction(req.user._id, 'EXPORT_AUDIT_LOG', 'system', {
+    await auditLogService.logAdminAction(req.userId, 'EXPORT_AUDIT_LOG', 'system', {
       startDate,
       endDate,
       format: exportFormat
@@ -203,7 +203,7 @@ router.get('/compliance-report', authenticateToken, requireRole(['admin']), asyn
 
     const report = await auditLogService.generateComplianceReport(days);
 
-    await auditLogService.logAdminAction(req.user._id, 'GENERATE_COMPLIANCE_REPORT', 'system', {
+    await auditLogService.logAdminAction(req.userId, 'GENERATE_COMPLIANCE_REPORT', 'system', {
       days
     });
 

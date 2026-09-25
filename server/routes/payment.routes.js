@@ -27,7 +27,7 @@ router.post('/stripe/create-intent', authenticateToken, async (req, res) => {
     await paymentService.validatePaymentAmount(amount);
 
     const result = await paymentService.createStripePaymentIntent(
-      req.user._id,
+      req.userId,
       amount,
       description,
       { appointmentId }
@@ -67,7 +67,7 @@ router.post('/stripe/confirm', authenticateToken, async (req, res) => {
     const payment = await paymentService.confirmStripePayment(paymentIntentId, paymentId);
 
     logger.info('Stripe payment confirmed', {
-      userId: req.user._id,
+      userId: req.userId,
       paymentId
     });
 
@@ -107,7 +107,7 @@ router.post('/razorpay/create-order', authenticateToken, async (req, res) => {
     await paymentService.validatePaymentAmount(amount);
 
     const result = await paymentService.createRazorpayOrder(
-      req.user._id,
+      req.userId,
       amount,
       description,
       { appointmentId }
@@ -151,7 +151,7 @@ router.post('/razorpay/verify', authenticateToken, async (req, res) => {
     );
 
     logger.info('Razorpay payment verified', {
-      userId: req.user._id,
+      userId: req.userId,
       orderId: razorpayOrderId
     });
 
@@ -191,7 +191,7 @@ router.post('/wallet/create', authenticateToken, async (req, res) => {
     await paymentService.validatePaymentAmount(amount);
 
     const payment = await paymentService.createWalletPayment(
-      req.user._id,
+      req.userId,
       amount,
       description,
       { appointmentId }
@@ -222,7 +222,7 @@ router.post('/wallet/:paymentId/complete', authenticateToken, async (req, res) =
     const payment = await paymentService.completeWalletPayment(paymentId);
 
     logger.info('Wallet payment completed', {
-      userId: req.user._id,
+      userId: req.userId,
       paymentId
     });
 
@@ -261,7 +261,7 @@ router.post('/:paymentId/refund', authenticateToken, async (req, res) => {
     }
 
     // Verify payment ownership
-    const payment = await paymentService.getPaymentById(paymentId, req.user._id);
+    const payment = await paymentService.getPaymentById(paymentId, req.userId);
 
     let refund;
     if (payment.paymentMethod === 'stripe') {
@@ -278,7 +278,7 @@ router.post('/:paymentId/refund', authenticateToken, async (req, res) => {
     }
 
     logger.info('Refund created', {
-      userId: req.user._id,
+      userId: req.userId,
       paymentId,
       amount
     });
@@ -308,7 +308,7 @@ router.get('/history', authenticateToken, async (req, res) => {
     const { limit = 20, offset = 0 } = req.query;
 
     const result = await paymentService.getPaymentHistory(
-      req.user._id,
+      req.userId,
       parseInt(limit),
       parseInt(offset)
     );
@@ -340,7 +340,7 @@ router.get('/:paymentId', authenticateToken, async (req, res) => {
   try {
     const { paymentId } = req.params;
 
-    const payment = await paymentService.getPaymentById(paymentId, req.user._id);
+    const payment = await paymentService.getPaymentById(paymentId, req.userId);
 
     res.json({
       success: true,
@@ -362,7 +362,7 @@ router.get('/:paymentId', authenticateToken, async (req, res) => {
 // Get payment stats
 router.get('/stats/overview', authenticateToken, async (req, res) => {
   try {
-    const stats = await paymentService.getPaymentStats(req.user._id);
+    const stats = await paymentService.getPaymentStats(req.userId);
 
     res.json({
       success: true,
@@ -389,12 +389,12 @@ router.get('/:paymentId/invoice', authenticateToken, async (req, res) => {
     const { paymentId } = req.params;
 
     // Verify ownership
-    await paymentService.getPaymentById(paymentId, req.user._id);
+    await paymentService.getPaymentById(paymentId, req.userId);
 
     const invoice = await paymentService.generateInvoice(paymentId);
 
     logger.info('Invoice generated', {
-      userId: req.user._id,
+      userId: req.userId,
       paymentId
     });
 

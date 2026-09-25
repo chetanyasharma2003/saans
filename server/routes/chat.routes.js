@@ -14,7 +14,7 @@ const logger = require('../utils/logger');
 router.get('/rooms', authenticateToken, async (req, res) => {
   try {
     const rooms = await ChatRoom.find({
-      'members.userId': req.user._id,
+      'members.userId': req.userId,
       isActive: true
     })
       .select('name type avatar members lastMessageAt messageCount')
@@ -57,9 +57,9 @@ router.post('/rooms', authenticateToken, async (req, res) => {
       name,
       type,
       description,
-      createdBy: req.user._id,
+      createdBy: req.userId,
       members: [
-        { userId: req.user._id, role: 'admin' },
+        { userId: req.userId, role: 'admin' },
         ...members.map(m => ({ userId: m, role: 'member' }))
       ]
     });
@@ -67,7 +67,7 @@ router.post('/rooms', authenticateToken, async (req, res) => {
     await room.save();
 
     logger.info('Chat room created', {
-      userId: req.user._id,
+      userId: req.userId,
       roomId: room._id,
       type
     });
@@ -97,7 +97,7 @@ router.get('/rooms/:roomId/messages', authenticateToken, async (req, res) => {
 
     // Check if user is member of room
     const room = await ChatRoom.findById(roomId);
-    if (!room || !room.members.some(m => m.userId.toString() === req.user._id.toString())) {
+    if (!room || !room.members.some(m => m.userId.toString() === req.userId.toString())) {
       return res.status(403).json({
         success: false,
         error: 'Access denied',
@@ -141,7 +141,7 @@ router.post('/messages/:messageId/read', authenticateToken, async (req, res) => 
       {
         $addToSet: {
           readBy: {
-            userId: req.user._id,
+            userId: req.userId,
             readAt: new Date()
           }
         }
@@ -159,7 +159,7 @@ router.post('/messages/:messageId/read', authenticateToken, async (req, res) => 
     }
 
     logger.info('Message marked as read', {
-      userId: req.user._id,
+      userId: req.userId,
       messageId
     });
 
@@ -190,7 +190,7 @@ router.post('/rooms/:roomId/mark-read', authenticateToken, async (req, res) => {
       {
         $addToSet: {
           readBy: {
-            userId: req.user._id,
+            userId: req.userId,
             readAt: new Date()
           }
         }
@@ -199,14 +199,14 @@ router.post('/rooms/:roomId/mark-read', authenticateToken, async (req, res) => {
 
     // Update room's lastReadAt for user
     await ChatRoom.updateOne(
-      { _id: roomId, 'members.userId': req.user._id },
+      { _id: roomId, 'members.userId': req.userId },
       {
         $set: { 'members.$.lastReadAt': new Date() }
       }
     );
 
     logger.info('Room marked as read', {
-      userId: req.user._id,
+      userId: req.userId,
       roomId
     });
 
@@ -231,14 +231,14 @@ router.post('/rooms/:roomId/mark-read', authenticateToken, async (req, res) => {
 router.get('/unread-count', authenticateToken, async (req, res) => {
   try {
     const rooms = await ChatRoom.find({
-      'members.userId': req.user._id
+      'members.userId': req.userId
     });
 
     let totalUnread = 0;
     const roomUnread = {};
 
     for (const room of rooms) {
-      const member = room.members.find(m => m.userId.toString() === req.user._id.toString());
+      const member = room.members.find(m => m.userId.toString() === req.userId.toString());
       const lastReadAt = member ? member.lastReadAt : new Date(0);
 
       const unreadCount = await ChatMessage.countDocuments({
@@ -293,7 +293,7 @@ router.get('/search', authenticateToken, async (req, res) => {
     if (roomId) {
       // Verify user access to room
       const room = await ChatRoom.findById(roomId);
-      if (!room || !room.members.some(m => m.userId.toString() === req.user._id.toString())) {
+      if (!room || !room.members.some(m => m.userId.toString() === req.userId.toString())) {
         return res.status(403).json({
           success: false,
           error: 'Access denied',
@@ -311,7 +311,7 @@ router.get('/search', authenticateToken, async (req, res) => {
       .limit(parseInt(limit));
 
     logger.info('Search performed', {
-      userId: req.user._id,
+      userId: req.userId,
       query,
       resultCount: messages.length
     });

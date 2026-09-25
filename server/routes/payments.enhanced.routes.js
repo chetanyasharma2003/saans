@@ -24,7 +24,7 @@ router.post('/stripe/create-intent', auth, [
       amount,
       'inr',
       {
-        userId: req.user._id.toString(),
+        userId: req.userId.toString(),
         type,
         appointmentId: appointmentId || null
       }
@@ -48,7 +48,7 @@ router.post('/stripe/confirm', auth, [
     if (result.success) {
       // Create payment record
       const payment = await Payment.create({
-        userId: req.user._id,
+        userId: req.userId,
         amount: req.body.amount || 0,
         currency: 'INR',
         paymentMethod: 'stripe',
@@ -88,7 +88,7 @@ router.post('/razorpay/create-order', auth, [
       'INR',
       `order_${Date.now()}`,
       {
-        userId: req.user._id.toString(),
+        userId: req.userId.toString(),
         type,
         email: req.user.email
       }
@@ -113,7 +113,7 @@ router.post('/razorpay/verify', auth, [
 
     if (result.success) {
       const payment = await Payment.create({
-        userId: req.user._id,
+        userId: req.userId,
         amount: req.body.amount || 0,
         currency: 'INR',
         paymentMethod: 'razorpay',
@@ -148,7 +148,7 @@ router.post('/subscribe', auth, [
     };
 
     const subscription = await Subscription.create({
-      userId: req.user._id,
+      userId: req.userId,
       plan,
       planDetails: {
         name: `${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan`,
@@ -208,7 +208,7 @@ router.post('/cancel-subscription/:subscriptionId', auth, async (req, res, next)
 router.get('/subscription-status', auth, async (req, res, next) => {
   try {
     const subscription = await Subscription.findOne({
-      userId: req.user._id,
+      userId: req.userId,
       status: 'active'
     });
 
@@ -235,7 +235,7 @@ router.post('/refund/:paymentId', auth, [
       return res.status(404).json({ success: false, error: 'Payment not found' });
     }
 
-    if (payment.userId.toString() !== req.user._id.toString()) {
+    if (payment.userId.toString() !== req.userId.toString()) {
       return res.status(403).json({ success: false, error: 'Unauthorized' });
     }
 
@@ -275,12 +275,12 @@ router.get('/history', auth, async (req, res, next) => {
     const { limit = 20, page = 1 } = req.query;
     const skip = (page - 1) * limit;
 
-    const payments = await Payment.find({ userId: req.user._id })
+    const payments = await Payment.find({ userId: req.userId })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
 
-    const total = await Payment.countDocuments({ userId: req.user._id });
+    const total = await Payment.countDocuments({ userId: req.userId });
 
     res.json({
       success: true,

@@ -10,8 +10,8 @@ const logger = require('../utils/logger');
 // Get therapist recommendations
 router.get('/therapists', auth, async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id);
-    const recommendations = await mlEngine.recommendTherapists(req.user._id, {
+    const user = await User.findById(req.userId);
+    const recommendations = await mlEngine.recommendTherapists(req.userId, {
       conditions: user.healthConditions,
       languages: user.languages,
       budget: user.budget
@@ -29,13 +29,13 @@ router.get('/therapists', auth, async (req, res, next) => {
 // Get mood trend prediction
 router.get('/mood-trend', auth, async (req, res, next) => {
   try {
-    const moodEntries = await MoodEntry.find({ userId: req.user._id })
+    const moodEntries = await MoodEntry.find({ userId: req.userId })
       .sort({ date: -1 })
       .limit(30)
       .select('moodScore');
 
     const scores = moodEntries.map(e => e.moodScore).reverse();
-    const trend = await mlEngine.predictMoodTrend(req.user._id, scores);
+    const trend = await mlEngine.predictMoodTrend(req.userId, scores);
 
     res.json({
       success: true,
@@ -50,15 +50,15 @@ router.get('/mood-trend', auth, async (req, res, next) => {
 // Get resource recommendations
 router.get('/resources', auth, async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id);
-    const moodEntries = await MoodEntry.find({ userId: req.user._id })
+    const user = await User.findById(req.userId);
+    const moodEntries = await MoodEntry.find({ userId: req.userId })
       .sort({ date: -1 })
       .limit(7)
       .select('moodScore');
 
     const moodTrend = moodEntries.map(e => e.moodScore);
     const recommendations = await mlEngine.recommendResources(
-      req.user._id,
+      req.userId,
       user.healthConditions,
       moodTrend
     );
@@ -76,17 +76,17 @@ router.get('/resources', auth, async (req, res, next) => {
 router.get('/engagement-risk', auth, async (req, res, next) => {
   try {
     const lastAppointment = await Appointment.findOne({
-      userId: req.user._id,
+      userId: req.userId,
       status: 'completed'
     }).sort({ endTime: -1 });
 
-    const totalAppointments = await Appointment.countDocuments({ userId: req.user._id });
+    const totalAppointments = await Appointment.countDocuments({ userId: req.userId });
     const completedAppointments = await Appointment.countDocuments({
-      userId: req.user._id,
+      userId: req.userId,
       status: 'completed'
     });
 
-    const riskAssessment = await mlEngine.predictEngagementRisk(req.user._id, {
+    const riskAssessment = await mlEngine.predictEngagementRisk(req.userId, {
       lastAppointment: lastAppointment?.endTime,
       appointmentRate: totalAppointments > 0 ? completedAppointments / totalAppointments : 0,
       subscription: req.user.subscription
@@ -104,9 +104,9 @@ router.get('/engagement-risk', auth, async (req, res, next) => {
 // Get suggested treatment plan
 router.get('/treatment-plan', auth, async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.userId);
     const treatmentPlan = await mlEngine.suggestTreatmentPlan(
-      req.user._id,
+      req.userId,
       user.healthConditions,
       user.therapistPreference
     );
@@ -123,7 +123,7 @@ router.get('/treatment-plan', auth, async (req, res, next) => {
 // Detect crisis risk
 router.get('/crisis-detection', auth, async (req, res, next) => {
   try {
-    const moodEntries = await MoodEntry.find({ userId: req.user._id })
+    const moodEntries = await MoodEntry.find({ userId: req.userId })
       .sort({ date: -1 })
       .limit(7)
       .select('moodScore date');
@@ -131,7 +131,7 @@ router.get('/crisis-detection', auth, async (req, res, next) => {
     const recentEvents = []; // In production, fetch from user's event log
 
     const crisisRisk = await mlEngine.detectCrisisRisk(
-      req.user._id,
+      req.userId,
       moodEntries.map(e => e.moodScore),
       recentEvents
     );
@@ -152,12 +152,12 @@ router.get('/weekly-insights', auth, async (req, res, next) => {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     const moodEntries = await MoodEntry.find({
-      userId: req.user._id,
+      userId: req.userId,
       date: { $gte: sevenDaysAgo }
     });
 
     const appointments = await Appointment.countDocuments({
-      userId: req.user._id,
+      userId: req.userId,
       status: 'completed',
       endTime: { $gte: sevenDaysAgo }
     });
@@ -170,7 +170,7 @@ router.get('/weekly-insights', auth, async (req, res, next) => {
       ? moodEntries.reduce((sum, e) => sum + (e.sleepHours || 0), 0) / moodEntries.length
       : 0;
 
-    const insights = await mlEngine.generateWeeklyInsights(req.user._id, {
+    const insights = await mlEngine.generateWeeklyInsights(req.userId, {
       moodEntries: moodEntries.map(e => e.moodScore),
       avgMood,
       avgSleep,
@@ -195,23 +195,23 @@ router.get('/weekly-insights', auth, async (req, res, next) => {
 // Get personalized dashboard suggestions
 router.get('/dashboard-suggestions', auth, async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.userId);
     const suggestions = [];
 
     // Get recommendations for different sections
-    const therapists = await mlEngine.recommendTherapists(req.user._id, {
+    const therapists = await mlEngine.recommendTherapists(req.userId, {
       conditions: user.healthConditions
     });
 
-    const resources = await mlEngine.recommendResources(req.user._id, user.healthConditions, []);
+    const resources = await mlEngine.recommendResources(req.userId, user.healthConditions, []);
 
-    const moodEntries = await MoodEntry.find({ userId: req.user._id })
+    const moodEntries = await MoodEntry.find({ userId: req.userId })
       .sort({ date: -1 })
       .limit(7)
       .select('moodScore');
 
     const moodTrend = await mlEngine.predictMoodTrend(
-      req.user._id,
+      req.userId,
       moodEntries.map(e => e.moodScore)
     );
 

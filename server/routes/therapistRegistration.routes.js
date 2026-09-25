@@ -228,7 +228,7 @@ router.post(
       const therapistId = req.params.id;
 
       // Check if it's the therapist's own profile
-      if (req.user._id.toString() !== therapistId && req.user.role !== 'admin') {
+      if (req.userId.toString() !== therapistId && req.user.role !== 'admin') {
         return res.status(403).json({ success: false, error: 'Unauthorized' });
       }
 
@@ -276,7 +276,7 @@ router.get('/:id/status', auth, async (req, res, next) => {
     }
 
     // Check if user owns this profile or is admin
-    if (req.user._id.toString() !== req.params.id && req.user.role !== 'admin') {
+    if (req.userId.toString() !== req.params.id && req.user.role !== 'admin') {
       return res.status(403).json({ success: false, error: 'Unauthorized' });
     }
 
@@ -337,7 +337,7 @@ router.post(
       }
 
       therapist.verification.status = 'approved';
-      therapist.verification.verifiedBy = req.user._id;
+      therapist.verification.verifiedBy = req.userId;
       therapist.verification.verifiedDate = new Date();
       therapist.isActive = true;
       therapist.status = 'active';
@@ -363,7 +363,7 @@ router.post(
 
       logger.info('Therapist approved by admin:', {
         therapistId,
-        adminId: req.user._id,
+        adminId: req.userId,
         notes
       });
 
@@ -394,7 +394,7 @@ router.post(
       }
 
       therapist.verification.status = 'rejected';
-      therapist.verification.verifiedBy = req.user._id;
+      therapist.verification.verifiedBy = req.userId;
       therapist.verification.verifiedDate = new Date();
       therapist.verification.rejectionReason = rejectionReason;
       therapist.isActive = false;
@@ -420,7 +420,7 @@ router.post(
 
       logger.info('Therapist rejected by admin:', {
         therapistId,
-        adminId: req.user._id,
+        adminId: req.userId,
         reason: rejectionReason
       });
 

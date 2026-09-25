@@ -13,7 +13,7 @@ router.get('/', authenticateToken, async (req, res) => {
   try {
     const { limit = 20, offset = 0, unreadOnly = false } = req.query;
 
-    let filter = { userId: req.user._id };
+    let filter = { userId: req.userId };
     if (unreadOnly === 'true') {
       filter.isRead = false;
     }
@@ -25,7 +25,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
     const total = await Notification.countDocuments(filter);
     const unreadCount = await Notification.countDocuments({
-      userId: req.user._id,
+      userId: req.userId,
       isRead: false
     });
 
@@ -59,7 +59,7 @@ router.get('/:notificationId', authenticateToken, async (req, res) => {
 
     const notification = await Notification.findById(notificationId);
 
-    if (!notification || notification.userId.toString() !== req.user._id.toString()) {
+    if (!notification || notification.userId.toString() !== req.userId.toString()) {
       return res.status(404).json({
         success: false,
         error: 'Notification not found',
@@ -99,7 +99,7 @@ router.patch('/:notificationId/read', authenticateToken, async (req, res) => {
       { new: true }
     );
 
-    if (!notification || notification.userId.toString() !== req.user._id.toString()) {
+    if (!notification || notification.userId.toString() !== req.userId.toString()) {
       return res.status(404).json({
         success: false,
         error: 'Notification not found',
@@ -109,7 +109,7 @@ router.patch('/:notificationId/read', authenticateToken, async (req, res) => {
     }
 
     logger.info('Notification marked as read', {
-      userId: req.user._id,
+      userId: req.userId,
       notificationId
     });
 
@@ -134,7 +134,7 @@ router.patch('/:notificationId/read', authenticateToken, async (req, res) => {
 router.patch('/mark-all-read', authenticateToken, async (req, res) => {
   try {
     await Notification.updateMany(
-      { userId: req.user._id, isRead: false },
+      { userId: req.userId, isRead: false },
       {
         isRead: true,
         readAt: new Date()
@@ -142,7 +142,7 @@ router.patch('/mark-all-read', authenticateToken, async (req, res) => {
     );
 
     logger.info('All notifications marked as read', {
-      userId: req.user._id
+      userId: req.userId
     });
 
     res.json({
@@ -169,7 +169,7 @@ router.delete('/:notificationId', authenticateToken, async (req, res) => {
 
     const notification = await Notification.findById(notificationId);
 
-    if (!notification || notification.userId.toString() !== req.user._id.toString()) {
+    if (!notification || notification.userId.toString() !== req.userId.toString()) {
       return res.status(404).json({
         success: false,
         error: 'Notification not found',
@@ -181,7 +181,7 @@ router.delete('/:notificationId', authenticateToken, async (req, res) => {
     await Notification.findByIdAndDelete(notificationId);
 
     logger.info('Notification deleted', {
-      userId: req.user._id,
+      userId: req.userId,
       notificationId
     });
 
@@ -205,10 +205,10 @@ router.delete('/:notificationId', authenticateToken, async (req, res) => {
 // Clear all notifications
 router.delete('/', authenticateToken, async (req, res) => {
   try {
-    await Notification.deleteMany({ userId: req.user._id });
+    await Notification.deleteMany({ userId: req.userId });
 
     logger.info('All notifications cleared', {
-      userId: req.user._id
+      userId: req.userId
     });
 
     res.json({
@@ -232,12 +232,12 @@ router.delete('/', authenticateToken, async (req, res) => {
 router.get('/stats/unread', authenticateToken, async (req, res) => {
   try {
     const unreadCount = await Notification.countDocuments({
-      userId: req.user._id,
+      userId: req.userId,
       isRead: false
     });
 
     const byType = await Notification.aggregate([
-      { $match: { userId: req.user._id, isRead: false } },
+      { $match: { userId: req.userId, isRead: false } },
       { $group: { _id: '$type', count: { $sum: 1 } } }
     ]);
 

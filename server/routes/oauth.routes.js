@@ -92,7 +92,7 @@ router.get('/apple/callback',
 // Get current OAuth connections
 router.get('/connections', authenticateToken, async (req, res) => {
   try {
-    const info = await oauthService.getOAuthInfo(req.user._id);
+    const info = await oauthService.getOAuthInfo(req.userId);
 
     res.json({
       success: true,
@@ -126,7 +126,7 @@ router.post('/disconnect/:provider', authenticateToken, async (req, res) => {
       });
     }
 
-    await oauthService.disconnectOAuth(req.user._id, provider);
+    await oauthService.disconnectOAuth(req.userId, provider);
 
     res.json({
       success: true,
