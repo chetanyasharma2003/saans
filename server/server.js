@@ -163,6 +163,8 @@ app.use('/api/chat', require('./routes/chat.routes'));
 app.use('/api/notifications', require('./routes/notifications.routes'));
 app.use('/api/payments', require('./routes/payment.routes'));
 app.use('/api/analytics', require('./routes/analytics.routes'));
+app.use('/api/stories', require('./routes/stories.routes'));
+app.use('/api/groups', require('./routes/groups.routes'));
 app.use('/api', require('./routes/seed.routes'));
 
 // 404 Handler

@@ -10,6 +10,8 @@ const seedAppointments = require('../seeds/appointmentsData');
 const seedMoodEntries = require('../seeds/moodEntriesData');
 const seedSubscriptions = require('../seeds/subscriptionsData');
 const seedAnalytics = require('../seeds/analyticsData');
+const seedStories = require('../seeds/storiesData');
+const seedGroups = require('../seeds/groupsData');
 
 // Import models
 const Therapist = require('../models/Therapist');
@@ -20,6 +22,8 @@ const MoodEntry = require('../models/MoodEntry');
 const Subscription = require('../models/Subscription');
 const Analytics = require('../models/Analytics');
 const User = require('../models/User');
+const Story = require('../models/Story');
+const CommunityGroup = require('../models/CommunityGroup');
 
 // Seed all data
 router.post('/seed-all', async (req, res) => {
@@ -34,7 +38,9 @@ router.post('/seed-all', async (req, res) => {
       Appointment.deleteMany({}),
       MoodEntry.deleteMany({}),
       Subscription.deleteMany({}),
-      Analytics.deleteMany({})
+      Analytics.deleteMany({}),
+      Story.deleteMany({}),
+      CommunityGroup.deleteMany({})
     ]);
     logger.info('Cleared existing data');
 
@@ -58,6 +64,14 @@ router.post('/seed-all', async (req, res) => {
     const subs = await Subscription.insertMany(seedSubscriptions);
     logger.info(`Seeded ${subs.length} subscriptions`);
 
+    // Seed stories (real community stories)
+    const stories = await Story.insertMany(seedStories);
+    logger.info(`Seeded ${stories.length} community stories`);
+
+    // Seed community groups
+    const groups = await CommunityGroup.insertMany(seedGroups);
+    logger.info(`Seeded ${groups.length} community groups`);
+
     // Skip community posts & analytics (Render cache issues)
     const posts = [];
     const analytics = [];
@@ -73,9 +87,11 @@ router.post('/seed-all', async (req, res) => {
         appointments: appointments.length,
         moodEntries: moods.length,
         subscriptions: subs.length,
+        stories: stories.length,
+        groups: groups.length,
         posts: posts.length,
         analyticsEvents: analytics.length,
-        totalItems: therapists.length + resources.length + appointments.length + moods.length + subs.length + posts.length + analytics.length
+        totalItems: therapists.length + resources.length + appointments.length + moods.length + subs.length + stories.length + groups.length + posts.length + analytics.length
       }
     });
   } catch (error) {
