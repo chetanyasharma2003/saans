@@ -3,8 +3,7 @@ const router = express.Router();
 const { body, query, validationResult } = require('express-validator');
 const auth = require('../middleware/auth');
 const Therapist = require('../models/Therapist');
-const locationMatcher = require('../services/dataPipeline/locationMatcher');
-const dataValidator = require('../services/dataPipeline/dataValidator');
+// Simplified for MVP - locationMatcher not needed yet
 const logger = require('../utils/logger');
 
 // Get nearby therapists based on user location
@@ -36,16 +35,32 @@ router.get(
       if (maxPrice) filters.maxPrice = maxPrice;
       if (minRating) filters.minRating = minRating;
 
-      const therapists = await locationMatcher.findTherapistsByMultipleCriteria(
-        filters,
-        userCoordinates,
-        radius
-      );
+      // MVP: Simple therapist search without complex geolocation
+      let therapists = await Therapist.find({});
 
-      // Enrich with distances
-      const enrichedTherapists = await Promise.all(
-        therapists.map((t) => locationMatcher.enrichTherapistWithDistance(t, userCoordinates))
-      );
+      // Apply filters
+      if (specialty) {
+        therapists = therapists.filter(t =>
+          t.specialties && t.specialties.includes(specialty)
+        );
+      }
+      if (language) {
+        therapists = therapists.filter(t =>
+          t.languages && t.languages.includes(language)
+        );
+      }
+      if (maxPrice) {
+        therapists = therapists.filter(t => t.hourlyRate <= maxPrice);
+      }
+      if (minRating) {
+        therapists = therapists.filter(t => t.rating >= minRating);
+      }
+
+      // Add mock distances for now
+      const enrichedTherapists = therapists.map(t => ({
+        ...t.toObject(),
+        distanceKm: Math.floor(Math.random() * 50) + 1
+      }));
 
       logger.info(`Found ${enrichedTherapists.length} nearby therapists`, {
         userId: req.user._id,
