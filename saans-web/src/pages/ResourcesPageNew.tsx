@@ -39,8 +39,8 @@ export function ResourcesPageNew() {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
     if (query) {
-      const filtered = resources.filter(r =>
-        r.condition.name.toLowerCase().includes(query)
+      const filtered = (resources || []).filter(r =>
+        r?.condition?.name?.toLowerCase().includes(query) || false
       );
       if (filtered.length > 0) {
         setSelectedResource(filtered[0]);
@@ -48,8 +48,8 @@ export function ResourcesPageNew() {
     }
   };
 
-  const filteredResources = resources.filter(r =>
-    r.condition.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredResources = (resources || []).filter(r =>
+    r?.condition?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || false
   );
 
   return (

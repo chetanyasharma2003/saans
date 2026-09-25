@@ -55,14 +55,13 @@ router.get('/guide/:conditionName', auth, async (req, res, next) => {
 router.get('/all-guides', async (req, res, next) => {
   try {
     const resources = await MentalHealthResource.find({ status: 'published' })
-      .select('condition.name condition.description condition.prevalence views shares saves')
       .sort({ views: -1 })
       .limit(100);
 
     res.json({
       success: true,
-      data: resources,
-      count: resources.length
+      data: resources || [],
+      count: (resources || []).length
     });
   } catch (error) {
     next(error);

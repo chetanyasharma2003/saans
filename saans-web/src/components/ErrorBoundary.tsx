@@ -28,17 +28,21 @@ export class ErrorBoundary extends React.Component<Props, State> {
     console.error('Error caught by boundary:', error, errorInfo);
     this.setState({ errorInfo });
 
-    // Log to backend
-    fetch('/api/logs/error', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: error.message,
-        stack: error.stack,
-        componentStack: errorInfo.componentStack,
-        timestamp: new Date().toISOString()
-      }).catch(() => {})
-    });
+    // Log to backend (non-critical)
+    try {
+      fetch('/api/logs/error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: error.message,
+          stack: error.stack,
+          componentStack: errorInfo.componentStack,
+          timestamp: new Date().toISOString()
+        })
+      }).catch(() => {});
+    } catch (e) {
+      // Silently ignore logging errors
+    }
   }
 
   handleReset = () => {
