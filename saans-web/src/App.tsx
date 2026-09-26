@@ -39,6 +39,8 @@ const WellnessResourcesPage = React.lazy(() => import('./pages/ResourcesPageNew'
 const StoriesPage = React.lazy(() => import('./pages/StoriesPageNew'));
 const CrisisSupportPage = React.lazy(() => import('./pages/CrisisSupportPageNew'));
 const MyProfilePage = React.lazy(() => import('./pages/ProfilePageNew'));
+const StoryDetailPage = React.lazy(() => import('./pages/StoryDetailPage'));
+const GroupDetailPage = React.lazy(() => import('./pages/GroupDetailPage'));
 
 // Protected Route (each page has its own header)
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -230,6 +232,30 @@ function AppRoutes() {
               <React.Suspense fallback={<SuspenseLoading />}>
                 <PageTransition>
                   <AdminDashboardPage />
+                </PageTransition>
+              </React.Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/story/:id"
+          element={
+            <ProtectedRoute>
+              <React.Suspense fallback={<SuspenseLoading />}>
+                <PageTransition>
+                  <StoryDetailPage />
+                </PageTransition>
+              </React.Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/group/:id"
+          element={
+            <ProtectedRoute>
+              <React.Suspense fallback={<SuspenseLoading />}>
+                <PageTransition>
+                  <GroupDetailPage />
                 </PageTransition>
               </React.Suspense>
             </ProtectedRoute>

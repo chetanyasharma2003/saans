@@ -317,7 +317,7 @@ export function CommunityPageNew() {
                         <div
                           key={story._id}
                           className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8 hover:border-purple-500/60 transition-all cursor-pointer"
-                          onClick={() => {/* Could navigate to story detail */}}
+                          onClick={() => navigate(`/story/${story._id}`)}
                         >
                           <div className="flex justify-between items-start mb-4">
                             <div>
@@ -392,10 +392,13 @@ export function CommunityPageNew() {
                           </div>
 
                           <button
-                            onClick={() => handleJoinGroup(group._id)}
+                            onClick={() => {
+                              handleJoinGroup(group._id);
+                              setTimeout(() => navigate(`/group/${group._id}`), 500);
+                            }}
                             className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:shadow-lg transition-all"
                           >
-                            Join Group →
+                            Join Group & Explore →
                           </button>
                         </div>
                       ))}
