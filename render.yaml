@@ -1,13 +1,88 @@
 services:
   - type: web
-    name: saans-api
-    env: node
+    name: saans-backend
+    runtime: node
     plan: standard
-    region: ohio
-    buildCommand: bash render-build.sh
-    startCommand: cd server && npm start
+    buildCommand: npm install
+    startCommand: npm run start
     envVars:
       - key: NODE_ENV
         value: production
-      - key: NPM_CONFIG_LEGACY_PEER_DEPS
-        value: "true"
+      - key: PORT
+        value: 3001
+      - key: MONGODB_URI
+        scope: secret
+      - key: JWT_SECRET
+        scope: secret
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGIN
+        value: https://saans-mental-health.vercel.app
+      - key: STRIPE_SECRET_KEY
+        scope: secret
+      - key: RAZORPAY_KEY_ID
+        scope: secret
+      - key: RAZORPAY_KEY_SECRET
+        scope: secret
+      - key: AGORA_APP_ID
+        scope: secret
+      - key: AGORA_APP_CERTIFICATE
+        scope: secret
+      - key: FIREBASE_PROJECT_ID
+        scope: secret
+      - key: FIREBASE_PRIVATE_KEY
+        scope: secret
+      - key: FIREBASE_CLIENT_EMAIL
+        scope: secret
+      - key: SENDGRID_API_KEY
+        scope: secret
+      - key: SENDGRID_FROM_EMAIL
+        value: noreply@saans-mental-health.com
+      - key: LOG_LEVEL
+        value: info
+    autoDeploy: true
+    healthCheckPath: /api/health
+    disk:
+      name: uploads
+      mountPath: /app/uploads
+      sizeGB: 10
+
+databases:
+  - name: saans-mongodb
+    databaseName: saans
+    version: "5.0"
+    plan: standard
+    region: oregon
+
+  - name: saans-redis
+    plan: standard
+    region: oregon
+
+env:
+  MONGODB_URI: mongodb+srv://${DB_USER}:${DB_PASSWORD}@saans.mongodb.net/saans
+  REDIS_URL: redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}
+
+staticSite:
+  name: saans-frontend
+  buildCommand: npm run build
+  startCommand: npm run preview
+  buildDir: dist
+  publishPath: /
+  envVars:
+    - key: VITE_API_URL
+      value: https://saans-backend.render.com/api
+    - key: VITE_WS_URL
+      value: wss://saans-backend.render.com
+  headers:
+    - path: /*
+      headers:
+        - key: X-Content-Type-Options
+          value: nosniff
+        - key: X-Frame-Options
+          value: SAMEORIGIN
+        - key: Referrer-Policy
+          value: strict-origin-when-cross-origin
+        - key: Strict-Transport-Security
+          value: max-age=31536000; includeSubDomains
+
+preDeployCommand: npm run build && npm run test
