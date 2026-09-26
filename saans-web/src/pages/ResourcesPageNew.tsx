@@ -144,11 +144,18 @@ export function ResourcesPageNew() {
                     <p className="text-purple-300 mb-4">
                       {selectedResource.condition.description}
                     </p>
-                    <div className="flex items-center gap-6 text-sm text-gray-400">
+                    <div className="flex items-center gap-6 text-sm text-gray-400 mb-6">
                       <span>👥 {selectedResource.condition.prevalence}</span>
                       <span>👁️ {selectedResource.views?.toLocaleString() || 0} views</span>
                       <span>💾 {selectedResource.saves?.toLocaleString() || 0} saved</span>
                     </div>
+
+                    <button
+                      onClick={() => navigate(`/resource/${selectedResource._id}`)}
+                      className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:shadow-lg transition"
+                    >
+                      View Full Guide →
+                    </button>
                   </div>
 
                   {/* Tabs */}
