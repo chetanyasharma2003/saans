@@ -59,15 +59,19 @@ router.get('/:id', async (req, res) => {
 // ============ CREATE STORY ============
 
 router.post('/', auth, [
-  body('title').isLength({ min: 5, max: 200 }),
-  body('content').isLength({ min: 20, max: 5000 }),
-  body('category').isIn(['anxiety', 'depression', 'ptsd', 'trauma', 'relationships', 'work', 'grief', 'addiction', 'sleep', 'eating-disorders', 'self-esteem', 'career']),
+  body('title').trim().isLength({ min: 5, max: 200 }).withMessage('Title must be between 5 and 200 characters'),
+  body('content').trim().isLength({ min: 20, max: 5000 }).withMessage('Story must be between 20 and 5000 characters'),
+  body('category').isIn(['anxiety', 'depression', 'ptsd', 'trauma', 'relationships', 'work', 'grief', 'addiction', 'sleep', 'eating-disorders', 'self-esteem', 'career']).withMessage('Invalid category'),
   body('isAnonymous').isBoolean()
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ success: false, errors: errors.array() });
+      return res.status(400).json({
+        success: false,
+        error: errors.array().map(e => e.msg).join(', '),
+        errors: errors.array()
+      });
     }
 
     const { title, content, category, isAnonymous, tags } = req.body;

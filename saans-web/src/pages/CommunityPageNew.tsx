@@ -111,7 +111,8 @@ export function CommunityPageNew() {
       fetchData();
     } catch (err) {
       console.error('Error creating story:', err);
-      setError('Failed to submit story');
+      const errorMsg = (err as any)?.response?.data?.error || 'Failed to submit story';
+      setError(errorMsg);
     }
   };
 
