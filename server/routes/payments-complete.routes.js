@@ -4,17 +4,36 @@ const { authenticateToken } = require('../middleware/auth');
 const Payment = require('../models/Payment');
 const Appointment = require('../models/Appointment');
 const Subscription = require('../models/Subscription');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const razorpay = require('razorpay');
 
-const razorpayInstance = new razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+// Initialize Stripe if key is available
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? require('stripe')(process.env.STRIPE_SECRET_KEY)
+  : null;
+
+// Initialize Razorpay if keys are available
+let razorpayInstance = null;
+try {
+  if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+    const razorpay = require('razorpay');
+    razorpayInstance = new razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET
+    });
+  }
+} catch (error) {
+  console.warn('⚠️  Razorpay initialization failed. Razorpay payments will be disabled.');
+}
 
 // Create Stripe payment intent
 router.post('/stripe/create-intent', authenticateToken, async (req, res, next) => {
   try {
+    if (!stripe) {
+      return res.status(503).json({
+        success: false,
+        error: 'Stripe payment gateway is not configured.'
+      });
+    }
+
     const { amount, appointmentId, description } = req.body;
 
     if (!amount || amount < 100) {
@@ -44,6 +63,13 @@ router.post('/stripe/create-intent', authenticateToken, async (req, res, next) =
 // Confirm Stripe payment
 router.post('/stripe/confirm', authenticateToken, async (req, res, next) => {
   try {
+    if (!stripe) {
+      return res.status(503).json({
+        success: false,
+        error: 'Stripe payment gateway is not configured.'
+      });
+    }
+
     const { paymentIntentId, appointmentId } = req.body;
 
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
@@ -77,6 +103,13 @@ router.post('/stripe/confirm', authenticateToken, async (req, res, next) => {
 // Create Razorpay order
 router.post('/razorpay/create-order', authenticateToken, async (req, res, next) => {
   try {
+    if (!razorpayInstance) {
+      return res.status(503).json({
+        success: false,
+        error: 'Razorpay payment gateway is not configured. Please use Stripe instead.'
+      });
+    }
+
     const { amount, appointmentId, description } = req.body;
 
     if (!amount || amount < 100) {
@@ -108,6 +141,13 @@ router.post('/razorpay/create-order', authenticateToken, async (req, res, next) 
 // Verify Razorpay payment
 router.post('/razorpay/verify', authenticateToken, async (req, res, next) => {
   try {
+    if (!razorpayInstance) {
+      return res.status(503).json({
+        success: false,
+        error: 'Razorpay payment gateway is not configured.'
+      });
+    }
+
     const { orderId, paymentId, signature, appointmentId } = req.body;
 
     const crypto = require('crypto');
