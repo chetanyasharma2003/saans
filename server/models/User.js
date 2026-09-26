@@ -33,8 +33,40 @@ const userSchema = new mongoose.Schema({
   passwordResetExpires: Date,
   twoFactorEnabled: { type: Boolean, default: false },
   twoFactorSecret: String,
+  backupCodes: [String],
   loginAttempts: { type: Number, default: 0 },
   lockUntil: Date,
+
+  // Email Verification
+  verificationToken: String,
+  verificationTokenExpires: Date,
+
+  // Subscription
+  subscription: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Subscription'
+  },
+  subscriptionStartDate: Date,
+  subscriptionEndDate: Date,
+  subscriptionStatus: { type: String, enum: ['active', 'inactive', 'cancelled'], default: 'inactive' },
+  subscriptionHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' }],
+
+  // Profile
+  profileImage: { type: String },
+  documents: [{
+    type: { type: String },
+    url: String,
+    uploadedAt: { type: Date, default: Date.now }
+  }],
+
+  // Additional fields
+  dateOfBirth: Date,
+  gender: String,
+  emergencyContact: String,
+  address: String,
+  state: String,
+  zipCode: String,
+  fcmToken: String,
 
   // Audit
   lastLoginIp: String,

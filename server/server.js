@@ -172,6 +172,11 @@ app.use('/api/stories', require('./routes/stories.routes'));
 app.use('/api/story-details', require('./routes/story-details.routes'));
 app.use('/api/groups', require('./routes/groups.routes'));
 app.use('/api/group-posts', require('./routes/group-posts.routes'));
+app.use('/api/uploads', require('./routes/file-uploads.routes'));
+app.use('/api/therapist-availability', require('./routes/therapist-availability.routes'));
+app.use('/api/subscriptions', require('./routes/subscriptions-management.routes'));
+app.use('/api/2fa', require('./routes/2fa.routes'));
+app.use('/api/email-verification', require('./routes/email-verification.routes'));
 app.use('/api', require('./routes/seed.routes'));
 
 // 404 Handler

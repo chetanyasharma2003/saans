@@ -84,12 +84,29 @@ const therapistSchema = new mongoose.Schema({
     }
   },
 
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+
+  timezone: { type: String, default: 'Asia/Kolkata' },
+  sessionDuration: { type: Number, default: 60 }, // minutes
+
   availability: [
     {
       day: { type: String, enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] },
       startTime: String, // "09:00"
       endTime: String, // "17:00"
       timezone: String, // "IST"
+      _id: false
+    }
+  ],
+
+  blockedTimes: [
+    {
+      startTime: Date,
+      endTime: Date,
+      reason: String,
       _id: false
     }
   ],

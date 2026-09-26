@@ -45,6 +45,9 @@ const ResourceDetailPage = React.lazy(() => import('./pages/ResourceDetailPage')
 const PaymentPage = React.lazy(() => import('./pages/PaymentPage'));
 const VideoCallPage = React.lazy(() => import('./pages/VideoCallPage'));
 const MessagingPage = React.lazy(() => import('./pages/MessagingPage'));
+const SubscriptionsPage = React.lazy(() => import('./pages/SubscriptionsPage'));
+const SettingsPage = React.lazy(() => import('./pages/SettingsPage'));
+const ProfileCompletionPage = React.lazy(() => import('./pages/ProfileCompletionPage'));
 
 // Protected Route (each page has its own header)
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -308,6 +311,42 @@ function AppRoutes() {
               <React.Suspense fallback={<SuspenseLoading />}>
                 <PageTransition>
                   <MessagingPage />
+                </PageTransition>
+              </React.Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/subscriptions"
+          element={
+            <ProtectedRoute>
+              <React.Suspense fallback={<SuspenseLoading />}>
+                <PageTransition>
+                  <SubscriptionsPage />
+                </PageTransition>
+              </React.Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <React.Suspense fallback={<SuspenseLoading />}>
+                <PageTransition>
+                  <SettingsPage />
+                </PageTransition>
+              </React.Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/complete-profile"
+          element={
+            <ProtectedRoute>
+              <React.Suspense fallback={<SuspenseLoading />}>
+                <PageTransition>
+                  <ProfileCompletionPage />
                 </PageTransition>
               </React.Suspense>
             </ProtectedRoute>
