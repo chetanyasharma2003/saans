@@ -50,7 +50,7 @@ app.use(cors({
     // Whitelist of allowed patterns
     const allowedPatterns = [
       /^http:\/\/localhost(:\d+)?$/, // localhost:* for dev
-      /^https?:\/\/.*\.vercel\.app$/, // All Vercel deployments (preview + production)
+      /^https:\/\/.*\.vercel\.app$/, // All Vercel deployments (preview + production)
       /^https:\/\/saans-mental-health\.vercel\.app$/, // Production
     ];
 
@@ -75,11 +75,18 @@ app.use(cors({
       }
     }
 
-    callback(null, isAllowed);
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked: ${origin}`);
+      callback(null, false);
+    }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  exposedHeaders: ['Content-Length', 'X-Requested-With'],
+  optionsSuccessStatus: 200
 }));
 
 // Security (after CORS)
