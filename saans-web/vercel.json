@@ -4,9 +4,15 @@
   "installCommand": "npm install",
   "framework": "vite",
   "env": {
-    "VITE_API_URL": "https://saans-backend-tt8p.onrender.com",
-    "VITE_SOCKET_URL": "https://saans-backend-tt8p.onrender.com",
-    "VITE_ENV": "production"
+    "VITE_API_URL": {
+      "value": "https://saans-backend-tt8p.onrender.com"
+    },
+    "VITE_SOCKET_URL": {
+      "value": "https://saans-backend-tt8p.onrender.com"
+    },
+    "VITE_ENV": {
+      "value": "production"
+    }
   },
   "rewrites": [
     {

@@ -10,24 +10,24 @@
   },
   "env": [
     {
-      "key": "REACT_APP_API_URL",
-      "value": "https://saans-backend.render.com/api"
+      "key": "VITE_API_URL",
+      "value": "https://saans-backend-tt8p.onrender.com"
     },
     {
-      "key": "REACT_APP_WS_URL",
-      "value": "wss://saans-backend.render.com"
+      "key": "VITE_SOCKET_URL",
+      "value": "https://saans-backend-tt8p.onrender.com"
     },
     {
-      "key": "REACT_APP_STRIPE_KEY",
-      "value": "@REACT_APP_STRIPE_KEY"
+      "key": "VITE_STRIPE_PUBLISHABLE_KEY",
+      "value": "@VITE_STRIPE_PUBLISHABLE_KEY"
     },
     {
-      "key": "REACT_APP_AGORA_APP_ID",
-      "value": "@REACT_APP_AGORA_APP_ID"
+      "key": "VITE_AGORA_APP_ID",
+      "value": "@VITE_AGORA_APP_ID"
     },
     {
-      "key": "REACT_APP_FIREBASE_CONFIG",
-      "value": "@REACT_APP_FIREBASE_CONFIG"
+      "key": "VITE_FIREBASE_API_KEY",
+      "value": "@VITE_FIREBASE_API_KEY"
     }
   ],
   "regions": ["sfo1", "iad1", "hnd1"],
@@ -40,7 +40,7 @@
   "redirects": [
     {
       "source": "/api/:path*",
-      "destination": "https://saans-backend.render.com/api/:path*"
+      "destination": "https://saans-backend-tt8p.onrender.com/api/:path*"
     }
   ],
   "headers": [
