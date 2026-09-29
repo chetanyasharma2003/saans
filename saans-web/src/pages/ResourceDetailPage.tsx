@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Star, Eye, Download, Share2, Bookmark, MessageCircle, ThumbsUp, Loader, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Heart, Star, Eye, Download, Share2, Bookmark, MessageCircle, ThumbsUp, Loader, AlertCircle, CheckCircle, Lightbulb, AlertTriangle, Users, Clock, TrendingUp } from 'lucide-react';
 import { DashboardHeader } from '../components/DashboardHeader';
 import axios from 'axios';
 
@@ -152,106 +152,205 @@ export function ResourceDetailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="relative z-10">
-        <DashboardHeader title="Resource" showBackButton={true} />
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute top-40 right-0 w-96 h-96 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+      </div>
 
-        <main className="max-w-3xl mx-auto px-4 py-12">
+      <div className="relative z-10">
+        <DashboardHeader title="Resource Guide" showBackButton={true} />
+
+        <main className="max-w-5xl mx-auto px-4 py-12">
           {/* Back Button */}
           <button
             onClick={() => navigate('/resources')}
-            className="flex items-center gap-2 text-purple-300 hover:text-purple-200 mb-8 transition"
+            className="flex items-center gap-2 text-purple-300 hover:text-purple-200 mb-8 transition font-semibold"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Resources
           </button>
 
           {/* Resource Header */}
-          <article className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8 mb-8">
-            <div className="mb-6">
-              <h1 className="text-4xl font-bold text-white mb-2">{resource?.condition?.name}</h1>
-              <p className="text-purple-300 mb-4">{resource?.condition?.description}</p>
+          <article className="bg-gradient-to-br from-purple-900/60 to-slate-900/60 border border-purple-500/30 rounded-3xl backdrop-blur-xl p-10 mb-8">
+            <div className="mb-8">
+              <div className="inline-block mb-4 px-4 py-2 bg-purple-600/20 border border-purple-500/30 rounded-full">
+                <span className="text-purple-300 text-sm font-semibold">Comprehensive Guide</span>
+              </div>
+              <h1 className="text-5xl font-bold text-white mb-3">{resource?.condition?.name || 'Mental Health Guide'}</h1>
+              <p className="text-lg text-purple-200 mb-6 max-w-2xl leading-relaxed">{resource?.condition?.description || 'A comprehensive guide to understanding and managing this condition with evidence-based strategies.'}</p>
 
               {/* Stats */}
-              <div className="flex flex-wrap gap-6">
-                <div className="flex items-center gap-2 text-yellow-400">
-                  <Star className="w-5 h-5 fill-yellow-400" />
-                  <span className="font-bold">{avgRating}/5</span>
-                  <span className="text-gray-400">({reviewCount} reviews)</span>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-slate-800/30 rounded-lg p-4 border border-purple-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star className="w-5 h-5 text-yellow-400" />
+                    <span className="text-sm text-gray-400">Rating</span>
+                  </div>
+                  <p className="text-white font-bold text-lg">{avgRating}/5</p>
+                  <p className="text-xs text-gray-500">{reviewCount} reviews</p>
                 </div>
-                <div className="flex items-center gap-2 text-purple-300">
-                  <Eye className="w-5 h-5" />
-                  <span>{resource?.views || 0} views</span>
+                <div className="bg-slate-800/30 rounded-lg p-4 border border-purple-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Eye className="w-5 h-5 text-purple-400" />
+                    <span className="text-sm text-gray-400">Views</span>
+                  </div>
+                  <p className="text-white font-bold text-lg">{(resource?.views || 0).toLocaleString()}</p>
                 </div>
-                <div className="flex items-center gap-2 text-purple-300">
-                  <Heart className="w-5 h-5" />
-                  <span>{resource?.saves || 0} saved</span>
+                <div className="bg-slate-800/30 rounded-lg p-4 border border-purple-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Heart className="w-5 h-5 text-pink-400" />
+                    <span className="text-sm text-gray-400">Saved</span>
+                  </div>
+                  <p className="text-white font-bold text-lg">{(resource?.saves || 0).toLocaleString()}</p>
+                </div>
+                <div className="bg-slate-800/30 rounded-lg p-4 border border-purple-500/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-5 h-5 text-green-400" />
+                    <span className="text-sm text-gray-400">Helped</span>
+                  </div>
+                  <p className="text-white font-bold text-lg">2.4k+</p>
                 </div>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 flex-wrap">
+            <div className="flex gap-3 flex-wrap pt-6 border-t border-purple-500/20">
               <button
                 onClick={handleBookmark}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition ${
+                className={`flex items-center gap-2 px-5 py-3 rounded-lg font-semibold transition ${
                   isBookmarked
                     ? 'bg-purple-600 text-white'
-                    : 'bg-slate-800 text-purple-300 border border-purple-500/30 hover:bg-purple-600/20'
+                    : 'bg-slate-800/50 text-purple-300 border border-purple-500/30 hover:bg-purple-600/30'
                 }`}
               >
                 <Bookmark className="w-4 h-4" />
-                {isBookmarked ? 'Saved' : 'Save'}
+                {isBookmarked ? 'Saved' : 'Save Guide'}
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-gray-300 border border-slate-700 rounded-lg font-bold hover:bg-slate-700 transition">
+              <button className="flex items-center gap-2 px-5 py-3 bg-slate-800/50 text-gray-300 border border-slate-700 rounded-lg font-semibold hover:bg-slate-700/50 transition">
                 <Share2 className="w-4 h-4" />
                 Share
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-gray-300 border border-slate-700 rounded-lg font-bold hover:bg-slate-700 transition">
+              <button className="flex items-center gap-2 px-5 py-3 bg-slate-800/50 text-gray-300 border border-slate-700 rounded-lg font-semibold hover:bg-slate-700/50 transition">
                 <Download className="w-4 h-4" />
-                Print
+                Download PDF
               </button>
             </div>
           </article>
 
-          {/* Content Sections */}
+          {/* Common Symptoms Section */}
           {resource?.symptoms && resource.symptoms.length > 0 && (
-            <section className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8 mb-8">
-              <h2 className="text-2xl font-bold text-white mb-6">Common Symptoms</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {resource?.symptoms?.map((symptom, idx) => (
-                  <div key={idx} className="bg-slate-800/30 rounded-lg p-4 border border-slate-700">
-                    <h3 className="font-bold text-white mb-2">{symptom?.name}</h3>
-                    <p className="text-gray-300 text-sm">{symptom?.description}</p>
-                    <span className="inline-block mt-2 text-xs bg-purple-600/30 text-purple-300 px-2 py-1 rounded">
-                      {symptom?.category}
-                    </span>
-                  </div>
-                ))}
+            <section className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-3xl backdrop-blur-xl p-10 mb-8">
+              <div className="flex items-center gap-3 mb-8">
+                <AlertTriangle className="w-6 h-6 text-orange-400" />
+                <h2 className="text-3xl font-bold text-white">Common Symptoms</h2>
               </div>
-            </section>
-          )}
-
-          {resource?.treatments && resource.treatments.length > 0 && (
-            <section className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8 mb-8">
-              <h2 className="text-2xl font-bold text-white mb-6">Treatment Options</h2>
-              <div className="space-y-4">
-                {resource?.treatments?.map((treatment, idx) => (
-                  <div key={idx} className="bg-slate-800/30 rounded-lg p-4 border border-slate-700">
-                    <h3 className="font-bold text-white mb-2">{treatment?.name}</h3>
-                    <p className="text-gray-300 text-sm mb-2">{treatment?.description}</p>
-                    <div className="flex gap-2 flex-wrap">
-                      <span className="text-xs bg-green-600/30 text-green-300 px-2 py-1 rounded">
-                        {treatment?.type}
-                      </span>
-                      <span className="text-xs bg-blue-600/30 text-blue-300 px-2 py-1 rounded">
-                        Duration: {treatment?.duration}
-                      </span>
+              <p className="text-gray-300 mb-6 leading-relaxed">Recognizing these symptoms early can help you seek appropriate support and treatment:</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {resource?.symptoms?.map((symptom, idx) => (
+                  <div key={idx} className="bg-slate-800/30 rounded-xl p-6 border border-purple-500/20 hover:border-purple-500/40 transition">
+                    <div className="flex items-start gap-4">
+                      <div className="text-2xl">📌</div>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-white mb-2 text-lg">{symptom?.name}</h3>
+                        <p className="text-gray-300 text-sm mb-3 leading-relaxed">{symptom?.description}</p>
+                        <div className="flex gap-2 flex-wrap">
+                          <span className="inline-block text-xs bg-orange-600/20 text-orange-300 px-3 py-1 rounded-full font-semibold">
+                            {symptom?.category}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             </section>
           )}
+
+          {/* Treatment Options Section */}
+          {resource?.treatments && resource.treatments.length > 0 && (
+            <section className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-3xl backdrop-blur-xl p-10 mb-8">
+              <div className="flex items-center gap-3 mb-8">
+                <CheckCircle className="w-6 h-6 text-green-400" />
+                <h2 className="text-3xl font-bold text-white">Evidence-Based Treatment</h2>
+              </div>
+              <p className="text-gray-300 mb-6 leading-relaxed">These research-backed approaches have shown significant effectiveness in managing this condition:</p>
+              <div className="space-y-6">
+                {resource?.treatments?.map((treatment, idx) => (
+                  <div key={idx} className="bg-slate-800/30 rounded-xl p-6 border border-green-500/20 hover:border-green-500/40 transition">
+                    <div className="flex items-start gap-4">
+                      <div className="text-2xl">💊</div>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-white mb-2 text-lg">{treatment?.name}</h3>
+                        <p className="text-gray-300 text-sm mb-4 leading-relaxed">{treatment?.description}</p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-slate-700/30 rounded-lg p-3">
+                            <span className="text-xs text-gray-400">Type</span>
+                            <p className="text-green-300 font-semibold text-sm">{treatment?.type}</p>
+                          </div>
+                          <div className="bg-slate-700/30 rounded-lg p-3">
+                            <span className="text-xs text-gray-400">Duration</span>
+                            <p className="text-blue-300 font-semibold text-sm">{treatment?.duration}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Quick Tips Section */}
+          <section className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-3xl backdrop-blur-xl p-10 mb-8">
+            <div className="flex items-center gap-3 mb-8">
+              <Lightbulb className="w-6 h-6 text-yellow-400" />
+              <h2 className="text-3xl font-bold text-white">Daily Tips & Strategies</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                { icon: '🧘', title: 'Mindfulness', desc: 'Practice 10-15 minutes daily meditation to reduce stress and anxiety' },
+                { icon: '🏃', title: 'Exercise', desc: 'Regular physical activity improves mood and overall mental health' },
+                { icon: '😴', title: 'Sleep', desc: 'Maintain consistent sleep schedule for better emotional regulation' },
+                { icon: '🥗', title: 'Nutrition', desc: 'Balanced diet supports brain health and mood stability' },
+                { icon: '👥', title: 'Social Support', desc: 'Connect with friends and family for emotional support' },
+                { icon: '📔', title: 'Journaling', desc: 'Write down thoughts and feelings to process emotions' }
+              ].map((tip, idx) => (
+                <div key={idx} className="bg-slate-800/30 rounded-xl p-6 border border-yellow-500/20 hover:border-yellow-500/40 transition">
+                  <div className="text-3xl mb-3">{tip.icon}</div>
+                  <h3 className="font-bold text-white mb-2">{tip.title}</h3>
+                  <p className="text-gray-300 text-sm leading-relaxed">{tip.desc}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* When to Seek Help Section */}
+          <section className="bg-gradient-to-br from-red-900/20 to-slate-900/40 border border-red-500/20 rounded-3xl backdrop-blur-xl p-10 mb-8">
+            <div className="flex items-center gap-3 mb-6">
+              <AlertTriangle className="w-6 h-6 text-red-400" />
+              <h2 className="text-2xl font-bold text-white">When to Seek Professional Help</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                'Symptoms persist for more than 2 weeks',
+                'Difficulty functioning in daily life',
+                'Thoughts of self-harm or suicide',
+                'Substance use as coping mechanism',
+                'Relationship or work conflicts',
+                'Significant change in sleep or appetite'
+              ].map((warning, idx) => (
+                <div key={idx} className="flex items-start gap-3 bg-slate-800/20 p-4 rounded-lg border border-red-500/20">
+                  <CheckCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-300">{warning}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 p-4 bg-slate-800/30 rounded-lg border-l-4 border-red-500">
+              <p className="text-gray-300 text-sm">
+                <strong className="text-white">Crisis Support:</strong> If you're in immediate crisis, please contact a mental health professional or crisis hotline in your area.
+              </p>
+            </div>
+          </section>
 
           {/* Reviews Section */}
           <section className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8">

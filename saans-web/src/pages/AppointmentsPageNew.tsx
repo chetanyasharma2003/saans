@@ -1,20 +1,22 @@
 import { DashboardHeader } from '../components/DashboardHeader';
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, User, MapPin, Video, Phone, ChevronRight, Plus, Loader, AlertCircle } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Calendar, Clock, User, MapPin, Video, Phone, ChevronRight, Plus, Loader, AlertCircle, RefreshCw } from 'lucide-react';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export function AppointmentsPageNew() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchAppointments();
-  }, []);
+  }, [location]); // Refetch when navigating back to this page
 
   const fetchAppointments = async () => {
     try {
@@ -23,12 +25,19 @@ export function AppointmentsPageNew() {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAppointments(response.data.data || []);
+      setError(null);
     } catch (err) {
       console.error('Error fetching appointments:', err);
       setError('Failed to load appointments');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchAppointments();
   };
 
   const upcomingAppointments = appointments.filter(a =>
@@ -49,9 +58,14 @@ export function AppointmentsPageNew() {
 
         <main className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-12 max-w-4xl mx-auto">
           {error && (
-            <div className="bg-red-500/20 border border-red-500/50 text-red-300 p-4 rounded-lg flex items-center gap-2">
-              <AlertCircle className="w-5 h-5" />
-              {error}
+            <div className="bg-red-500/20 border border-red-500/50 text-red-300 p-4 rounded-lg flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-5 h-5" />
+                {error}
+              </div>
+              <button onClick={handleRefresh} className="text-red-400 hover:text-red-300">
+                <RefreshCw className="w-4 h-4" />
+              </button>
             </div>
           )}
 
@@ -61,10 +75,15 @@ export function AppointmentsPageNew() {
             </div>
           ) : (
             <>
-              {/* Book New */}
-              <button onClick={() => navigate('/therapist')} className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg sm:rounded-2xl hover:shadow-lg transition-all text-sm sm:text-base flex items-center justify-center gap-2">
-                <Plus className="w-5 h-5" /> Book New Appointment
-              </button>
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <button onClick={() => navigate('/therapist')} className="flex-1 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg sm:rounded-2xl hover:shadow-lg transition-all text-sm sm:text-base flex items-center justify-center gap-2">
+                  <Plus className="w-5 h-5" /> Book New
+                </button>
+                <button onClick={handleRefresh} disabled={refreshing} className="px-4 py-3 sm:py-4 bg-slate-800/50 hover:bg-slate-800 text-gray-300 rounded-lg sm:rounded-2xl transition-all border border-purple-500/20 flex items-center justify-center gap-2 disabled:opacity-50">
+                  <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
 
               {/* Upcoming */}
               <div>
