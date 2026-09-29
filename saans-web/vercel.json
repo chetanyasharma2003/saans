@@ -1,28 +1,26 @@
 {
-  "buildCommand": "VITE_API_URL=https://saans-backend-tt8p.onrender.com npm run build",
+  "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "vite",
-  "env": {
-    "VITE_API_URL": {
+  "env": [
+    {
+      "key": "VITE_API_URL",
       "value": "https://saans-backend-tt8p.onrender.com"
     },
-    "VITE_SOCKET_URL": {
+    {
+      "key": "VITE_SOCKET_URL",
       "value": "https://saans-backend-tt8p.onrender.com"
     },
-    "VITE_ENV": {
+    {
+      "key": "VITE_ENV",
       "value": "production"
     }
-  },
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],
-  "git": {
-    "deploymentEnabled": {
-      "main": true
-    }
-  }
+  ]
 }
