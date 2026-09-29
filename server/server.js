@@ -27,28 +27,17 @@ const PORT = process.env.PORT || 3001;
 // ============ MIDDLEWARE ============
 
 // ⚠️ CORS MUST BE FIRST - Before all other middleware
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (process.env.NODE_ENV !== 'production') {
-      return callback(null, true);
-    }
-    if (!origin) return callback(null, true);
-    const allowedOrigins = [
-      /^http:\/\/localhost(:\d+)?$/,
-      /^https:\/\/.*\.vercel\.app$/
-    ];
-    const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
-    callback(null, isAllowed);
-  },
+// BULLETPROOF: Allow all origins for now (Vercel needs this)
+app.use(cors({
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
-  allowedHeaders: ['*'],
-  exposedHeaders: ['*'],
-  maxAge: 86400
-};
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range']
+}));
 
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+// Handle OPTIONS preflight explicitly
+app.options('*', cors());
 
 // Request ID tracking
 app.use(requestIdMiddleware);
