@@ -42,52 +42,34 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // CORS Configuration - Must be BEFORE helmet
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
+    // Allow all origins in development, be selective in production
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    // Whitelist of allowed patterns
-    const allowedPatterns = [
-      /^http:\/\/localhost(:\d+)?$/, // localhost:* for dev
-      /^https:\/\/.*\.vercel\.app$/, // All Vercel deployments (preview + production)
-      /^https:\/\/saans-mental-health\.vercel\.app$/, // Production
+    // Production: Whitelist Vercel and localhost
+    const allowedOrigins = [
+      /^http:\/\/localhost(:\d+)?$/,
+      /^https:\/\/.*\.vercel\.app$/
     ];
 
-    // Check if origin matches any allowed pattern
-    const isAllowed = allowedPatterns.some(pattern => pattern.test(origin));
-
-    // If CORS_ORIGIN env var is set, also check those
-    if (process.env.CORS_ORIGIN) {
-      const customOrigins = process.env.CORS_ORIGIN
-        .split(',')
-        .map(url => url.trim())
-        .filter(url => url.length > 0);
-
-      if (customOrigins.some(allowed => {
-        if (allowed.includes('*')) {
-          const pattern = allowed.replace(/\./g, '\\.').replace(/\*/g, '.*');
-          return new RegExp(`^https?://${pattern}$`).test(origin);
-        }
-        return origin === allowed;
-      })) {
-        return callback(null, true);
-      }
-    }
-
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.warn(`CORS blocked: ${origin}`);
-      callback(null, false);
-    }
+    const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
+    callback(null, isAllowed);
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  exposedHeaders: ['Content-Length', 'X-Requested-With'],
-  optionsSuccessStatus: 200
-}));
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
+  allowedHeaders: ['*'],
+  exposedHeaders: ['*'],
+  maxAge: 86400
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // Security (after CORS)
 app.use(helmet({
