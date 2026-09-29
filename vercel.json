@@ -1,42 +1,15 @@
 {
   "projectName": "saans-mental-health",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "outputDirectory": "dist",
+  "buildCommand": "cd saans-web && npm run build",
+  "installCommand": "cd saans-web && npm install",
+  "outputDirectory": "saans-web/dist",
+  "framework": "vite",
   "github": {
     "enabled": true,
     "autoDeployOnPush": true,
     "autoDeployOnPushBranches": ["main", "development"]
   },
-  "env": [
-    {
-      "key": "VITE_API_URL",
-      "value": "https://saans-backend-tt8p.onrender.com"
-    },
-    {
-      "key": "VITE_SOCKET_URL",
-      "value": "https://saans-backend-tt8p.onrender.com"
-    },
-    {
-      "key": "VITE_STRIPE_PUBLISHABLE_KEY",
-      "value": "@VITE_STRIPE_PUBLISHABLE_KEY"
-    },
-    {
-      "key": "VITE_AGORA_APP_ID",
-      "value": "@VITE_AGORA_APP_ID"
-    },
-    {
-      "key": "VITE_FIREBASE_API_KEY",
-      "value": "@VITE_FIREBASE_API_KEY"
-    }
-  ],
   "regions": ["sfo1", "iad1", "hnd1"],
-  "functions": {
-    "api/**/*.js": {
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  },
   "redirects": [
     {
       "source": "/api/:path*",
