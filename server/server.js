@@ -26,7 +26,31 @@ const PORT = process.env.PORT || 3001;
 
 // ============ MIDDLEWARE ============
 
-// Request ID tracking (should be first)
+// ⚠️ CORS MUST BE FIRST - Before all other middleware
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    if (!origin) return callback(null, true);
+    const allowedOrigins = [
+      /^http:\/\/localhost(:\d+)?$/,
+      /^https:\/\/.*\.vercel\.app$/
+    ];
+    const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
+    callback(null, isAllowed);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
+  allowedHeaders: ['*'],
+  exposedHeaders: ['*'],
+  maxAge: 86400
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// Request ID tracking
 app.use(requestIdMiddleware);
 
 // Session configuration for OAuth
@@ -40,36 +64,6 @@ app.use(session({
 // Passport configuration
 app.use(passport.initialize());
 app.use(passport.session());
-
-// CORS Configuration - Must be BEFORE helmet
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow all origins in development, be selective in production
-    if (process.env.NODE_ENV !== 'production') {
-      return callback(null, true);
-    }
-
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    // Production: Whitelist Vercel and localhost
-    const allowedOrigins = [
-      /^http:\/\/localhost(:\d+)?$/,
-      /^https:\/\/.*\.vercel\.app$/
-    ];
-
-    const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
-    callback(null, isAllowed);
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
-  allowedHeaders: ['*'],
-  exposedHeaders: ['*'],
-  maxAge: 86400
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 
 // Security (after CORS)
 app.use(helmet({
