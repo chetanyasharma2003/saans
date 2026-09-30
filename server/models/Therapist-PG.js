@@ -42,7 +42,7 @@ const Therapist = sequelize.define('Therapist', {
     createdAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
     updatedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
   }, {
-    tableName: 'Therapists',
+    tableName: 'therapists',
     timestamps: true,
     indexes: [
       { fields: ['isActive', 'isVerified'] },
