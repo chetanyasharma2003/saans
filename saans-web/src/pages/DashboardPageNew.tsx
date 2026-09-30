@@ -77,7 +77,7 @@ export function DashboardPageNew() {
 
   const completedAppointments = appointments.filter(a => a.status === 'completed');
   const totalSpent = appointments.reduce((sum, a) => sum + (a.price || 0), 0);
-  const avgMood = moodData?.average || '0/5';
+  const avgMood = moodData?.averageMood ? `${moodData.averageMood}/5` : '0/5';
 
   if (loading) {
     return (
@@ -279,19 +279,19 @@ export function DashboardPageNew() {
                   {upcomingAppointments.length > 0 ? (
                     <div className="space-y-4">
                       {upcomingAppointments.map((apt) => (
-                        <div key={apt._id} className="bg-slate-800/30 p-4 rounded-lg flex items-start justify-between">
+                        <div key={apt.id} className="bg-slate-800/30 p-4 rounded-lg flex items-start justify-between">
                           <div>
                             <p className="text-white font-semibold mb-1">
-                              Session with {apt.therapistId?.name || 'Therapist'}
+                              Session with Therapist
                             </p>
                             <div className="flex gap-4 text-sm text-gray-400">
-                              <span>📅 {new Date(apt.startTime).toLocaleDateString()}</span>
-                              <span>🕐 {new Date(apt.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                              <span>⏱️ {apt.sessionDuration} min</span>
+                              <span>📅 {new Date(apt.scheduledAt).toLocaleDateString()}</span>
+                              <span>🕐 {new Date(apt.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              <span>⏱️ {apt.duration} min</span>
                             </div>
                           </div>
                           <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-xs font-medium">
-                            Confirmed
+                            {apt.status?.charAt(0).toUpperCase() + apt.status?.slice(1)}
                           </span>
                         </div>
                       ))}
@@ -305,12 +305,12 @@ export function DashboardPageNew() {
                   <h3 className="text-xl font-bold text-white mb-6">Recent Sessions ({completedAppointments.length})</h3>
                   <div className="space-y-3">
                     {completedAppointments.slice(0, 5).map((apt) => (
-                      <div key={apt._id} className="bg-slate-800/30 p-3 rounded-lg flex items-center justify-between">
+                      <div key={apt.id} className="bg-slate-800/30 p-3 rounded-lg flex items-center justify-between">
                         <div>
                           <p className="text-white text-sm font-medium">
-                            {new Date(apt.startTime).toLocaleDateString()}
+                            {new Date(apt.scheduledAt).toLocaleDateString()}
                           </p>
-                          <p className="text-xs text-gray-400">Rating: {apt.rating || 'N/A'} ⭐</p>
+                          <p className="text-xs text-gray-400">Rating: {apt.feedbackRating || 'N/A'} ⭐</p>
                         </div>
                         <CheckCircle className="w-5 h-5 text-green-400" />
                       </div>
