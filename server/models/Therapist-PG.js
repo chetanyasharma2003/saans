@@ -47,8 +47,7 @@ const Therapist = sequelize.define('Therapist', {
     indexes: [
       { fields: ['isActive', 'isVerified'] },
       { fields: ['rating'] },
-      { fields: ['city'] },
-      { fields: ['specializations'] }
+      { fields: ['city'] }
     ]
   });
 
