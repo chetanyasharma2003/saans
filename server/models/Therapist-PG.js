@@ -9,8 +9,7 @@ const Therapist = sequelize.define('Therapist', {
     },
     userId: {
       type: DataTypes.UUID,
-      allowNull: true,
-      references: { model: 'Users', key: 'id' }
+      allowNull: true
     },
     firstName: { type: DataTypes.STRING, allowNull: false },
     lastName: { type: DataTypes.STRING, allowNull: false },

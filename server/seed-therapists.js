@@ -1,4 +1,5 @@
-const { sequelize, Therapist } = require('./config/database');
+const { sequelize } = require('./config/database');
+const { Therapist } = require('./models/index');
 const { v4: uuidv4 } = require('uuid');
 
 const therapistsData = [
@@ -217,8 +218,8 @@ async function seedTherapists() {
     console.log('🌱 Seeding therapists...');
 
     // Clear existing therapists
-    await Therapist.destroy({ where: {} });
-    console.log('✅ Cleared existing therapists');
+    const deleted = await Therapist.destroy({ where: {} });
+    console.log(`✅ Cleared ${deleted} existing therapists`);
 
     // Create new therapists
     const created = await Therapist.bulkCreate(therapistsData);
