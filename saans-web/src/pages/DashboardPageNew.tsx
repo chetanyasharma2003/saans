@@ -54,14 +54,14 @@ export function DashboardPageNew() {
       }
 
       try {
-        const subRes = await axios.get(`${API_URL}/api/payments/subscription`, {
+        const subRes = await axios.get(`${API_URL}/api/subscriptions/active`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setSubscription(subRes.data.data);
       } catch (e) {
         console.error('Subscription error:', e);
         // Set default subscription data if endpoint fails
-        setSubscription({ status: 'inactive', plan: null });
+        setSubscription({ status: 'active', plan: 'free', features: {} });
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -140,10 +140,10 @@ export function DashboardPageNew() {
               </div>
               <p className="text-gray-400 text-sm mb-2">Subscription</p>
               <p className="text-white text-2xl font-bold mb-2">
-                ₹{subscription?.planDetails?.price?.toLocaleString()}
+                ₹{subscription?.price ? subscription.price.toLocaleString() : '0'}
               </p>
               <p className="text-xs text-purple-300">
-                Renews: {subscription?.renewalDate ? new Date(subscription.renewalDate).toLocaleDateString() : 'N/A'}
+                {subscription?.renewalDate ? `Renews: ${new Date(subscription.renewalDate).toLocaleDateString()}` : 'Free plan'}
               </p>
             </div>
 
