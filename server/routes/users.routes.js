@@ -6,7 +6,9 @@ const { authenticateToken } = require('../middleware/auth');
 // ============ GET CURRENT USER ============
 router.get('/me', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select('-password');
+    const user = await User.findByPk(req.userId, {
+      attributes: { exclude: ['password'] },
+    });
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -14,7 +16,7 @@ router.get('/me', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      data: user,
+      data: user.getSafeJSON(),
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -24,7 +26,9 @@ router.get('/me', authenticateToken, async (req, res) => {
 // ============ GET PROFILE (alias for /me) ============
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select('-password');
+    const user = await User.findByPk(req.userId, {
+      attributes: { exclude: ['password'] },
+    });
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -32,7 +36,7 @@ router.get('/profile', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      data: user,
+      data: user.getSafeJSON(),
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -42,7 +46,9 @@ router.get('/profile', authenticateToken, async (req, res) => {
 // ============ GET USER BY ID ============
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
+    const user = await User.findByPk(req.params.id, {
+      attributes: { exclude: ['password'] },
+    });
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -50,7 +56,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      data: user,
+      data: user.getSafeJSON(),
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -60,23 +66,22 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // ============ UPDATE USER PROFILE ============
 router.put('/me', authenticateToken, async (req, res) => {
   try {
-    const { firstName, lastName, bio, phone, city, avatar, preferences } = req.body;
+    const { firstName, lastName, bio, phone, avatar } = req.body;
 
-    const user = await User.findById(req.userId);
+    const user = await User.findByPk(req.userId);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    if (firstName) user.firstName = firstName;
-    if (lastName) user.lastName = lastName;
-    if (bio) user.bio = bio;
-    if (phone) user.phone = phone;
-    if (city) user.city = city;
-    if (avatar) user.avatar = avatar;
-    if (preferences) user.preferences = { ...user.preferences, ...preferences };
+    const updateData = {};
+    if (firstName) updateData.firstName = firstName;
+    if (lastName) updateData.lastName = lastName;
+    if (bio) updateData.bio = bio;
+    if (phone) updateData.phone = phone;
+    if (avatar) updateData.avatar = avatar;
 
-    await user.save();
+    await user.update(updateData);
 
     res.json({
       success: true,

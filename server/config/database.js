@@ -40,6 +40,9 @@ const connectDB = async () => {
     await sequelize.authenticate();
     console.log('✅ PostgreSQL Connected via Sequelize');
 
+    // Import all models for sync
+    require('../models/index');
+
     // Sync models (development only - use migrations in production)
     if (process.env.NODE_ENV !== 'production') {
       await sequelize.sync({ alter: true });

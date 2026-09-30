@@ -92,8 +92,8 @@ app.use('/api/', apiLimiter); // Apply to all authenticated endpoints
 
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/users.routes'));
-app.use('/api/appointments', require('./routes/appointments.routes'));
-app.use('/api/mood', require('./routes/mood.routes'));
+app.use('/api/appointments', require('./routes/appointments-pg.routes'));
+app.use('/api/mood', require('./routes/mood-pg.routes'));
 app.use('/api/therapists', require('./routes/therapists.routes'));
 app.use('/api/therapist-register', require('./routes/therapistRegistration.routes'));
 app.use('/api/community', require('./routes/community.routes'));
@@ -122,7 +122,7 @@ app.use('/api/groups', require('./routes/groups.routes'));
 app.use('/api/group-posts', require('./routes/group-posts.routes'));
 app.use('/api/uploads', require('./routes/file-uploads.routes'));
 app.use('/api/therapist-availability', require('./routes/therapist-availability.routes'));
-app.use('/api/subscriptions', require('./routes/subscriptions-management.routes'));
+app.use('/api/subscriptions', require('./routes/subscriptions-pg.routes'));
 app.use('/api/2fa', require('./routes/2fa.routes'));
 app.use('/api/email-verification', require('./routes/email-verification.routes'));
 app.use('/api', require('./routes/seed.routes'));
