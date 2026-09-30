@@ -382,17 +382,7 @@ export function FindTherapistPagePro() {
                     </div>
 
                     {/* Card Footer */}
-                    <div className="border-t border-purple-400/20 p-6 bg-slate-900/30 space-y-3">
-                      <div className="flex gap-2">
-                        <button className="flex-1 p-2 border border-blue-400/50 text-blue-300 rounded-lg hover:bg-blue-500/20 transition-all text-sm font-medium">
-                          <Video className="w-4 h-4 inline mr-2" />
-                          Video
-                        </button>
-                        <button className="flex-1 p-2 border border-green-400/50 text-green-300 rounded-lg hover:bg-green-500/20 transition-all text-sm font-medium">
-                          <Phone className="w-4 h-4 inline mr-2" />
-                          Call
-                        </button>
-                      </div>
+                    <div className="border-t border-purple-400/20 p-6 bg-slate-900/30">
                       <button
                         onClick={() => handleOpenBooking(therapist)}
                         className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 rounded-lg transition-all transform hover:scale-105 shadow-lg shadow-purple-500/50"

@@ -47,6 +47,10 @@ export function BookingModal({ isOpen, therapist, onClose, onSuccess }: BookingM
       const token = localStorage.getItem('accessToken');
       const scheduledAt = new Date(`${bookingData.date}T${bookingData.time}`);
 
+      // Calculate price based on hourly rate and duration
+      const hourlyRate = parseFloat(therapist.hourlyRate);
+      const totalPrice = (hourlyRate * bookingData.duration) / 60;
+
       const response = await axios.post(
         `${API_URL}/api/appointments`,
         {
@@ -54,8 +58,8 @@ export function BookingModal({ isOpen, therapist, onClose, onSuccess }: BookingM
           scheduledAt: scheduledAt.toISOString(),
           type: bookingData.sessionType,
           duration: bookingData.duration,
-          notes: bookingData.notes,
-          status: 'confirmed'
+          price: totalPrice,
+          notes: bookingData.notes
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
