@@ -1,8 +1,10 @@
 import { DashboardHeader } from '../components/DashboardHeader';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Calendar, Clock, User, MapPin, Video, Phone, ChevronRight, Plus, Loader, AlertCircle, RefreshCw } from 'lucide-react';
+import { Calendar, Clock, Plus, Loader, AlertCircle, RefreshCw } from 'lucide-react';
 import axios from 'axios';
+import { JoinSessionModal } from '../components/Appointments/JoinSessionModal';
+import { RescheduleModal } from '../components/Appointments/RescheduleModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -13,10 +15,12 @@ export function AppointmentsPageNew() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedJoinAppointment, setSelectedJoinAppointment] = useState(null);
+  const [selectedRescheduleAppointment, setSelectedRescheduleAppointment] = useState(null);
 
   useEffect(() => {
     fetchAppointments();
-  }, [location]); // Refetch when navigating back to this page
+  }, [location]);
 
   const fetchAppointments = async () => {
     try {
@@ -38,6 +42,11 @@ export function AppointmentsPageNew() {
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchAppointments();
+  };
+
+  const handleRescheduleSuccess = () => {
+    setSelectedRescheduleAppointment(null);
+    fetchAppointments();
   };
 
   const upcomingAppointments = appointments.filter(a =>
@@ -85,7 +94,7 @@ export function AppointmentsPageNew() {
                 </button>
               </div>
 
-              {/* Upcoming */}
+              {/* Upcoming Appointments */}
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Upcoming Appointments ({upcomingAppointments.length})</h2>
                 {upcomingAppointments.length === 0 ? (
@@ -104,11 +113,26 @@ export function AppointmentsPageNew() {
                           </div>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-4 mb-4">
-                          <span className="flex items-center gap-2 text-gray-400 text-sm"><Clock className="w-4 h-4" /> {new Date(apt.scheduledAt).toLocaleString()}</span>
+                          <span className="flex items-center gap-2 text-gray-400 text-sm">
+                            <Clock className="w-4 h-4" /> {new Date(apt.scheduledAt).toLocaleString()}
+                          </span>
+                          <span className="flex items-center gap-2 text-gray-400 text-sm">
+                            <Calendar className="w-4 h-4" /> {apt.duration} minutes
+                          </span>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3">
-                          <button className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-all text-sm">Join</button>
-                          <button className="flex-1 px-4 py-2 bg-slate-700/50 text-gray-300 rounded-lg hover:bg-slate-700 transition-all text-sm">Reschedule</button>
+                          <button
+                            onClick={() => setSelectedJoinAppointment(apt)}
+                            className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-all text-sm"
+                          >
+                            Join
+                          </button>
+                          <button
+                            onClick={() => setSelectedRescheduleAppointment(apt)}
+                            className="flex-1 px-4 py-2 bg-slate-700/50 text-gray-300 rounded-lg hover:bg-slate-700 transition-all text-sm font-medium"
+                          >
+                            Reschedule
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -116,7 +140,7 @@ export function AppointmentsPageNew() {
                 )}
               </div>
 
-              {/* Past */}
+              {/* Past Appointments */}
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Past Appointments ({pastAppointments.length})</h2>
                 {pastAppointments.length === 0 ? (
@@ -132,7 +156,7 @@ export function AppointmentsPageNew() {
                             <p className="text-gray-400 text-xs sm:text-sm">{new Date(apt.scheduledAt).toLocaleString()}</p>
                           </div>
                         </div>
-                        <p className="text-purple-300 text-xs sm:text-sm">Rating: ⭐ {apt.feedback?.rating || 'N/A'}</p>
+                        <p className="text-purple-300 text-xs sm:text-sm">Completed ✓</p>
                       </div>
                     ))}
                   </div>
@@ -142,6 +166,19 @@ export function AppointmentsPageNew() {
           )}
         </main>
       </div>
+
+      {/* Modals */}
+      <JoinSessionModal
+        isOpen={!!selectedJoinAppointment}
+        appointment={selectedJoinAppointment}
+        onClose={() => setSelectedJoinAppointment(null)}
+      />
+      <RescheduleModal
+        isOpen={!!selectedRescheduleAppointment}
+        appointment={selectedRescheduleAppointment}
+        onClose={() => setSelectedRescheduleAppointment(null)}
+        onSuccess={handleRescheduleSuccess}
+      />
     </div>
   );
 }

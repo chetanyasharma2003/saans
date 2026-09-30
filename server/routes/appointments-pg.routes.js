@@ -74,28 +74,35 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
-// Update appointment
+// Update appointment (reschedule, notes, feedback)
 router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const appointment = await Appointment.findOne({
       where: { id: req.params.id, userId: req.userId },
+      include: [{ model: Therapist, as: 'therapist' }],
     });
 
     if (!appointment) {
       return res.status(404).json({ success: false, error: 'Appointment not found' });
     }
 
-    const { status, notes, feedbackRating, feedbackComment } = req.body;
+    const { status, scheduledAt, notes, feedbackRating, feedbackComment } = req.body;
     const updateData = {};
 
     if (status) updateData.status = status;
+    if (scheduledAt) updateData.scheduledAt = new Date(scheduledAt);
     if (notes) updateData.notes = notes;
     if (feedbackRating) updateData.feedbackRating = feedbackRating;
     if (feedbackComment) updateData.feedbackComment = feedbackComment;
 
     await appointment.update(updateData);
 
-    res.json({ success: true, data: appointment });
+    // Fetch updated appointment with associations
+    const updatedAppointment = await Appointment.findByPk(appointment.id, {
+      include: [{ model: Therapist, as: 'therapist' }],
+    });
+
+    res.json({ success: true, data: updatedAppointment });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
