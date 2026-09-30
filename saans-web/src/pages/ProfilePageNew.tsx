@@ -23,6 +23,14 @@ export function ProfilePageNew() {
 
   useEffect(() => {
     fetchProfile();
+    // Reload profile when returning from edit page
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchProfile();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   const fetchProfile = async () => {
@@ -104,8 +112,16 @@ export function ProfilePageNew() {
           {/* Profile Header Card */}
           <div className="bg-gradient-to-br from-purple-900/60 to-slate-900/60 border border-purple-500/30 rounded-2xl p-8 sm:p-10">
             <div className="flex items-center gap-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-4xl">
-                {user?.profileImage ? <img src={user.profileImage} alt="" className="w-full h-full rounded-full object-cover" /> : '👤'}
+              <div className="relative w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-4xl overflow-hidden flex-shrink-0">
+                {user?.avatar ? (
+                  <img
+                    src={`${API_URL}${user.avatar}`}
+                    alt={user?.firstName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span>👤</span>
+                )}
               </div>
               <div className="flex-1">
                 <h2 className="text-3xl font-bold text-white mb-1">{user?.firstName} {user?.lastName}</h2>
