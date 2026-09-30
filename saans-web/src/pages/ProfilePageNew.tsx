@@ -323,6 +323,7 @@ export function ProfilePageNew() {
                   </div>
                 </div>
               </div>
+              </div>
             )}
 
             {/* NOTIFICATIONS MODAL */}
@@ -390,6 +391,7 @@ export function ProfilePageNew() {
                     </button>
                   </div>
                 </div>
+              </div>
               </div>
             )}
 
@@ -485,6 +487,7 @@ export function ProfilePageNew() {
                     Close
                   </button>
                 </div>
+              </div>
               </div>
             )}
           </div>
