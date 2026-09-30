@@ -81,8 +81,13 @@ export function DashboardPageNew() {
           const avgAnxiety = entries.reduce((sum, e) => sum + (e.anxiety || 0), 0) / entries.length;
           const avgEnergy = entries.reduce((sum, e) => sum + (e.energy || 0), 0) / entries.length;
 
-          const score = (avgMood * 20) + (avgEnergy * 20) - (avgStress * 10) - (avgAnxiety * 10);
-          setWellnessScore(Math.max(0, Math.min(100, score)));
+          // Better wellness score calculation
+          const moodScore = (avgMood / 5) * 40;
+          const energyScore = (avgEnergy / 5) * 30;
+          const stressReduction = ((5 - avgStress) / 5) * 20;
+          const anxietyReduction = ((5 - avgAnxiety) / 5) * 10;
+          const score = moodScore + energyScore + stressReduction + anxietyReduction;
+          setWellnessScore(Math.max(0, Math.min(100, Math.round(score))));
 
           // Calculate streak
           let currentStreak = 0;
@@ -104,13 +109,21 @@ export function DashboardPageNew() {
 
           // Generate insights
           const newInsights = [];
-          if (avgMood >= 4) newInsights.push({ icon: '😊', text: 'Great mood trend! Keep it up!' });
-          if (avgMood < 2.5) newInsights.push({ icon: '💔', text: 'Your mood is low. Consider reaching out to support.' });
-          if (avgStress > 3.5) newInsights.push({ icon: '😰', text: 'Stress levels are high. Try relaxation exercises.' });
-          if (avgAnxiety > 3.5) newInsights.push({ icon: '😟', text: 'Anxiety is elevated. Practice mindfulness.' });
-          if (avgEnergy < 2.5) newInsights.push({ icon: '⚡', text: 'Energy is low. Ensure adequate rest.' });
-          if (entries.length >= 25) newInsights.push({ icon: '🏆', text: `Amazing! ${entries.length} days tracked!` });
-          setInsights(newInsights.length > 0 ? newInsights : [{ icon: '✨', text: 'Keep tracking for personalized insights!' }]);
+          if (avgMood >= 4) newInsights.push({ icon: '😊', text: 'Amazing mood! You\'re crushing it!' });
+          else if (avgMood >= 3) newInsights.push({ icon: '😌', text: 'Mood is stable. Keep it balanced!' });
+          else newInsights.push({ icon: '💔', text: 'Mood is low. Reach out for support.' });
+
+          if (avgStress > 3.5) newInsights.push({ icon: '😰', text: 'Stress high? Try breathing exercises.' });
+          if (avgAnxiety > 3.5) newInsights.push({ icon: '😟', text: 'Anxiety elevated. Practice mindfulness.' });
+          if (avgEnergy < 2.5) newInsights.push({ icon: '⚡', text: 'Energy low. Get more rest!' });
+          if (currentStreak >= 7) newInsights.push({ icon: '🔥', text: `${currentStreak}-day streak! Amazing!` });
+
+          setInsights(newInsights.length > 0 ? newInsights : [{ icon: '✨', text: 'Keep tracking for insights!' }]);
+        } else {
+          // Default state when no data
+          setWellnessScore(0);
+          setStreak(0);
+          setInsights([{ icon: '📊', text: 'Start logging mood to see insights!' }]);
         }
       } catch (e) {
         console.error('Mood entries error:', e);
@@ -199,10 +212,10 @@ export function DashboardPageNew() {
               {/* Wellness Score Card */}
               <div className="bg-gradient-to-br from-purple-900/60 to-slate-900/60 border border-purple-400/40 rounded-2xl p-6 backdrop-blur-xl w-full md:w-64">
                 <div className="text-center">
-                  <p className="text-sm text-purple-300 mb-3 font-medium">YOUR WELLNESS SCORE</p>
+                  <p className="text-sm text-purple-300 mb-3 font-medium uppercase tracking-wide">YOUR WELLNESS SCORE</p>
                   <div className="relative w-32 h-32 mx-auto mb-4">
                     <svg className="transform -rotate-90" viewBox="0 0 120 120">
-                      <circle cx="60" cy="60" r="54" fill="none" stroke="#334155" strokeWidth="8" opacity="0.2" />
+                      <circle cx="60" cy="60" r="54" fill="none" stroke="#334155" strokeWidth="8" opacity="0.3" />
                       <circle
                         cx="60"
                         cy="60"
@@ -210,9 +223,9 @@ export function DashboardPageNew() {
                         fill="none"
                         stroke="url(#scoreGradient)"
                         strokeWidth="8"
-                        strokeDasharray={`${(wellnessScore / 100) * 339.29} 339.29`}
+                        strokeDasharray={`${Math.max(0, (wellnessScore / 100) * 339.29)} 339.29`}
                         strokeLinecap="round"
-                        style={{ transition: 'stroke-dasharray 0.5s ease' }}
+                        style={{ transition: 'stroke-dasharray 0.6s ease-out' }}
                       />
                       <defs>
                         <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -228,7 +241,9 @@ export function DashboardPageNew() {
                       </div>
                     </div>
                   </div>
-                  <p className="text-xs text-purple-300">Based on your mood data</p>
+                  <p className="text-xs text-purple-300 font-medium">
+                    {moodEntries.length > 0 ? 'Calculated from your mood' : 'Log mood to calculate'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -403,13 +418,13 @@ export function DashboardPageNew() {
                       <div className="flex justify-between items-center mb-3">
                         <span className="text-sm text-gray-300 font-medium">Stress Control</span>
                         <span className="text-sm font-bold bg-orange-500/20 text-orange-300 px-3 py-1 rounded-full">
-                          {Math.round((5 - (moodData?.averageStress || 0)) / 5 * 100)}%
+                          {Math.round(Math.max(0, (5 - (moodData?.averageStress || 0)) / 5 * 100))}%
                         </span>
                       </div>
                       <div className="w-full bg-slate-700/30 rounded-full h-3 overflow-hidden border border-slate-600/30">
                         <div
                           className="bg-gradient-to-r from-orange-500 to-orange-400 h-3 rounded-full transition-all duration-500"
-                          style={{ width: `${Math.round((5 - (moodData?.averageStress || 0)) / 5 * 100)}%` }}
+                          style={{ width: `${Math.round(Math.max(0, (5 - (moodData?.averageStress || 0)) / 5 * 100))}%` }}
                         ></div>
                       </div>
                     </div>
