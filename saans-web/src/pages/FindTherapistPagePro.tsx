@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Star, Heart, MessageSquare, Clock, Video, Phone, Calendar, BadgeCheck, Loader, AlertCircle, TrendingUp, Filter, Zap, Award } from 'lucide-react';
 import { DashboardHeader } from '../components/DashboardHeader';
+import { BookingModal } from '../components/Therapist/BookingModal';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -23,7 +24,17 @@ export function FindTherapistPagePro() {
   });
 
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [selectedTherapist, setSelectedTherapist] = useState(null);
+  const [selectedTherapist, setSelectedTherapist] = useState<any>(null);
+
+  const handleOpenBooking = (therapist: any) => {
+    setSelectedTherapist(therapist);
+    setShowBookingModal(true);
+  };
+
+  const handleCloseBooking = () => {
+    setShowBookingModal(false);
+    setSelectedTherapist(null);
+  };
 
   const specialties = ['Anxiety', 'Depression', 'PTSD', 'OCD', 'Relationships', 'Trauma', 'CBT', 'Addiction'];
   const languages = ['English', 'Spanish', 'Mandarin', 'Hindi', 'German', 'Portuguese'];
@@ -406,6 +417,18 @@ export function FindTherapistPagePro() {
         .animate-blob { animation: blob 7s infinite; }
         .animation-delay-2000 { animation-delay: 2s; }
       `}</style>
+
+      {/* Booking Modal */}
+      <BookingModal
+        isOpen={showBookingModal}
+        therapist={selectedTherapist}
+        onClose={handleCloseBooking}
+        onSuccess={() => {
+          handleCloseBooking();
+          // Optional: redirect to appointments or show confirmation
+          setTimeout(() => window.location.href = '/appointments', 500);
+        }}
+      />
     </div>
   );
 }
