@@ -341,7 +341,7 @@ export function DashboardPageNew() {
                 <span className="text-xs text-green-300 font-semibold">Growth</span>
               </div>
               <p className="text-gray-400 text-xs font-medium mb-2 uppercase tracking-wide">Invested</p>
-              <p className="text-white text-3xl font-bold mb-2">₹{totalSpent.toLocaleString()}</p>
+              <p className="text-white text-3xl font-bold mb-2">₹{(totalSpent || 0).toFixed(2)}</p>
               <p className="text-xs text-green-300">In wellness</p>
             </div>
           </div>

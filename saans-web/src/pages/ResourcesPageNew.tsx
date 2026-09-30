@@ -263,7 +263,22 @@ export function ResourcesPageNew() {
                 </div>
               </div>
 
-              <button className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl transition-all text-lg flex items-center justify-center gap-2">
+              <button
+                onClick={async () => {
+                  try {
+                    const token = localStorage.getItem('accessToken');
+                    await axios.post(
+                      `${API_URL}/api/resources/${selectedResource.id}/helpful`,
+                      {},
+                      { headers: { Authorization: `Bearer ${token}` } }
+                    );
+                    setSelectedResource(prev => prev ? { ...prev, helpfulCount: prev.helpfulCount + 1 } : null);
+                  } catch (err) {
+                    console.error('Error marking as helpful:', err);
+                  }
+                }}
+                className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl transition-all text-lg flex items-center justify-center gap-2"
+              >
                 <Heart className="w-6 h-6" />
                 Mark as Helpful
               </button>
