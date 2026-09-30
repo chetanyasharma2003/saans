@@ -41,7 +41,7 @@ export function AppointmentsPageNew() {
   };
 
   const upcomingAppointments = appointments.filter(a =>
-    a.status === 'confirmed' && new Date(a.scheduledAt) > new Date()
+    (a.status === 'scheduled' || a.status === 'confirmed') && new Date(a.scheduledAt) > new Date()
   );
 
   const pastAppointments = appointments.filter(a => a.status === 'completed');
@@ -93,12 +93,12 @@ export function AppointmentsPageNew() {
                 ) : (
                   <div className="space-y-4 sm:space-y-6">
                     {upcomingAppointments.map((apt) => (
-                      <div key={apt._id} className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl p-6 sm:p-8 hover:border-purple-500/60 transition-all backdrop-blur-xl">
+                      <div key={apt.id} className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl p-6 sm:p-8 hover:border-purple-500/60 transition-all backdrop-blur-xl">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-4">
                             <div className="text-4xl">👨‍⚕️</div>
                             <div>
-                              <h3 className="text-white font-bold text-sm sm:text-lg">{apt.therapistId?.firstName || 'Therapist'} {apt.therapistId?.lastName || ''}</h3>
+                              <h3 className="text-white font-bold text-sm sm:text-lg">{apt.therapist?.firstName || 'Therapist'} {apt.therapist?.lastName || ''}</h3>
                               <p className="text-purple-300 text-xs sm:text-sm capitalize">{apt.type} Call</p>
                             </div>
                           </div>
@@ -124,11 +124,11 @@ export function AppointmentsPageNew() {
                 ) : (
                   <div className="space-y-4">
                     {pastAppointments.map((apt) => (
-                      <div key={apt._id} className="bg-slate-800/50 border border-purple-500/20 rounded-2xl p-6 text-left">
+                      <div key={apt.id} className="bg-slate-800/50 border border-purple-500/20 rounded-2xl p-6 text-left">
                         <div className="flex items-center gap-4 mb-2">
                           <div className="text-3xl">👨‍⚕️</div>
                           <div>
-                            <h3 className="text-white font-bold text-sm sm:text-base">{apt.therapistId?.firstName || 'Therapist'} {apt.therapistId?.lastName || ''}</h3>
+                            <h3 className="text-white font-bold text-sm sm:text-base">{apt.therapist?.firstName || 'Therapist'} {apt.therapist?.lastName || ''}</h3>
                             <p className="text-gray-400 text-xs sm:text-sm">{new Date(apt.scheduledAt).toLocaleString()}</p>
                           </div>
                         </div>
