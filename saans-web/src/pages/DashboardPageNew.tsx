@@ -152,7 +152,7 @@ export function DashboardPageNew() {
   ).slice(0, 3);
 
   const completedAppointments = appointments.filter(a => a.status === 'completed');
-  const totalSpent = appointments.reduce((sum, a) => sum + (a.price || 0), 0);
+  const totalSpent = appointments.reduce((sum, a) => sum + (parseFloat(a.price) || 0), 0);
   const avgMood = moodData?.averageMood ? `${moodData.averageMood}/5` : '0/5';
 
   if (loading) {
