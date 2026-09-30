@@ -172,6 +172,13 @@ export function RescheduleModal({ isOpen, appointment, onClose, onSuccess }: Res
                 </div>
               )}
 
+              {error && (
+                <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-400" />
+                  <span className="text-red-300">{error}</span>
+                </div>
+              )}
+
               {/* Action Buttons */}
               <div className="flex gap-3">
                 <button
@@ -184,8 +191,15 @@ export function RescheduleModal({ isOpen, appointment, onClose, onSuccess }: Res
                   Cancel
                 </button>
                 <button
-                  onClick={() => setStep('confirmation')}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-medium"
+                  onClick={() => {
+                    if (!rescheduleData.date || !rescheduleData.time) {
+                      setError('Please select both date and time');
+                      return;
+                    }
+                    setError('');
+                    setStep('confirmation');
+                  }}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-medium disabled:opacity-50"
                 >
                   Continue
                 </button>
@@ -213,11 +227,13 @@ export function RescheduleModal({ isOpen, appointment, onClose, onSuccess }: Res
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-400">New Date</p>
-                    <p className="font-bold text-white">{new Date(rescheduleData.date).toLocaleDateString()}</p>
+                    <p className="font-bold text-white">
+                      {rescheduleData.date ? new Date(rescheduleData.date + 'T00:00:00').toLocaleDateString() : 'Select date'}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-400">New Time</p>
-                    <p className="font-bold text-white">{rescheduleData.time}</p>
+                    <p className="font-bold text-white">{rescheduleData.time || 'Select time'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-400">Duration</p>
