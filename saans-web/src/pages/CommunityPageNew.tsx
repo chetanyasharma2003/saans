@@ -271,6 +271,10 @@ export function CommunityPageNew() {
         isOpen={!!selectedStory}
         story={selectedStory}
         onClose={() => setSelectedStory(null)}
+        onExploreGroups={() => {
+          setSelectedStory(null);
+          setActiveTab('groups');
+        }}
       />
       <GroupDetailModal
         isOpen={!!selectedGroup}

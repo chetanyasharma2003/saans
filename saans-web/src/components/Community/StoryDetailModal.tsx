@@ -1,14 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X, Heart, ThumbsUp, Eye, Share2, MessageCircle } from 'lucide-react';
 
 interface StoryDetailModalProps {
   isOpen: boolean;
   story: any;
   onClose: () => void;
+  onExploreGroups?: () => void;
 }
 
-export function StoryDetailModal({ isOpen, story, onClose }: StoryDetailModalProps) {
+export function StoryDetailModal({ isOpen, story, onClose, onExploreGroups }: StoryDetailModalProps) {
+  const [liked, setLiked] = useState(false);
+  const [helpful, setHelpful] = useState(false);
+  const [likeCount, setLikeCount] = useState(story?.upvotes || 0);
+  const [helpfulCount, setHelpfulCount] = useState(story?.helpful || 0);
+
   if (!isOpen || !story) return null;
+
+  const handleLike = () => {
+    if (!liked) {
+      setLiked(true);
+      setLikeCount(likeCount + 1);
+    } else {
+      setLiked(false);
+      setLikeCount(likeCount - 1);
+    }
+  };
+
+  const handleHelpful = () => {
+    if (!helpful) {
+      setHelpful(true);
+      setHelpfulCount(helpfulCount + 1);
+    } else {
+      setHelpful(false);
+      setHelpfulCount(helpfulCount - 1);
+    }
+  };
+
+  const handleShare = () => {
+    const text = `Check out this inspiring story: "${story.title}" - ${window.location.href}`;
+    if (navigator.share) {
+      navigator.share({
+        title: story.title,
+        text: text,
+      }).catch(() => {
+        navigator.clipboard.writeText(text);
+        alert('Story link copied to clipboard!');
+      });
+    } else {
+      navigator.clipboard.writeText(text);
+      alert('Story link copied to clipboard!');
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -54,13 +96,13 @@ export function StoryDetailModal({ isOpen, story, onClose }: StoryDetailModalPro
               </p>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-pink-400">{story.upvotes}</div>
+              <div className="text-2xl font-bold text-pink-400">{likeCount}</div>
               <p className="text-gray-400 text-sm flex items-center justify-center gap-2 mt-1">
                 <Heart className="w-4 h-4" /> Likes
               </p>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-400">{story.helpful}</div>
+              <div className="text-2xl font-bold text-green-400">{helpfulCount}</div>
               <p className="text-gray-400 text-sm flex items-center justify-center gap-2 mt-1">
                 <ThumbsUp className="w-4 h-4" /> Helpful
               </p>
@@ -75,13 +117,30 @@ export function StoryDetailModal({ isOpen, story, onClose }: StoryDetailModalPro
 
           {/* Actions */}
           <div className="mt-8 flex gap-3">
-            <button className="flex-1 px-4 py-3 bg-pink-600/20 border border-pink-500/50 hover:bg-pink-600/30 text-pink-300 rounded-lg font-medium transition-all flex items-center justify-center gap-2">
-              <Heart className="w-5 h-5" /> Like This Story
+            <button
+              onClick={handleLike}
+              className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
+                liked
+                  ? 'bg-pink-600 border border-pink-500 text-white'
+                  : 'bg-pink-600/20 border border-pink-500/50 hover:bg-pink-600/30 text-pink-300'
+              }`}
+            >
+              <Heart className={`w-5 h-5 ${liked ? 'fill-white' : ''}`} /> {liked ? 'Liked!' : 'Like This Story'}
             </button>
-            <button className="flex-1 px-4 py-3 bg-green-600/20 border border-green-500/50 hover:bg-green-600/30 text-green-300 rounded-lg font-medium transition-all flex items-center justify-center gap-2">
-              <ThumbsUp className="w-5 h-5" /> Found Helpful
+            <button
+              onClick={handleHelpful}
+              className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
+                helpful
+                  ? 'bg-green-600 border border-green-500 text-white'
+                  : 'bg-green-600/20 border border-green-500/50 hover:bg-green-600/30 text-green-300'
+              }`}
+            >
+              <ThumbsUp className={`w-5 h-5 ${helpful ? 'fill-white' : ''}`} /> {helpful ? 'Marked!' : 'Found Helpful'}
             </button>
-            <button className="flex-1 px-4 py-3 bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/30 text-blue-300 rounded-lg font-medium transition-all flex items-center justify-center gap-2">
+            <button
+              onClick={handleShare}
+              className="flex-1 px-4 py-3 bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/30 text-blue-300 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+            >
               <Share2 className="w-5 h-5" /> Share
             </button>
           </div>
@@ -90,7 +149,10 @@ export function StoryDetailModal({ isOpen, story, onClose }: StoryDetailModalPro
           <div className="mt-8 p-6 bg-purple-600/20 border border-purple-400/20 rounded-lg">
             <h3 className="text-lg font-bold text-white mb-3">Want to find support?</h3>
             <p className="text-gray-300 mb-4">Join our {story.category} support group to connect with others on similar journeys.</p>
-            <button className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-lg transition-all">
+            <button
+              onClick={onExploreGroups}
+              className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-lg transition-all"
+            >
               Explore Support Groups
             </button>
           </div>
