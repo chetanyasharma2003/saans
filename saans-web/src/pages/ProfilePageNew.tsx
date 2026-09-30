@@ -102,27 +102,21 @@ export function ProfilePageNew() {
 
         <main className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-12 space-y-6 sm:space-y-8 max-w-3xl mx-auto">
           {/* Profile Header Card */}
-          <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500"></div>
-            <div className="relative bg-gradient-to-br from-purple-900/60 to-slate-900/60 border border-purple-500/30 group-hover:border-purple-500/60 rounded-2xl p-8 sm:p-10 transition-all">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                <div className="w-24 h-24 bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 rounded-full flex items-center justify-center text-5xl shadow-lg">
-                  {user?.profileImage ? <img src={user.profileImage} alt="" className="w-full h-full rounded-full object-cover" /> : '👤'}
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-300 via-pink-300 to-purple-300 bg-clip-text text-transparent mb-2">{user?.firstName} {user?.lastName}</h2>
-                  <p className="text-purple-300 text-sm mb-3 flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                    {user?.email}
-                  </p>
-                  <p className="text-gray-400 text-xs">📅 Member since {new Date(user?.createdAt || Date.now()).toLocaleDateString()}</p>
-                </div>
-                <button
-                  onClick={() => navigate('/complete-profile')}
-                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition-all flex items-center gap-2 shadow-lg hover:shadow-purple-500/50">
-                  <Edit2 className="w-4 h-4" /> Edit Profile
-                </button>
+          <div className="bg-gradient-to-br from-purple-900/60 to-slate-900/60 border border-purple-500/30 rounded-2xl p-8 sm:p-10">
+            <div className="flex items-center gap-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-4xl">
+                {user?.profileImage ? <img src={user.profileImage} alt="" className="w-full h-full rounded-full object-cover" /> : '👤'}
               </div>
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-white mb-1">{user?.firstName} {user?.lastName}</h2>
+                <p className="text-purple-300 text-sm mb-3">{user?.email}</p>
+                <p className="text-gray-400 text-xs">Member since {new Date(user?.createdAt || Date.now()).toLocaleDateString()}</p>
+              </div>
+              <button
+                onClick={() => navigate('/complete-profile')}
+                className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all flex items-center gap-2">
+                <Edit2 className="w-4 h-4" /> Edit
+              </button>
             </div>
           </div>
 
@@ -130,35 +124,26 @@ export function ProfilePageNew() {
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-white flex items-center gap-2"><User className="w-5 h-5 text-purple-400" /> Account Information</h3>
             <div className="grid gap-4">
-              <div className="group bg-gradient-to-br from-slate-800/30 to-slate-800/10 border border-purple-500/20 hover:border-blue-500/60 hover:from-blue-900/20 hover:to-slate-800/20 rounded-xl p-5 flex items-center gap-4 transition-all duration-300 cursor-pointer">
-                <div className="p-3 bg-blue-500/20 group-hover:bg-blue-500/40 rounded-lg transition-all">
-                  <Mail className="w-5 h-5 text-blue-400 group-hover:text-blue-300 transition-colors" />
-                </div>
-                <div className="flex-1">
+              <div className="bg-slate-800/30 border border-purple-500/20 rounded-lg p-5 flex items-center gap-4">
+                <Mail className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                <div>
                   <p className="text-gray-400 text-sm">Email Address</p>
-                  <p className="text-white font-semibold group-hover:text-blue-300 transition-colors">{user?.email || 'N/A'}</p>
+                  <p className="text-white font-semibold">{user?.email || 'N/A'}</p>
                 </div>
-                <div className="text-blue-500/0 group-hover:text-blue-400 transition-colors">→</div>
               </div>
-              <div className="group bg-gradient-to-br from-slate-800/30 to-slate-800/10 border border-purple-500/20 hover:border-pink-500/60 hover:from-pink-900/20 hover:to-slate-800/20 rounded-xl p-5 flex items-center gap-4 transition-all duration-300 cursor-pointer">
-                <div className="p-3 bg-pink-500/20 group-hover:bg-pink-500/40 rounded-lg transition-all">
-                  <MapPin className="w-5 h-5 text-pink-400 group-hover:text-pink-300 transition-colors" />
-                </div>
-                <div className="flex-1">
+              <div className="bg-slate-800/30 border border-purple-500/20 rounded-lg p-5 flex items-center gap-4">
+                <MapPin className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                <div>
                   <p className="text-gray-400 text-sm">Location</p>
-                  <p className="text-white font-semibold group-hover:text-pink-300 transition-colors">{user?.city || 'Not specified'}</p>
+                  <p className="text-white font-semibold">{user?.city || 'Not specified'}</p>
                 </div>
-                <div className="text-pink-500/0 group-hover:text-pink-400 transition-colors">→</div>
               </div>
-              <div className="group bg-gradient-to-br from-slate-800/30 to-slate-800/10 border border-purple-500/20 hover:border-emerald-500/60 hover:from-emerald-900/20 hover:to-slate-800/20 rounded-xl p-5 flex items-center gap-4 transition-all duration-300 cursor-pointer">
-                <div className="p-3 bg-emerald-500/20 group-hover:bg-emerald-500/40 rounded-lg transition-all">
-                  <Shield className="w-5 h-5 text-emerald-400 group-hover:text-emerald-300 transition-colors" />
-                </div>
-                <div className="flex-1">
+              <div className="bg-slate-800/30 border border-purple-500/20 rounded-lg p-5 flex items-center gap-4">
+                <Shield className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                <div>
                   <p className="text-gray-400 text-sm">Account Status</p>
-                  <p className="text-white font-semibold group-hover:text-emerald-300 transition-colors">{user?.status === 'active' ? '✓ Active' : 'Inactive'}</p>
+                  <p className="text-white font-semibold">{user?.status === 'active' ? '✓ Active' : 'Inactive'}</p>
                 </div>
-                <div className="text-emerald-500/0 group-hover:text-emerald-400 transition-colors">→</div>
               </div>
             </div>
           </div>
@@ -168,47 +153,41 @@ export function ProfilePageNew() {
             <h3 className="text-xl font-bold text-white flex items-center gap-2"><Settings className="w-5 h-5 text-purple-400" /> Settings</h3>
             <button
               onClick={() => { setActiveModal('security'); setMessage(null); }}
-              className="w-full bg-gradient-to-br from-slate-800/30 to-slate-800/10 border border-purple-500/20 hover:border-indigo-500/60 hover:from-indigo-900/20 hover:to-slate-800/20 rounded-xl p-5 transition-all text-left flex items-center justify-between group">
+              className="w-full bg-slate-800/30 border border-purple-500/20 hover:border-purple-500/60 hover:bg-slate-800/50 rounded-lg p-5 transition-all text-left flex items-center justify-between group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-indigo-500/20 group-hover:bg-indigo-500/40 rounded-lg transition-all">
-                  <Lock className="w-5 h-5 text-indigo-400 group-hover:text-indigo-300" />
-                </div>
+                <Lock className="w-5 h-5 text-purple-400 group-hover:text-purple-300" />
                 <div>
                   <p className="text-white font-semibold text-sm">Security & 2FA</p>
                   <p className="text-gray-400 text-xs">Manage authentication</p>
                 </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-indigo-400 transition-colors transform group-hover:translate-x-1" />
+              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-300" />
             </button>
 
             <button
               onClick={() => { setActiveModal('notifications'); setMessage(null); }}
-              className="w-full bg-gradient-to-br from-slate-800/30 to-slate-800/10 border border-purple-500/20 hover:border-cyan-500/60 hover:from-cyan-900/20 hover:to-slate-800/20 rounded-xl p-5 transition-all text-left flex items-center justify-between group">
+              className="w-full bg-slate-800/30 border border-purple-500/20 hover:border-purple-500/60 hover:bg-slate-800/50 rounded-lg p-5 transition-all text-left flex items-center justify-between group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-cyan-500/20 group-hover:bg-cyan-500/40 rounded-lg transition-all">
-                  <Bell className="w-5 h-5 text-cyan-400 group-hover:text-cyan-300" />
-                </div>
+                <Bell className="w-5 h-5 text-purple-400 group-hover:text-purple-300" />
                 <div>
                   <p className="text-white font-semibold text-sm">Notifications</p>
                   <p className="text-gray-400 text-xs">Customize alerts</p>
                 </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-cyan-400 transition-colors transform group-hover:translate-x-1" />
+              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-300" />
             </button>
 
             <button
               onClick={() => { setActiveModal('subscription'); setMessage(null); }}
-              className="w-full bg-gradient-to-br from-slate-800/30 to-slate-800/10 border border-purple-500/20 hover:border-violet-500/60 hover:from-violet-900/20 hover:to-slate-800/20 rounded-xl p-5 transition-all text-left flex items-center justify-between group">
+              className="w-full bg-slate-800/30 border border-purple-500/20 hover:border-purple-500/60 hover:bg-slate-800/50 rounded-lg p-5 transition-all text-left flex items-center justify-between group">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-violet-500/20 group-hover:bg-violet-500/40 rounded-lg transition-all">
-                  <CreditCard className="w-5 h-5 text-violet-400 group-hover:text-violet-300" />
-                </div>
+                <CreditCard className="w-5 h-5 text-purple-400 group-hover:text-purple-300" />
                 <div>
                   <p className="text-white font-semibold text-sm">Subscription</p>
                   <p className="text-gray-400 text-xs">Manage your plan</p>
                 </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-violet-400 transition-colors transform group-hover:translate-x-1" />
+              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-300" />
             </button>
           </div>
 
@@ -228,21 +207,16 @@ export function ProfilePageNew() {
 
             {/* SECURITY & 2FA MODAL */}
             {activeModal === 'security' && (
-              <div className="overflow-hidden">
-                <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 p-8 sticky top-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-                        <Lock className="w-6 h-6 text-white" />
-                      </div>
-                      <h2 className="text-2xl font-bold text-white">Security & Authentication</h2>
-                    </div>
-                    <button onClick={() => setActiveModal('none')} className="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all">
-                      <X className="w-6 h-6" />
-                    </button>
+              <div className="p-8">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <Lock className="w-6 h-6 text-purple-400" />
+                    <h2 className="text-2xl font-bold text-white">Security & Authentication</h2>
                   </div>
+                  <button onClick={() => setActiveModal('none')} className="text-gray-400 hover:text-white">
+                    <X className="w-6 h-6" />
+                  </button>
                 </div>
-                <div className="p-8">
 
                 {message && (
                   <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${message.type === 'success' ? 'bg-green-500/20 border border-green-500/30 text-green-300' : 'bg-red-500/20 border border-red-500/30 text-red-300'}`}>
@@ -296,53 +270,47 @@ export function ProfilePageNew() {
                   </div>
 
                   {/* 2FA Section */}
-                  <div className="bg-gradient-to-br from-indigo-900/20 to-slate-900/20 border border-indigo-500/30 rounded-xl p-6 hover:border-indigo-500/60 transition-all">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
+                  <div className="bg-slate-800/30 border border-purple-500/20 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
                         <p className="text-white font-semibold">Two-Factor Authentication</p>
                         <p className="text-sm text-gray-400">Add extra security to your account</p>
                       </div>
-                      <button className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg transition-all text-sm font-semibold shadow-lg hover:shadow-indigo-500/50">
+                      <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all text-sm font-semibold">
                         Enable 2FA
                       </button>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-3 pt-8">
+                  <div className="flex gap-3 pt-4">
                     <button
                       onClick={handleChangePassword}
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all shadow-lg hover:shadow-indigo-500/50">
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition-all">
                       Update Password
                     </button>
                     <button
                       onClick={() => setActiveModal('none')}
-                      className="flex-1 px-6 py-3 bg-slate-700/50 hover:bg-slate-600/50 text-gray-300 font-semibold rounded-lg transition-all border border-slate-600">
+                      className="flex-1 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-gray-300 font-semibold rounded-lg transition-all border border-slate-700">
                       Cancel
                     </button>
                   </div>
                 </div>
               </div>
-              </div>
             )}
 
             {/* NOTIFICATIONS MODAL */}
             {activeModal === 'notifications' && (
-              <div className="overflow-hidden">
-                <div className="bg-gradient-to-r from-cyan-600 via-blue-600 to-cyan-600 p-8 sticky top-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-                        <Bell className="w-6 h-6 text-white" />
-                      </div>
-                      <h2 className="text-2xl font-bold text-white">Notification Preferences</h2>
-                    </div>
-                    <button onClick={() => setActiveModal('none')} className="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all">
-                      <X className="w-6 h-6" />
-                    </button>
+              <div className="p-8">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <Bell className="w-6 h-6 text-purple-400" />
+                    <h2 className="text-2xl font-bold text-white">Notification Preferences</h2>
                   </div>
+                  <button onClick={() => setActiveModal('none')} className="text-gray-400 hover:text-white">
+                    <X className="w-6 h-6" />
+                  </button>
                 </div>
-                <div className="p-8">
 
                 {message && (
                   <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${message.type === 'success' ? 'bg-green-500/20 border border-green-500/30 text-green-300' : 'bg-red-500/20 border border-red-500/30 text-red-300'}`}>
@@ -353,141 +321,107 @@ export function ProfilePageNew() {
 
                 <div className="space-y-4">
                   {[
-                    { key: 'emailNotifications', label: 'Email Notifications', desc: 'Receive updates via email', color: 'from-blue-600 to-blue-400' },
-                    { key: 'pushNotifications', label: 'Push Notifications', desc: 'Get browser push alerts', color: 'from-cyan-600 to-cyan-400' },
-                    { key: 'smsNotifications', label: 'SMS Notifications', desc: 'Receive important alerts via SMS', color: 'from-teal-600 to-teal-400' },
-                    { key: 'weeklyDigest', label: 'Weekly Digest', desc: 'Get a summary of your activities', color: 'from-emerald-600 to-emerald-400' }
-                  ].map((pref: any, idx: number) => (
-                    <div key={pref.key} className="bg-gradient-to-br from-slate-800/40 to-slate-800/20 border border-slate-700/50 hover:border-slate-600/80 rounded-xl p-5 flex items-center justify-between transition-all group">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${pref.color}`}></div>
-                          <p className="text-white font-semibold">{pref.label}</p>
-                        </div>
+                    { key: 'emailNotifications', label: 'Email Notifications', desc: 'Receive updates via email' },
+                    { key: 'pushNotifications', label: 'Push Notifications', desc: 'Get browser push alerts' },
+                    { key: 'smsNotifications', label: 'SMS Notifications', desc: 'Receive important alerts via SMS' },
+                    { key: 'weeklyDigest', label: 'Weekly Digest', desc: 'Get a summary of your activities' }
+                  ].map((pref: any) => (
+                    <div key={pref.key} className="bg-slate-800/30 border border-purple-500/20 rounded-lg p-5 flex items-center justify-between">
+                      <div>
+                        <p className="text-white font-semibold">{pref.label}</p>
                         <p className="text-sm text-gray-400">{pref.desc}</p>
                       </div>
                       <button
                         onClick={() => setNotificationPrefs({ ...notificationPrefs, [pref.key]: !notificationPrefs[pref.key as keyof typeof notificationPrefs] })}
-                        className={`ml-4 px-6 py-2 rounded-lg font-semibold transition-all text-sm ${
+                        className={`px-6 py-2 rounded-lg font-semibold transition-all ${
                           notificationPrefs[pref.key as keyof typeof notificationPrefs]
-                            ? `bg-gradient-to-r ${pref.color} text-white shadow-lg`
-                            : 'bg-slate-700/50 text-gray-400 border border-slate-600'
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-slate-700 text-gray-400'
                         }`}>
-                        {notificationPrefs[pref.key as keyof typeof notificationPrefs] ? '✓ On' : 'Off'}
+                        {notificationPrefs[pref.key as keyof typeof notificationPrefs] ? 'On' : 'Off'}
                       </button>
                     </div>
                   ))}
 
-                  <div className="flex gap-3 pt-8">
+                  <div className="flex gap-3 pt-6">
                     <button
                       onClick={handleSaveNotifications}
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold rounded-lg transition-all shadow-lg hover:shadow-cyan-500/50">
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition-all">
                       Save Preferences
                     </button>
                     <button
                       onClick={() => setActiveModal('none')}
-                      className="flex-1 px-6 py-3 bg-slate-700/50 hover:bg-slate-600/50 text-gray-300 font-semibold rounded-lg transition-all border border-slate-600">
+                      className="flex-1 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-gray-300 font-semibold rounded-lg transition-all border border-slate-700">
                       Cancel
                     </button>
                   </div>
                 </div>
               </div>
-              </div>
             )}
 
             {/* SUBSCRIPTION MODAL */}
             {activeModal === 'subscription' && (
-              <div className="overflow-hidden">
-                <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-violet-600 p-8 sticky top-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-                        <CreditCard className="w-6 h-6 text-white" />
-                      </div>
-                      <h2 className="text-2xl font-bold text-white">Subscription & Billing</h2>
-                    </div>
-                    <button onClick={() => setActiveModal('none')} className="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-lg transition-all">
-                      <X className="w-6 h-6" />
-                    </button>
+              <div className="p-8">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="w-6 h-6 text-purple-400" />
+                    <h2 className="text-2xl font-bold text-white">Subscription & Billing</h2>
                   </div>
+                  <button onClick={() => setActiveModal('none')} className="text-gray-400 hover:text-white">
+                    <X className="w-6 h-6" />
+                  </button>
                 </div>
-                <div className="p-8">
 
                 <div className="space-y-6">
                   {/* Current Plan */}
-                  <div className="bg-gradient-to-br from-violet-900/30 via-purple-900/20 to-slate-900/30 border-2 border-violet-500/40 rounded-xl p-6 hover:border-violet-500/60 transition-all">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <p className="text-gray-400 text-sm mb-2">Your Current Plan</p>
-                        <h3 className="text-3xl font-bold text-white">Free Plan</h3>
-                      </div>
-                      <div className="px-4 py-2 bg-green-500/20 border border-green-500/40 rounded-lg">
-                        <p className="text-green-400 text-sm font-semibold">Active</p>
-                      </div>
-                    </div>
-                    <ul className="space-y-3">
+                  <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-lg p-6">
+                    <p className="text-gray-400 text-sm mb-2">Current Plan</p>
+                    <h3 className="text-3xl font-bold text-white mb-4">Free Plan</h3>
+                    <ul className="space-y-3 mb-6">
                       <li className="flex items-center gap-3 text-gray-300">
-                        <CheckCircle className="w-5 h-5 text-green-400" /> <span>Limited access to therapists</span>
+                        <CheckCircle className="w-5 h-5 text-green-400" /> Limited access to therapists
                       </li>
                       <li className="flex items-center gap-3 text-gray-300">
-                        <CheckCircle className="w-5 h-5 text-green-400" /> <span>Community features</span>
+                        <CheckCircle className="w-5 h-5 text-green-400" /> Community features
                       </li>
                       <li className="flex items-center gap-3 text-gray-300">
-                        <CheckCircle className="w-5 h-5 text-green-400" /> <span>Access to resources</span>
+                        <CheckCircle className="w-5 h-5 text-green-400" /> Access to resources
                       </li>
                     </ul>
                   </div>
 
                   {/* Available Plans */}
-                  <div>
-                    <h4 className="text-white font-bold mb-4">Upgrade Your Plan</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="group bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 hover:border-purple-500/60 rounded-xl p-6 transition-all hover:shadow-lg hover:shadow-purple-500/20">
-                        <div className="mb-3">
-                          <div className="w-10 h-10 rounded-lg bg-purple-600/30 flex items-center justify-center mb-2">
-                            <span className="text-xl">👑</span>
-                          </div>
-                          <p className="text-white font-bold text-lg">Pro Plan</p>
-                        </div>
-                        <p className="text-3xl font-bold text-purple-400 mb-4">₹499<span className="text-sm text-gray-400 font-normal">/month</span></p>
-                        <button className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white rounded-lg font-semibold transition-all text-sm shadow-lg">
-                          Upgrade Now
-                        </button>
-                      </div>
-                      <div className="group bg-gradient-to-br from-pink-900/40 to-slate-900/40 border border-pink-500/30 hover:border-pink-500/60 rounded-xl p-6 transition-all hover:shadow-lg hover:shadow-pink-500/20 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 px-3 py-1 bg-gradient-to-r from-pink-600 to-rose-600 text-white text-xs font-bold rounded-bl-lg">
-                          POPULAR
-                        </div>
-                        <div className="mb-3">
-                          <div className="w-10 h-10 rounded-lg bg-pink-600/30 flex items-center justify-center mb-2">
-                            <span className="text-xl">💎</span>
-                          </div>
-                          <p className="text-white font-bold text-lg">Premium Plan</p>
-                        </div>
-                        <p className="text-3xl font-bold text-pink-400 mb-4">₹999<span className="text-sm text-gray-400 font-normal">/month</span></p>
-                        <button className="w-full px-4 py-2 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white rounded-lg font-semibold transition-all text-sm shadow-lg">
-                          Upgrade Now
-                        </button>
-                      </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-800/30 border border-purple-500/20 rounded-lg p-5">
+                      <p className="text-white font-bold mb-2">Pro Plan</p>
+                      <p className="text-2xl font-bold text-purple-400 mb-4">₹499<span className="text-sm text-gray-400">/month</span></p>
+                      <button className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all text-sm">
+                        Upgrade
+                      </button>
+                    </div>
+                    <div className="bg-slate-800/30 border border-purple-500/20 rounded-lg p-5">
+                      <p className="text-white font-bold mb-2">Premium Plan</p>
+                      <p className="text-2xl font-bold text-pink-400 mb-4">₹999<span className="text-sm text-gray-400">/month</span></p>
+                      <button className="w-full px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg font-semibold transition-all text-sm">
+                        Upgrade
+                      </button>
                     </div>
                   </div>
 
                   {/* Billing History */}
                   <div>
-                    <h4 className="text-white font-bold mb-4">Billing History</h4>
-                    <div className="bg-gradient-to-br from-slate-800/30 to-slate-800/10 border border-slate-700/50 rounded-xl p-6 text-center">
-                      <div className="text-gray-400 text-sm">📋 No billing history yet</div>
-                      <p className="text-gray-500 text-xs mt-2">Upgrade to a paid plan to start billing</p>
+                    <h4 className="text-white font-semibold mb-4">Billing History</h4>
+                    <div className="bg-slate-800/30 border border-purple-500/20 rounded-lg p-4 text-center">
+                      <p className="text-gray-400">No billing history yet</p>
                     </div>
                   </div>
 
                   <button
                     onClick={() => setActiveModal('none')}
-                    className="w-full px-6 py-3 bg-slate-700/50 hover:bg-slate-600/50 text-gray-300 font-semibold rounded-lg transition-all border border-slate-600">
+                    className="w-full px-6 py-3 bg-slate-800 hover:bg-slate-700 text-gray-300 font-semibold rounded-lg transition-all border border-slate-700">
                     Close
                   </button>
                 </div>
-              </div>
               </div>
             )}
           </div>
