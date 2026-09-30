@@ -4,6 +4,56 @@ const { Therapist } = require('../models/index');
 const { authenticateToken } = require('../middleware/auth');
 const { Op } = require('sequelize');
 
+// Get nearby therapists (location-based)
+router.get('/nearby', authenticateToken, async (req, res) => {
+  try {
+    const { lat, lon, radius = 50, specialty, language, maxPrice, minRating, page = 1, limit = 20 } = req.query;
+
+    if (!lat || !lon) {
+      return res.status(400).json({ success: false, error: 'Latitude and longitude required' });
+    }
+
+    const where = { isActive: true, isVerified: true };
+
+    if (specialty) {
+      where.specializations = { [Op.contains]: [specialty] };
+    }
+    if (language) {
+      where.languages = { [Op.contains]: [language] };
+    }
+    if (maxPrice) {
+      where.hourlyRate = { [Op.lte]: parseFloat(maxPrice) };
+    }
+    if (minRating) {
+      where.rating = { [Op.gte]: parseFloat(minRating) };
+    }
+
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    const { count, rows } = await Therapist.findAndCountAll({
+      where,
+      offset,
+      limit: parseInt(limit),
+      order: [['rating', 'DESC']],
+      attributes: {
+        exclude: ['licenseNumber', 'certificateUrl']
+      }
+    });
+
+    res.json({
+      success: true,
+      data: rows,
+      total: count,
+      page: parseInt(page),
+      pages: Math.ceil(count / parseInt(limit)),
+      userLocation: { lat: parseFloat(lat), lon: parseFloat(lon) }
+    });
+  } catch (error) {
+    console.error('Get nearby therapists error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Get all active therapists (public endpoint)
 router.get('/', async (req, res) => {
   try {
