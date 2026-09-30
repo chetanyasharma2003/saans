@@ -1,18 +1,31 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
+const { Story, User } = require('../models/index');
 
 // Get approved stories (public feed)
 router.get('/feed', authenticateToken, async (req, res) => {
   try {
     const { category, page = 1, limit = 10 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // For now, return empty stories list
-    // TODO: Implement full stories feature with PostgreSQL models
+    const where = { status: 'approved' };
+    if (category && category !== 'all') {
+      where.category = category;
+    }
+
+    const { count, rows } = await Story.findAndCountAll({
+      where,
+      include: [{ model: User, as: 'user', attributes: ['id', 'firstName', 'lastName', 'avatar'] }],
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: skip,
+    });
+
     res.json({
       success: true,
-      data: [],
-      pagination: { total: 0, page, limit, pages: 0 }
+      data: rows,
+      pagination: { total: count, page: parseInt(page), limit: parseInt(limit), pages: Math.ceil(count / limit) }
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

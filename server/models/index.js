@@ -4,6 +4,8 @@ const Appointment = require('./Appointment-PG');
 const MoodEntry = require('./MoodEntry-PG');
 const Subscription = require('./Subscription-PG');
 const Therapist = require('./Therapist-PG');
+const Story = require('./Story-PG');
+const Group = require('./Group-PG');
 
 // Define associations
 User.hasMany(Appointment, { foreignKey: 'userId', as: 'appointments' });
@@ -21,10 +23,15 @@ Therapist.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Appointment.belongsTo(Therapist, { foreignKey: 'therapistId', as: 'therapist' });
 Therapist.hasMany(Appointment, { foreignKey: 'therapistId', as: 'appointments' });
 
+User.hasMany(Story, { foreignKey: 'userId', as: 'stories' });
+Story.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 module.exports = {
   User,
   Appointment,
   MoodEntry,
   Subscription,
   Therapist,
+  Story,
+  Group,
 };

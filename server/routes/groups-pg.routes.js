@@ -1,15 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
+const { Group } = require('../models/index');
 
 // Get all groups
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    // For now, return empty groups list
-    // TODO: Implement full groups feature with PostgreSQL models
+    const groups = await Group.findAll({
+      order: [['memberCount', 'DESC']],
+    });
+
     res.json({
       success: true,
-      data: []
+      data: groups
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
