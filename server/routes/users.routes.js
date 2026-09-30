@@ -66,7 +66,23 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // ============ UPDATE USER PROFILE ============
 router.put('/me', authenticateToken, async (req, res) => {
   try {
-    const { firstName, lastName, bio, phone, avatar } = req.body;
+    const {
+      firstName,
+      lastName,
+      bio,
+      phone,
+      avatar,
+      email,
+      dateOfBirth,
+      gender,
+      emergencyContact,
+      address,
+      city,
+      state,
+      zipCode,
+      conditions,
+      preferences
+    } = req.body;
 
     const user = await User.findByPk(req.userId);
 
@@ -80,6 +96,16 @@ router.put('/me', authenticateToken, async (req, res) => {
     if (bio) updateData.bio = bio;
     if (phone) updateData.phone = phone;
     if (avatar) updateData.avatar = avatar;
+    if (email) updateData.email = email;
+    if (dateOfBirth) updateData.dateOfBirth = dateOfBirth;
+    if (gender) updateData.gender = gender;
+    if (emergencyContact) updateData.emergencyContact = emergencyContact;
+    if (address) updateData.address = address;
+    if (city) updateData.city = city;
+    if (state) updateData.state = state;
+    if (zipCode) updateData.zipCode = zipCode;
+    if (conditions) updateData.conditions = Array.isArray(conditions) ? conditions : [];
+    if (preferences) updateData.preferences = preferences;
 
     await user.update(updateData);
 
@@ -138,6 +164,31 @@ router.get('/profile', authenticateToken, async (req, res) => {
     res.json({
       success: true,
       data: user,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============ 2FA TOGGLE ============
+router.post('/2fa/toggle', authenticateToken, async (req, res) => {
+  try {
+    const { enabled } = req.body;
+
+    const user = await User.findByPk(req.userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    await user.update({ twoFactorEnabled: enabled });
+
+    res.json({
+      success: true,
+      message: `2FA ${enabled ? 'enabled' : 'disabled'} successfully`,
+      data: {
+        twoFactorEnabled: enabled
+      }
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

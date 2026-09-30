@@ -58,6 +58,34 @@ const User = sequelize.define('User', {
     type: DataTypes.ENUM('male', 'female', 'other'),
     defaultValue: null,
   },
+  emergencyContact: {
+    type: DataTypes.STRING,
+    defaultValue: null,
+  },
+  address: {
+    type: DataTypes.STRING,
+    defaultValue: null,
+  },
+  city: {
+    type: DataTypes.STRING,
+    defaultValue: null,
+  },
+  state: {
+    type: DataTypes.STRING,
+    defaultValue: null,
+  },
+  zipCode: {
+    type: DataTypes.STRING,
+    defaultValue: null,
+  },
+  conditions: {
+    type: DataTypes.JSON,
+    defaultValue: [],
+  },
+  twoFactorEnabled: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   isActive: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
