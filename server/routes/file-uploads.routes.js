@@ -36,9 +36,12 @@ router.post('/profile-picture', authenticateToken, upload.single('file'), async 
 
     const filePath = `/uploads/${req.file.filename}`;
 
-    await User.findByIdAndUpdate(req.userId, {
-      profileImage: filePath
-    });
+    const user = await User.findByPk(req.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    await user.update({ avatar: filePath });
 
     res.json({
       success: true,
@@ -46,7 +49,8 @@ router.post('/profile-picture', authenticateToken, upload.single('file'), async 
       url: filePath
     });
   } catch (error) {
-    next(error);
+    console.error('Upload error:', error);
+    res.status(500).json({ success: false, error: error.message || 'Upload failed' });
   }
 });
 

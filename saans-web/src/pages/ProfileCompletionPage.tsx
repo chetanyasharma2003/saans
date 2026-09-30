@@ -76,7 +76,8 @@ const ProfileCompletionPage: React.FC = () => {
         bio: userData.bio || '',
         emergencyContact: userData.emergencyContact || '',
         conditions: userData.conditions || [],
-        twoFactorEnabled: userData.twoFactorEnabled || false
+        twoFactorEnabled: userData.twoFactorEnabled || false,
+        profileImage: null
       }));
     } catch (error) {
       console.error('Error fetching profile:', error);
