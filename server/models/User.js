@@ -1,146 +1,103 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
+const { sequelize } = require('../config/database');
 
-const userSchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
+const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+  },
+  firstName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  lastName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   email: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
     unique: true,
-    sparse: true,
     lowercase: true,
-    index: true
+    validate: {
+      isEmail: true,
+    },
   },
-  password: { type: String, required: true },
-  phone: { type: String },
-  avatar: { type: String },
-  bio: { type: String },
-  city: { type: String },
-
-  // Account
-  role: { type: String, enum: ['patient', 'therapist', 'admin'], default: 'patient' },
-  status: { type: String, enum: ['active', 'inactive', 'suspended'], default: 'active' },
-  isVerified: { type: Boolean, default: false },
-  emailVerified: { type: Boolean, default: false },
-
-  // OAuth Integration
-  oauthProvider: { type: String, enum: ['google', 'apple', null], default: null },
-  oauthId: { type: String, default: null },
-
-  // Security
-  passwordResetToken: String,
-  passwordResetExpires: Date,
-  twoFactorEnabled: { type: Boolean, default: false },
-  twoFactorSecret: String,
-  backupCodes: [String],
-  loginAttempts: { type: Number, default: 0 },
-  lockUntil: Date,
-
-  // Email Verification
-  verificationToken: String,
-  verificationTokenExpires: Date,
-
-  // Subscription
-  subscription: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Subscription'
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    set(value) {
+      if (value) {
+        this.setDataValue('password', bcrypt.hashSync(value, 10));
+      }
+    },
   },
-  subscriptionStartDate: Date,
-  subscriptionEndDate: Date,
-  subscriptionStatus: { type: String, enum: ['active', 'inactive', 'cancelled'], default: 'inactive' },
-  subscriptionHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' }],
-
-  // Profile
-  profileImage: { type: String },
-  documents: [{
-    type: { type: String },
-    url: String,
-    uploadedAt: { type: Date, default: Date.now }
-  }],
-
-  // Additional fields
-  dateOfBirth: Date,
-  gender: String,
-  emergencyContact: String,
-  address: String,
-  state: String,
-  zipCode: String,
-  fcmToken: String,
-
-  // Audit
-  lastLoginIp: String,
-  lastLoginUserAgent: String,
-
-  // Therapist specific
-  therapistProfile: {
-    licenseNumber: String,
-    specialties: [String],
-    experience: Number,
-    languages: [String],
-    rating: { type: Number, default: 0 },
-    reviews: { type: Number, default: 0 },
-    bio: String,
-    availability: [{
-      day: String,
-      startTime: String,
-      endTime: String,
-    }],
+  role: {
+    type: DataTypes.ENUM('user', 'therapist', 'admin'),
+    defaultValue: 'user',
   },
-
-  // User preferences
-  preferences: {
-    notifications: { type: Boolean, default: true },
-    emailUpdates: { type: Boolean, default: true },
-    privateProfile: { type: Boolean, default: false },
+  avatar: {
+    type: DataTypes.STRING,
+    defaultValue: null,
   },
-
-  // Timestamps
-  lastLogin: Date,
-}, { timestamps: true });
-
-// Migrate old role values on save
-userSchema.pre('save', async function(next) {
-  if (this.role && !['patient', 'therapist', 'admin'].includes(this.role)) {
-    this.role = 'patient';
-  }
-
-  if (!this.isModified('password')) return next();
-
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
+  bio: {
+    type: DataTypes.TEXT,
+    defaultValue: null,
+  },
+  phone: {
+    type: DataTypes.STRING,
+    defaultValue: null,
+  },
+  dateOfBirth: {
+    type: DataTypes.DATE,
+    defaultValue: null,
+  },
+  gender: {
+    type: DataTypes.ENUM('male', 'female', 'other'),
+    defaultValue: null,
+  },
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+  isVerified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  lastLogin: {
+    type: DataTypes.DATE,
+    defaultValue: null,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
+}, {
+  timestamps: true,
+  tableName: 'users',
+  hooks: {
+    beforeUpdate(user) {
+      user.updatedAt = new Date();
+    },
+  },
 });
 
-// Static method to migrate old data
-userSchema.statics.migrateOldRoles = async function() {
-  try {
-    const result = await this.updateMany(
-      { role: { $nin: ['patient', 'therapist', 'admin'] } },
-      { $set: { role: 'patient' } }
-    );
-    if (result.modifiedCount > 0) {
-      console.log(`✅ Migrated ${result.modifiedCount} users with invalid roles to 'patient'`);
-    }
-  } catch (error) {
-    console.error('User role migration error:', error.message);
-  }
+// Instance method to compare password
+User.prototype.comparePassword = async function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Compare password method
-userSchema.methods.comparePassword = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+// Instance method to get safe JSON representation (without password)
+User.prototype.getSafeJSON = function() {
+  const user = Object.assign({}, this.get());
+  delete user.password;
+  return user;
 };
 
-// Remove password from JSON
-userSchema.methods.toJSON = function() {
-  const obj = this.toObject();
-  delete obj.password;
-  return obj;
-};
-
-module.exports = mongoose.model('User', userSchema);
+module.exports = User;

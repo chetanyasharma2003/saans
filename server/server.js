@@ -5,7 +5,7 @@
 
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
+const { sequelize, connectDB } = require('./config/database');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -70,31 +70,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // ============ DATABASE ============
-
-const connectDB = async () => {
-  try {
-    const mongoURI = process.env.MONGODB_URI || process.env.DATABASE_URL || 'mongodb://localhost:27017/saans';
-    if (!mongoURI) {
-      throw new Error('MONGODB_URI or DATABASE_URL environment variable is required');
-    }
-    await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('✅ MongoDB Connected');
-
-    // Migrate old user roles
-    const User = require('./models/User');
-    await User.migrateOldRoles();
-    return true;
-  } catch (error) {
-    console.error('❌ MongoDB Connection Error:', error.message);
-    console.warn('⚠️  Server will start without database. Retrying connection in 10 seconds...');
-    // Retry connection after 10 seconds
-    setTimeout(connectDB, 10000);
-    return false;
-  }
-};
+// PostgreSQL connection initialized in config/database.js
 
 // ============ ROUTES ============
 
@@ -192,7 +168,7 @@ const startServer = async () => {
 // Handle Graceful Shutdown
 process.on('SIGINT', async () => {
   console.log('\n🛑 Server shutting down...');
-  await mongoose.connection.close();
+  await sequelize.close();
   process.exit(0);
 });
 

@@ -40,29 +40,27 @@ router.post('/register', [
     const { email, password, firstName, lastName } = req.body;
 
     // Check if user exists
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ where: { email } });
     if (userExists) {
       throw new ConflictError('Email already registered');
     }
 
     // Create user
-    const user = new User({
+    const user = await User.create({
       email,
       password,
       firstName,
       lastName,
     });
 
-    await user.save();
-
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user.id);
 
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
       token,
-      user: user.toJSON(),
+      user: user.getSafeJSON(),
     });
   } catch (error) {
     next(error);
@@ -84,7 +82,7 @@ router.post('/login', [
     const { email, password } = req.body;
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ where: { email } });
     if (!user) {
       throw new UnauthorizedError('Invalid email or password');
     }
@@ -96,17 +94,16 @@ router.post('/login', [
     }
 
     // Update last login
-    user.lastLogin = new Date();
-    await user.save();
+    await user.update({ lastLogin: new Date() });
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user.id);
 
     res.json({
       success: true,
       message: 'Login successful',
       token,
-      user: user.toJSON(),
+      user: user.getSafeJSON(),
     });
   } catch (error) {
     next(error);
@@ -131,13 +128,13 @@ router.post('/refresh', async (req, res, next) => {
     }
 
     // Verify user still exists and is active
-    const user = await User.findOne({ _id: decoded.userId, status: 'active' }).select('_id status');
+    const user = await User.findOne({ where: { id: decoded.userId, isActive: true }, attributes: ['id'] });
     if (!user) {
       throw new UnauthorizedError('User no longer active');
     }
 
     // Generate new token
-    const newToken = generateToken(decoded.userId);
+    const newToken = generateToken(user.id);
 
     res.json({
       success: true,
