@@ -36,6 +36,7 @@ const createLimiterConfig = (options = {}) => {
   const config = {
     skipFailedRequests: true,
     skipSuccessfulRequests: false,
+    skip: (req) => req.method === 'OPTIONS', // Skip preflight requests
     ...options
   };
   if (redisStore) {

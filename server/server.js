@@ -86,9 +86,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 }));
 
 // API Routes (All endpoints at /api/)
-app.use('/api/auth/login', loginLimiter);
-app.use('/api/auth/register', registrationLimiter);
-app.use('/api/', apiLimiter); // Apply to all authenticated endpoints
+// Apply rate limiters only to POST requests (skip OPTIONS preflight)
+app.post('/api/auth/login', loginLimiter);
+app.post('/api/auth/register', registrationLimiter);
 
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/users.routes'));
