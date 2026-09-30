@@ -31,7 +31,7 @@ const RegisterPage = React.lazy(() => import('./pages/RegisterPage'));
 const DashboardPage = React.lazy(() => import('./pages/DashboardPageNew'));
 const AdminDashboardPage = React.lazy(() => import('./pages/AdminDashboardNew'));
 const AICounselorPage = React.lazy(() => import('./pages/AICounselorPage'));
-const FindTherapistPage = React.lazy(() => import('./pages/FindTherapistPageNew'));
+const FindTherapistPage = React.lazy(() => import('./pages/FindTherapistPagePro'));
 const MoodTrackerPage = React.lazy(() => import('./pages/MoodTrackerPageNew'));
 const CommunityPage = React.lazy(() => import('./pages/CommunityPageNew'));
 const AppointmentPage = React.lazy(() => import('./pages/AppointmentsPageNew'));
