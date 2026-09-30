@@ -6,6 +6,7 @@ const Subscription = require('./Subscription-PG');
 const Therapist = require('./Therapist-PG');
 const Story = require('./Story-PG');
 const Group = require('./Group-PG');
+const Resource = require('./Resource-PG');
 
 // Define associations
 User.hasMany(Appointment, { foreignKey: 'userId', as: 'appointments' });
@@ -34,4 +35,5 @@ module.exports = {
   Therapist,
   Story,
   Group,
+  Resource,
 };

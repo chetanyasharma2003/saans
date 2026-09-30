@@ -97,7 +97,7 @@ app.use('/api/mood', require('./routes/mood-pg.routes'));
 app.use('/api/therapists', require('./routes/therapist-pg.routes'));
 app.use('/api/therapist-register', require('./routes/therapistRegistration.routes'));
 app.use('/api/community', require('./routes/community.routes'));
-app.use('/api/resources', require('./routes/resources.routes'));
+app.use('/api/resources', require('./routes/resources-pg.routes'));
 app.use('/api/resource-details', require('./routes/resource-details.routes'));
 app.use('/api/admin/analytics', require('./routes/admin.analytics.routes'));
 app.use('/api/admin', require('./routes/admin-analytics.routes'));
