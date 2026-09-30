@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Heart, Zap, CreditCard, TrendingUp, Clock, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DashboardHeader } from '../components/DashboardHeader';
 import axios from 'axios';
 
@@ -12,6 +13,7 @@ export function DashboardPageNew() {
   const [userData, setUserData] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [moodData, setMoodData] = useState(null);
+  const [moodEntries, setMoodEntries] = useState([]);
   const [subscription, setSubscription] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [error, setError] = useState(null);
@@ -51,6 +53,25 @@ export function DashboardPageNew() {
         setMoodData(moodRes.data.data);
       } catch (e) {
         console.error('Mood stats error:', e);
+      }
+
+      try {
+        const entriesRes = await axios.get(`${API_URL}/api/mood?days=30&limit=30`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const entries = entriesRes.data.data || [];
+        const sortedEntries = entries.sort((a, b) => new Date(a.date) - new Date(b.date));
+        const chartData = sortedEntries.map(e => ({
+          date: new Date(e.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          mood: e.mood || 0,
+          stress: e.stress || 0,
+          anxiety: e.anxiety || 0,
+          energy: e.energy || 0,
+          fullDate: new Date(e.date)
+        }));
+        setMoodEntries(chartData);
+      } catch (e) {
+        console.error('Mood entries error:', e);
       }
 
       try {
@@ -322,29 +343,95 @@ export function DashboardPageNew() {
 
             {/* Mood Tab */}
             {activeTab === 'mood' && (
-              <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8">
-                <h3 className="text-xl font-bold text-white mb-6">Mood Progress</h3>
-                <div className="space-y-6">
-                  <div>
-                    <p className="text-gray-300 mb-4">30-Day Mood Trend</p>
-                    <div className="flex items-end gap-2 h-40 bg-slate-800/30 p-4 rounded-lg">
-                      {/* Simple mood bar chart */}
-                      {[3, 4, 2, 3, 5, 4, 3, 4].map((mood, i) => (
-                        <div key={i} className="flex-1 bg-purple-500/30 rounded-t" style={{ height: `${(mood/5)*100}%`, opacity: 0.5 + (i/16) }}></div>
-                      ))}
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8">
+                  <h3 className="text-xl font-bold text-white mb-6">Mood Progress</h3>
+                  <div className="space-y-6">
+                    <div>
+                      <p className="text-gray-300 mb-4">30-Day Mood Trend</p>
+                      {moodEntries.length > 0 ? (
+                        <div className="bg-slate-800/30 p-6 rounded-lg">
+                          <ResponsiveContainer width="100%" height={300}>
+                            <AreaChart data={moodEntries} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                              <defs>
+                                <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="#a855f7" stopOpacity={0.8}/>
+                                  <stop offset="95%" stopColor="#a855f7" stopOpacity={0}/>
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                              <XAxis
+                                dataKey="date"
+                                tick={{ fill: '#9ca3af', fontSize: 12 }}
+                                tickLine={{ stroke: '#475569' }}
+                              />
+                              <YAxis
+                                domain={[0, 5]}
+                                tick={{ fill: '#9ca3af', fontSize: 12 }}
+                                tickLine={{ stroke: '#475569' }}
+                                label={{ value: 'Mood (1-5)', angle: -90, position: 'insideLeft', fill: '#9ca3af' }}
+                              />
+                              <Tooltip
+                                contentStyle={{
+                                  backgroundColor: '#1e293b',
+                                  border: '1px solid #6b21a8',
+                                  borderRadius: '8px'
+                                }}
+                                labelStyle={{ color: '#e5e7eb' }}
+                                formatter={(value) => value.toFixed(1)}
+                              />
+                              <Area
+                                type="monotone"
+                                dataKey="mood"
+                                stroke="#a855f7"
+                                fillOpacity={1}
+                                fill="url(#moodGradient)"
+                                strokeWidth={2}
+                              />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      ) : (
+                        <div className="bg-slate-800/30 p-8 rounded-lg text-center">
+                          <p className="text-gray-400">No mood entries yet. Start tracking your mood!</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-slate-800/30 p-4 rounded-lg">
+                        <p className="text-xs text-gray-400 mb-2">Best Mood</p>
+                        <p className="text-white text-2xl font-bold">{moodData?.moodBreakdown?.excellent || 0}</p>
+                        <p className="text-xs text-gray-400 mt-1">Excellent days</p>
+                      </div>
+                      <div className="bg-slate-800/30 p-4 rounded-lg">
+                        <p className="text-xs text-gray-400 mb-2">Average Mood</p>
+                        <p className="text-white text-2xl font-bold">{moodData?.averageMood?.toFixed(1) || 0}/5</p>
+                        <p className="text-xs text-gray-400 mt-1">30-day average</p>
+                      </div>
+                      <div className="bg-slate-800/30 p-4 rounded-lg">
+                        <p className="text-xs text-gray-400 mb-2">Total Entries</p>
+                        <p className="text-white text-2xl font-bold">{moodData?.totalEntries || moodEntries.length}</p>
+                        <p className="text-xs text-gray-400 mt-1">Days tracked</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-800/30 p-4 rounded-lg">
-                      <p className="text-xs text-gray-400 mb-2">Best Mood</p>
-                      <p className="text-white text-2xl font-bold">5.0</p>
-                      <p className="text-xs text-gray-400 mt-1">Excellent</p>
-                    </div>
-                    <div className="bg-slate-800/30 p-4 rounded-lg">
-                      <p className="text-xs text-gray-400 mb-2">Current Streak</p>
-                      <p className="text-white text-2xl font-bold">8</p>
-                      <p className="text-xs text-gray-400 mt-1">Days tracked</p>
-                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-6">
+                    <p className="text-sm text-gray-400 mb-2">Stress Level</p>
+                    <p className="text-3xl font-bold text-orange-400">{moodData?.averageStress?.toFixed(1) || 0}/5</p>
+                    <p className="text-xs text-gray-400 mt-2">Average stress</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-6">
+                    <p className="text-sm text-gray-400 mb-2">Anxiety Level</p>
+                    <p className="text-3xl font-bold text-red-400">{moodData?.averageAnxiety?.toFixed(1) || 0}/5</p>
+                    <p className="text-xs text-gray-400 mt-2">Average anxiety</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-6">
+                    <p className="text-sm text-gray-400 mb-2">Energy Level</p>
+                    <p className="text-3xl font-bold text-yellow-400">{moodData?.averageEnergy?.toFixed(1) || 0}/5</p>
+                    <p className="text-xs text-gray-400 mt-2">Average energy</p>
                   </div>
                 </div>
               </div>
