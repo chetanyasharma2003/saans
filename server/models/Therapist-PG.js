@@ -2,94 +2,55 @@ const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 
 const Therapist = sequelize.define('Therapist', {
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true,
-  },
-  userId: {
-    type: DataTypes.UUID,
-    allowNull: false,
-    references: {
-      model: 'users',
-      key: 'id',
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true
     },
-    unique: true,
-  },
-  licenseNumber: {
-    type: DataTypes.STRING,
-    unique: true,
-    allowNull: false,
-  },
-  specializations: {
-    type: DataTypes.JSON,
-    defaultValue: [],
-  },
-  bio: DataTypes.TEXT,
-  experience: DataTypes.INTEGER,
-  languages: {
-    type: DataTypes.JSON,
-    defaultValue: ['English'],
-  },
-  hourlyRate: {
-    type: DataTypes.DECIMAL(10, 2),
-    allowNull: false,
-  },
-  rating: {
-    type: DataTypes.DECIMAL(3, 2),
-    defaultValue: 0,
-  },
-  totalReviews: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0,
-  },
-  isVerified: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-  },
-  verificationDocument: DataTypes.STRING,
-  availability: {
-    type: DataTypes.JSON,
-    defaultValue: {},
-  },
-  maxPatientsPerMonth: {
-    type: DataTypes.INTEGER,
-    defaultValue: 50,
-  },
-  currentPatients: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0,
-  },
-  isActive: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
-  },
-  certificateUrl: DataTypes.STRING,
-  education: DataTypes.JSON,
-  clinicAddress: DataTypes.TEXT,
-  phoneVerified: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-  },
-  responseTime: {
-    type: DataTypes.INTEGER,
-    comment: 'Response time in minutes',
-  },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  updatedAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-}, {
-  timestamps: true,
-  tableName: 'therapists',
-  indexes: [
-    { fields: ['isVerified', 'isActive'] },
-    { fields: ['rating'] },
-  ],
-});
+    userId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: { model: 'Users', key: 'id' }
+    },
+    firstName: { type: DataTypes.STRING, allowNull: false },
+    lastName: { type: DataTypes.STRING, allowNull: false },
+    email: { type: DataTypes.STRING, allowNull: false, unique: true },
+    phone: { type: DataTypes.STRING },
+    bio: { type: DataTypes.TEXT },
+    avatar: { type: DataTypes.STRING },
+    specializations: { type: DataTypes.JSON, defaultValue: [] },
+    languages: { type: DataTypes.JSON, defaultValue: ['English'] },
+    qualifications: { type: DataTypes.JSON, defaultValue: [] },
+    licenseNumber: { type: DataTypes.STRING },
+    yearsOfExperience: { type: DataTypes.INTEGER, defaultValue: 0 },
+    hourlyRate: { type: DataTypes.DECIMAL(10, 2), defaultValue: 1000 },
+    availabilitySlots: { type: DataTypes.JSON, defaultValue: [] },
+    isVerified: { type: DataTypes.BOOLEAN, defaultValue: false },
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
+    rating: { type: DataTypes.DECIMAL(3, 2), defaultValue: 0 },
+    totalRatings: { type: DataTypes.INTEGER, defaultValue: 0 },
+    sessionsCompleted: { type: DataTypes.INTEGER, defaultValue: 0 },
+    responseTime: { type: DataTypes.STRING, defaultValue: 'Within 1 hour' },
+    location: { type: DataTypes.STRING },
+    address: { type: DataTypes.TEXT },
+    city: { type: DataTypes.STRING },
+    country: { type: DataTypes.STRING },
+    timezone: { type: DataTypes.STRING },
+    acceptNewClients: { type: DataTypes.BOOLEAN, defaultValue: true },
+    consultationType: { type: DataTypes.JSON, defaultValue: ['online', 'phone'] },
+    certificateUrl: { type: DataTypes.STRING },
+    profileCompleteness: { type: DataTypes.INTEGER, defaultValue: 0 },
+    createdAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+    updatedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+  }, {
+    tableName: 'Therapists',
+    timestamps: true,
+    indexes: [
+      { fields: ['isActive', 'isVerified'] },
+      { fields: ['rating'] },
+      { fields: ['city'] },
+      { fields: ['specializations'] }
+    ]
+  });
 
 module.exports = Therapist;

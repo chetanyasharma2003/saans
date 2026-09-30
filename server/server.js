@@ -94,7 +94,7 @@ app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/users.routes'));
 app.use('/api/appointments', require('./routes/appointments-pg.routes'));
 app.use('/api/mood', require('./routes/mood-pg.routes'));
-app.use('/api/therapists', require('./routes/therapists.routes'));
+app.use('/api/therapists', require('./routes/therapist-pg.routes'));
 app.use('/api/therapist-register', require('./routes/therapistRegistration.routes'));
 app.use('/api/community', require('./routes/community.routes'));
 app.use('/api/resources', require('./routes/resources.routes'));
