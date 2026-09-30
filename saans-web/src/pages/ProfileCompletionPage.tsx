@@ -97,6 +97,34 @@ const ProfileCompletionPage: React.FC = () => {
     }));
   };
 
+  const toggle2FA = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('accessToken');
+      const newStatus = !formData.twoFactorEnabled;
+
+      await axios.post(
+        `${API_URL}/api/users/2fa/toggle`,
+        { enabled: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setFormData(prev => ({ ...prev, twoFactorEnabled: newStatus }));
+      setMessage({
+        type: 'success',
+        text: `2FA ${newStatus ? 'enabled' : 'disabled'} successfully!`
+      });
+    } catch (error: any) {
+      console.error('2FA toggle error:', error);
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.error || '2FA update failed'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -134,31 +162,42 @@ const ProfileCompletionPage: React.FC = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('accessToken');
-      await axios.put(`${API_URL}/api/users/me`,
-        {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          bio: formData.bio,
-          phone: formData.phone,
-          emergencyContact: formData.emergencyContact,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          zipCode: formData.zipCode,
-          dateOfBirth: formData.dateOfBirth,
-          gender: formData.gender,
-          conditions: formData.conditions
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
 
-      setMessage({ type: 'success', text: 'Profile updated successfully!' });
+      // Validate required fields
+      if (!formData.firstName || !formData.lastName) {
+        setMessage({ type: 'error', text: 'First and Last name are required' });
+        setLoading(false);
+        return;
+      }
+
+      const updateData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        bio: formData.bio,
+        phone: formData.phone,
+        emergencyContact: formData.emergencyContact,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+        dateOfBirth: formData.dateOfBirth,
+        gender: formData.gender,
+        conditions: formData.conditions || [],
+        email: formData.email
+      };
+
+      await axios.put(`${API_URL}/api/users/me`, updateData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setMessage({ type: 'success', text: 'Profile updated successfully! Redirecting...' });
       setTimeout(() => {
         window.location.href = '/dashboard';
       }, 2000);
     } catch (error: any) {
       console.error('Profile error:', error);
-      setMessage({ type: 'error', text: error.response?.data?.error || 'Failed to update profile' });
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to update profile';
+      setMessage({ type: 'error', text: errorMsg });
     } finally {
       setLoading(false);
     }
@@ -303,11 +342,12 @@ const ProfileCompletionPage: React.FC = () => {
                   </label>
                   <input
                     type="email"
+                    name="email"
                     value={formData.email}
-                    disabled
-                    className="w-full px-4 py-3 bg-slate-800/30 border border-slate-700/50 text-gray-400 rounded-lg cursor-not-allowed"
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/20 hover:border-purple-500/40 focus:border-purple-500 text-white placeholder-gray-500 rounded-lg focus:outline-none transition-all"
                   />
-                  <p className="text-xs text-gray-500 mt-2">Email cannot be changed</p>
+                  <p className="text-xs text-gray-400 mt-2">💡 You can update your email here</p>
                 </div>
 
                 <div>
@@ -427,14 +467,33 @@ const ProfileCompletionPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-slate-800/30 border border-cyan-500/30 rounded-lg p-6">
+                <div className={`border rounded-lg p-6 transition-all ${
+                  formData.twoFactorEnabled
+                    ? 'bg-green-900/20 border-green-500/30'
+                    : 'bg-slate-800/30 border-cyan-500/30'
+                }`}>
                   <div className="flex items-start gap-4">
-                    <Shield className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-1" />
+                    <Shield className={`w-5 h-5 flex-shrink-0 mt-1 ${
+                      formData.twoFactorEnabled ? 'text-green-400' : 'text-cyan-400'
+                    }`} />
                     <div className="flex-1">
-                      <p className="text-white font-semibold mb-2">Two-Factor Authentication</p>
-                      <p className="text-gray-400 text-sm mb-4">Add extra security to your account</p>
-                      <button className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-lg text-sm font-semibold transition-all">
-                        Enable 2FA
+                      <p className="text-white font-semibold mb-2">
+                        Two-Factor Authentication {formData.twoFactorEnabled && '✓'}
+                      </p>
+                      <p className="text-gray-400 text-sm mb-4">
+                        {formData.twoFactorEnabled
+                          ? '2FA is currently enabled for your account'
+                          : 'Add extra security to your account'}
+                      </p>
+                      <button
+                        onClick={toggle2FA}
+                        disabled={loading}
+                        className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-50 ${
+                          formData.twoFactorEnabled
+                            ? 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white'
+                            : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white'
+                        }`}>
+                        {loading ? 'Updating...' : (formData.twoFactorEnabled ? 'Disable 2FA' : 'Enable 2FA')}
                       </button>
                     </div>
                   </div>
