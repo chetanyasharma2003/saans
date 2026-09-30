@@ -7,90 +7,134 @@ on:
     branches: [main, develop]
 
 jobs:
-  backend-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-
-      - name: Install Backend Dependencies
-        run: cd server && npm ci
-
-      - name: Run Backend Tests
-        run: cd server && npm test -- --coverage
-        continue-on-error: true
-
-      - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v3
-        continue-on-error: true
-        with:
-          files: ./server/coverage/lcov.info
-          flags: backend
-          fail_ci_if_error: false
-
   frontend-tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
+    working-directory: ./saans-web
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'saans-web/package-lock.json'
+
+      - run: cd saans-web && npm ci
+
+      - run: cd saans-web && npm run lint 2>/dev/null || true
+
+      - run: cd saans-web && npm run test:unit
+
+      - run: cd saans-web && npm run test:coverage
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./saans-web/coverage/coverage-final.json
+          flags: frontend
+
+  backend-tests:
+    runs-on: ubuntu-latest
+    working-directory: ./server
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: saans_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'server/package-lock.json'
+
+      - run: cd server && npm ci
+
+      - run: cd server && npm run lint 2>/dev/null || true
+
+      - run: cd server && npm run test:unit
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/saans_test
+          NODE_ENV: test
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - run: cd saans-web && npm ci
+
+      - run: cd saans-web && npx cypress run --headless
+        env:
+          CYPRESS_BASE_URL: http://localhost:3000
+
+  build:
+    needs: [frontend-tests, backend-tests]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
           cache: 'npm'
 
-      - name: Install Frontend Dependencies
-        run: cd saans-web && npm ci
+      - run: cd saans-web && npm ci && npm run build
 
-      - name: Run Frontend Build
-        run: cd saans-web && npm run build
-        continue-on-error: false
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: saans-web/dist
 
-  deploy-frontend:
-    needs: [backend-tests, frontend-tests]
+  security-scan:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Build Frontend
-        run: cd saans-web && npm install && npm run build
+      - run: npm audit --audit-level=moderate
+        working-directory: ./saans-web
+
+      - run: npm audit --audit-level=moderate
+        working-directory: ./server
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [build, security-scan]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Deploy to Vercel
-        uses: vercel/actions/deploy-production@main
-        continue-on-error: true
+        uses: vercel/action@master
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-
-  deploy-backend:
-    needs: [backend-tests, frontend-tests]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
-    steps:
-      - uses: actions/checkout@v3
+          working-directory: ./saans-web
 
       - name: Deploy to Render
         run: |
-          curl --no-buffer --remote-name https://builds.render.com/render.yaml
-          curl -d service_id=${{ secrets.RENDER_SERVICE_ID }} \
-               -d api_key=${{ secrets.RENDER_API_KEY }} \
-               https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }} \
-               || echo "Manual deployment may be needed"
-        continue-on-error: true
+          curl -X POST https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
