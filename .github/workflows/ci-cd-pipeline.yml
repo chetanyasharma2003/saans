@@ -450,8 +450,10 @@ jobs:
           echo "Author: ${{ github.actor }}"
 
       - name: 📧 Email Notification
-        if: ${{ secrets.EMAIL_TO != '' }}
+        if: env.EMAIL_TO != ''
         uses: dawidd6/action-send-mail@v3
+        env:
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
         with:
           server_address: smtp.gmail.com
           server_port: 465
