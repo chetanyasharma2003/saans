@@ -13,8 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
     steps:
       - name: 📥 Checkout code
@@ -44,20 +42,20 @@ jobs:
           VITE_API_URL: https://saans-backend-tt8p.onrender.com
 
       - name: 🚀 Deploy to Vercel
-        if: env.VERCEL_TOKEN != '' && env.VERCEL_PROJECT_ID != '' && env.VERCEL_ORG_ID != ''
+        if: env.VERCEL_TOKEN != ''
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ env.VERCEL_TOKEN }}
-          vercel-org-id: ${{ env.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ env.VERCEL_PROJECT_ID }}
+          vercel-org-id: team_Ui7Y6tYlUndgF3V4hGRnLIVO
+          vercel-project-id: prj_OhgsUrYp6pm2wu1kFJefjOOvuoKI
           working-directory: saans-web
-          production: true
+          vercel-args: '--prod'
         env:
           VITE_API_URL: https://saans-backend-tt8p.onrender.com
 
       - name: ⚠️ Vercel secrets missing
-        if: env.VERCEL_TOKEN == '' || env.VERCEL_PROJECT_ID == '' || env.VERCEL_ORG_ID == ''
-        run: echo "⚠️ VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID secrets not configured in GitHub"
+        if: env.VERCEL_TOKEN == ''
+        run: echo "⚠️ VERCEL_TOKEN secret is not configured in GitHub"
 
       - name: ✅ Deployment successful
         if: success()
