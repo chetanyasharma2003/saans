@@ -153,6 +153,9 @@ const startServer = async () => {
         if (connected && process.env.NODE_ENV === 'production') {
           await require('./seed-starter-content')();
         }
+        if (connected && process.env.ENABLE_DEMO_DATA === 'true') {
+          await require('./seed-demo-content').seedDemoContent();
+        }
       })
       .catch((error) => console.error('DB initialization failed:', error.message));
 

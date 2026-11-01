@@ -18,6 +18,7 @@ interface Resource {
   author: string;
   rating: number;
   helpfulCount: number;
+  source?: string;
 }
 
 export function ResourcesPageNew() {
@@ -172,10 +173,12 @@ export function ResourcesPageNew() {
                     <span className="px-3 py-1 bg-purple-600/40 text-purple-200 rounded-full text-xs font-medium capitalize">
                       {resource.category}
                     </span>
-                    <div className="flex items-center gap-1 text-yellow-400">
-                      <span>⭐</span>
-                      <span className="text-sm font-bold">{resource.rating}</span>
-                    </div>
+                    {resource.source?.startsWith('SAANS DEMO')
+                      ? <span className="rounded bg-amber-500/20 px-2 py-1 text-xs font-medium text-amber-100">DEMO SAMPLE</span>
+                      : <div className="flex items-center gap-1 text-yellow-400">
+                          <span>⭐</span>
+                          <span className="text-sm font-bold">{resource.rating}</span>
+                        </div>}
                   </div>
 
                   <h3 className="text-lg font-bold text-white mb-2 group-hover:text-purple-300 transition-colors line-clamp-2">

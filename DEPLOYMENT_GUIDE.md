@@ -54,6 +54,10 @@ npm run dev
 - Booking requires an active, verified therapist profile that accepts new clients. Do not use fabricated therapist profiles for production.
 - Real-time audio/video sessions require `AGORA_APP_ID` and `AGORA_APP_CERTIFICATE` in the backend environment. The backend returns the App ID to the browser; do not expose the certificate or add it to frontend environment variables.
 
+### Optional presentation demo content
+
+For a presentation environment only, set `ENABLE_DEMO_DATA=true` in the backend environment and restart/redeploy. Startup seeds fictional therapist profiles, sample community posts, demo groups, and demo resources idempotently. Demo profiles are not verified clinicians, are visibly labelled fictional, and support simulated bookings only. Demo data remains in the database but is hidden from the app when the flag is turned off; no seeded demo rows are deleted automatically.
+
 ### 2. Frontend Setup
 
 ```bash

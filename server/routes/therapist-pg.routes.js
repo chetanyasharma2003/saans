@@ -4,6 +4,32 @@ const { Therapist } = require('../models/index');
 const { authenticateToken } = require('../middleware/auth');
 const { Op } = require('sequelize');
 
+const demoBioPrefix = '[DEMO PROFILE ONLY]';
+
+function isDemoEnabled() {
+  return process.env.ENABLE_DEMO_DATA === 'true';
+}
+
+function marketplaceWhere() {
+  return {
+    isActive: true,
+    [Op.or]: isDemoEnabled()
+      ? [
+          { isVerified: true },
+          { bio: { [Op.like]: `${demoBioPrefix}%` } },
+        ]
+      : [{ isVerified: true }],
+  };
+}
+
+function publicTherapist(therapist) {
+  const profile = therapist.toJSON();
+  profile.isDemo = typeof profile.bio === 'string' && profile.bio.startsWith(demoBioPrefix);
+  delete profile.licenseNumber;
+  delete profile.certificateUrl;
+  return profile;
+}
+
 // Get nearby therapists (location-based)
 router.get('/nearby', authenticateToken, async (req, res) => {
   try {
@@ -13,7 +39,7 @@ router.get('/nearby', authenticateToken, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Latitude and longitude required' });
     }
 
-    const where = { isActive: true, isVerified: true };
+    const where = marketplaceWhere();
 
     if (specialty) {
       where.specializations = { [Op.contains]: [specialty] };
@@ -42,7 +68,7 @@ router.get('/nearby', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      data: rows,
+      data: rows.map(publicTherapist),
       total: count,
       page: parseInt(page),
       pages: Math.ceil(count / parseInt(limit)),
@@ -59,7 +85,7 @@ router.get('/', async (req, res) => {
   try {
     const { specialty, language, maxPrice, minRating, page = 1, limit = 20 } = req.query;
 
-    const where = { isActive: true, isVerified: true };
+    const where = marketplaceWhere();
 
     if (specialty) {
       where.specializations = { [Op.contains]: [specialty] };
@@ -88,7 +114,7 @@ router.get('/', async (req, res) => {
 
     res.json({
       success: true,
-      data: rows,
+      data: rows.map(publicTherapist),
       total: count,
       page: parseInt(page),
       pages: Math.ceil(count / parseInt(limit))
@@ -108,7 +134,12 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Therapist not found' });
     }
 
-    res.json({ success: true, data: therapist });
+    const profile = publicTherapist(therapist);
+    if (profile.isDemo && !isDemoEnabled()) {
+      return res.status(404).json({ success: false, error: 'Therapist not found' });
+    }
+
+    res.json({ success: true, data: profile });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -119,14 +150,16 @@ router.get('/search/query', async (req, res) => {
   try {
     const { q, specialty, city, rating } = req.query;
 
-    const where = { isActive: true, isVerified: true };
+    const where = marketplaceWhere();
 
     if (q) {
-      where[Op.or] = [
-        { firstName: { [Op.iLike]: `%${q}%` } },
-        { lastName: { [Op.iLike]: `%${q}%` } },
-        { bio: { [Op.iLike]: `%${q}%` } }
-      ];
+      where[Op.and] = [{
+        [Op.or]: [
+          { firstName: { [Op.iLike]: `%${q}%` } },
+          { lastName: { [Op.iLike]: `%${q}%` } },
+          { bio: { [Op.iLike]: `%${q}%` } },
+        ],
+      }];
     }
 
     if (specialty) {
@@ -143,7 +176,7 @@ router.get('/search/query', async (req, res) => {
       order: [['rating', 'DESC']]
     });
 
-    res.json({ success: true, data: therapists });
+    res.json({ success: true, data: therapists.map(publicTherapist) });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -152,7 +185,7 @@ router.get('/search/query', async (req, res) => {
 // Get therapist stats (for dashboard)
 router.get('/stats/overview', async (req, res) => {
   try {
-    const totalTherapists = await Therapist.count({ where: { isActive: true } });
+    const totalTherapists = await Therapist.count({ where: { isActive: true, isVerified: true } });
     const avgRating = await Therapist.findAll({
       attributes: [
         [require('sequelize').fn('AVG', require('sequelize').col('rating')), 'avgRating']
@@ -162,7 +195,7 @@ router.get('/stats/overview', async (req, res) => {
     });
 
     const totalSessions = await Therapist.sum('sessionsCompleted', {
-      where: { isActive: true }
+      where: { isActive: true, isVerified: true }
     });
 
     res.json({
@@ -187,13 +220,16 @@ router.get('/specialty/:specialty', async (req, res) => {
       where: {
         specializations: { [Op.contains]: [specialty] },
         isActive: true,
-        isVerified: true
+        [Op.or]: [
+          { isVerified: true },
+          ...(isDemoEnabled() ? [{ bio: { [Op.like]: `${demoBioPrefix}%` } }] : []),
+        ]
       },
       limit: 50,
       order: [['rating', 'DESC']]
     });
 
-    res.json({ success: true, data: therapists });
+    res.json({ success: true, data: therapists.map(publicTherapist) });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

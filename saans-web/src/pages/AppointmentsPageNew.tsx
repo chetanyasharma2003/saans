@@ -11,7 +11,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 interface Appointment {
   id: string;
-  therapist?: { firstName: string; lastName: string };
+  therapist?: { firstName: string; lastName: string; bio?: string };
   scheduledAt: string;
   duration: number;
   status: 'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
@@ -129,7 +129,10 @@ export function AppointmentsPageNew() {
                           <div className="flex items-center gap-4">
                             <div className="text-4xl">👨‍⚕️</div>
                             <div>
-                              <h3 className="text-white font-bold text-sm sm:text-lg">{apt.therapist?.firstName || 'Therapist'} {apt.therapist?.lastName || ''}</h3>
+                              <h3 className="text-white font-bold text-sm sm:text-lg">
+                                {apt.therapist?.bio?.startsWith('[DEMO PROFILE ONLY]') ? 'DEMO · ' : ''}
+                                {apt.therapist?.firstName || 'Therapist'} {apt.therapist?.lastName || ''}
+                              </h3>
                               <p className="text-purple-300 text-xs sm:text-sm capitalize">
                                 {apt.type === 'chat' ? 'Chat session' : `${apt.type} call`}
                                 {apt.status === 'in-progress' ? ' · In progress' : ''}
@@ -145,6 +148,11 @@ export function AppointmentsPageNew() {
                             <Calendar className="w-4 h-4" /> {apt.duration} minutes
                           </span>
                         </div>
+                        {apt.therapist?.bio?.startsWith('[DEMO PROFILE ONLY]') && (
+                          <p className="mb-4 text-xs text-amber-200">
+                            Fictional demo booking only — no real appointment or care is provided.
+                          </p>
+                        )}
                         <div className="flex flex-col sm:flex-row gap-3">
                           <button
                             onClick={() => setSelectedJoinAppointment(apt)}

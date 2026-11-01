@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { X, Clock, Video, Phone, MessageSquare, User, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface Appointment {
+  id?: string;
   scheduledAt: string;
   duration: number;
   status: 'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
   type: 'video' | 'audio' | 'chat';
-  therapist?: { firstName?: string; lastName?: string };
+  therapist?: { firstName?: string; lastName?: string; bio?: string };
 }
 
 interface JoinSessionModalProps {
@@ -57,6 +58,7 @@ export function JoinSessionModal({ isOpen, appointment, onClose, onJoin }: JoinS
     && Date.now() >= appointmentDate.getTime() - 15 * 60_000
     && Date.now() < appointmentEnd;
   const therapistName = appointment.therapist?.firstName + ' ' + appointment.therapist?.lastName;
+  const isDemoAppointment = appointment.therapist?.bio?.startsWith('[DEMO PROFILE ONLY]') || false;
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -75,6 +77,11 @@ export function JoinSessionModal({ isOpen, appointment, onClose, onJoin }: JoinS
 
         {/* Content */}
         <div className="p-8 space-y-6">
+          {isDemoAppointment && (
+            <div role="alert" className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-100">
+              Fictional presentation demo only. This is not a real therapist or care appointment.
+            </div>
+          )}
           {/* Therapist Info */}
           <div className="flex items-center gap-4 p-4 bg-purple-600/20 border border-purple-400/30 rounded-xl">
             <div className="text-4xl">👨‍⚕️</div>

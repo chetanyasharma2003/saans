@@ -3,6 +3,7 @@ const router = express.Router();
 const { Op } = require('sequelize');
 const { Resource } = require('../models/index');
 const { authenticateToken } = require('../middleware/auth');
+const demoResourceSource = 'SAANS DEMO — fictional sample content';
 
 // Get all resources with filtering
 router.get('/', authenticateToken, async (req, res) => {
@@ -10,6 +11,14 @@ router.get('/', authenticateToken, async (req, res) => {
     const { category, condition, difficulty, search, limit = 20, offset = 0 } = req.query;
 
     const where = { status: 'published' };
+    if (process.env.ENABLE_DEMO_DATA !== 'true') {
+      where[Op.and] = [{
+        [Op.or]: [
+          { source: { [Op.ne]: demoResourceSource } },
+          { source: null },
+        ],
+      }];
+    }
 
     if (category) where.category = category;
     if (difficulty) where.difficulty = difficulty;
@@ -46,7 +55,8 @@ router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const resource = await Resource.findByPk(req.params.id);
 
-    if (!resource || resource.status !== 'published') {
+    if (!resource || resource.status !== 'published'
+      || (process.env.ENABLE_DEMO_DATA !== 'true' && resource.source === demoResourceSource)) {
       return res.status(404).json({ success: false, error: 'Resource not found' });
     }
 
@@ -65,6 +75,16 @@ router.get('/condition/:condition', authenticateToken, async (req, res) => {
     const resources = await Resource.findAll({
       where: {
         status: 'published',
+        ...(process.env.ENABLE_DEMO_DATA !== 'true'
+          ? {
+              [Op.and]: [{
+                [Op.or]: [
+                  { source: { [Op.ne]: demoResourceSource } },
+                  { source: null },
+                ],
+              }],
+            }
+          : {}),
         conditions: {
           [Op.contains]: [req.params.condition]
         }

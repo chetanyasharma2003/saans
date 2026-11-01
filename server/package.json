@@ -8,6 +8,7 @@
     "dev": "nodemon server.js",
     "seed": "npm run seed:starter",
     "seed:starter": "node seed-starter-content.js",
+    "seed:demo": "node seed-demo-content.js",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

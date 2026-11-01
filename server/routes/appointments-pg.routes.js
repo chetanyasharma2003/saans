@@ -8,6 +8,7 @@ const { authenticateToken } = require('../middleware/auth');
 const allowedTypes = ['video', 'audio', 'chat'];
 const allowedDurations = [30, 45, 60, 90];
 const activeStatuses = ['scheduled', 'confirmed', 'in-progress'];
+const demoBioPrefix = '[DEMO PROFILE ONLY]';
 
 function parseFutureDate(value) {
   const date = new Date(value);
@@ -128,7 +129,10 @@ router.post('/', authenticateToken, async (req, res) => {
         lock: transaction.LOCK.UPDATE,
       });
 
-      if (!therapist || !therapist.isActive || !therapist.isVerified || !therapist.acceptNewClients) {
+      const demoBookingAllowed = process.env.ENABLE_DEMO_DATA === 'true'
+        && typeof therapist?.bio === 'string'
+        && therapist.bio.startsWith(demoBioPrefix);
+      if (!therapist || !therapist.isActive || (!therapist.isVerified && !demoBookingAllowed) || !therapist.acceptNewClients) {
         const error = new Error('Therapist is not available for bookings');
         error.statusCode = 404;
         throw error;

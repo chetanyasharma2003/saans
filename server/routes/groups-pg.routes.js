@@ -2,11 +2,16 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 const { Group } = require('../models/index');
+const { Op } = require('sequelize');
 
 // Get all groups
 router.get('/', authenticateToken, async (req, res) => {
   try {
+    const where = process.env.ENABLE_DEMO_DATA === 'true'
+      ? {}
+      : { slug: { [Op.notLike]: 'demo-%' } };
     const groups = await Group.findAll({
+      where,
       order: [['memberCount', 'DESC']],
     });
 

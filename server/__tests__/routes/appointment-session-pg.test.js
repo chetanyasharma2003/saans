@@ -57,6 +57,7 @@ describe('PostgreSQL appointment and session routes', () => {
   let appointment;
 
   beforeEach(() => {
+    process.env.ENABLE_DEMO_DATA = 'false';
     videoCallService.isConfigured.mockReturnValue(true);
     videoCallService.generateToken.mockImplementation((channelName, uid) => ({
       appId: 'agora-app',
@@ -88,6 +89,10 @@ describe('PostgreSQL appointment and session routes', () => {
     });
     Appointment.create.mockResolvedValue({ id: 'appointment-id' });
     Appointment.findByPk.mockResolvedValue(appointment);
+  });
+
+  afterEach(() => {
+    delete process.env.ENABLE_DEMO_DATA;
   });
 
   test('rejects invalid booking data without opening a transaction', async () => {
@@ -134,6 +139,30 @@ describe('PostgreSQL appointment and session routes', () => {
 
     expect(response.status).toBe(409);
     expect(Appointment.create).not.toHaveBeenCalled();
+  });
+
+  test('allows simulated bookings for fictional profiles only when demo mode is enabled', async () => {
+    Therapist.findByPk.mockResolvedValue({
+      id: 'therapist-id',
+      isActive: true,
+      isVerified: false,
+      acceptNewClients: true,
+      hourlyRate: 900,
+      bio: '[DEMO PROFILE ONLY] Fictional sample profile.',
+    });
+    const scheduledAt = new Date(Date.now() + 24 * 60 * 60_000).toISOString();
+
+    const disabledResponse = await request(app)
+      .post('/api/appointments')
+      .send({ therapistId: 'therapist-id', scheduledAt, type: 'video', duration: 30 });
+    expect(disabledResponse.status).toBe(404);
+
+    process.env.ENABLE_DEMO_DATA = 'true';
+    const enabledResponse = await request(app)
+      .post('/api/appointments')
+      .send({ therapistId: 'therapist-id', scheduledAt, type: 'video', duration: 30 });
+
+    expect(enabledResponse.status).toBe(201);
   });
 
   test('scopes appointment lists to the authenticated user', async () => {

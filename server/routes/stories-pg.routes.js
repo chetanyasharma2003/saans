@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 const { Story, User } = require('../models/index');
+const demoAuthorName = 'SAANS demo member (fictional)';
+const { Op } = require('sequelize');
 
 // Get approved stories (public feed)
 router.get('/feed', authenticateToken, async (req, res) => {
@@ -10,6 +12,14 @@ router.get('/feed', authenticateToken, async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const where = { status: 'approved' };
+    if (process.env.ENABLE_DEMO_DATA !== 'true') {
+      where[Op.and] = [{
+        [Op.or]: [
+          { authorName: { [Op.ne]: demoAuthorName } },
+          { authorName: null },
+        ],
+      }];
+    }
     if (category && category !== 'all') {
       where.category = category;
     }
@@ -24,7 +34,10 @@ router.get('/feed', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      data: rows,
+      data: rows.map((story) => ({
+        ...story.toJSON(),
+        isDemo: story.authorName === demoAuthorName,
+      })),
       pagination: { total: count, page: parseInt(page), limit: parseInt(limit), pages: Math.ceil(count / limit) }
     });
   } catch (error) {

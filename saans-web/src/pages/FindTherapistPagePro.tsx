@@ -21,6 +21,7 @@ interface Therapist {
   responseTime?: string;
   sessionsCompleted?: number;
   acceptNewClients?: boolean;
+  isDemo?: boolean;
 }
 
 type TherapistFilters = {
@@ -318,9 +319,12 @@ export function FindTherapistPagePro() {
                           <div>
                             <div className="flex items-center gap-2">
                               <h3 className="text-xl font-bold text-white">
-                                Dr. {therapist.firstName} {therapist.lastName}
+                                {therapist.isDemo ? '' : 'Dr. '}
+                                {therapist.firstName} {therapist.lastName}
                               </h3>
-                              <BadgeCheck className="w-5 h-5 text-green-400" />
+                              {therapist.isDemo
+                                ? <span className="rounded bg-amber-500/20 px-2 py-1 text-xs text-amber-200">FICTIONAL DEMO</span>
+                                : <BadgeCheck className="w-5 h-5 text-green-400" />}
                             </div>
                             <div className="flex items-center gap-2 mt-2">
                               <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -337,6 +341,11 @@ export function FindTherapistPagePro() {
 
                     {/* Card Body */}
                     <div className="p-6 flex-1">
+                      {therapist.isDemo && (
+                        <p className="mb-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs font-medium text-amber-100">
+                          Fictional presentation profile only — not a real or credentialed clinician; no care is provided.
+                        </p>
+                      )}
                       <p className="text-gray-300 text-sm mb-4 line-clamp-2">{therapist.bio}</p>
 
                       {/* Specializations */}

@@ -18,6 +18,7 @@ interface Story {
   helpful: number;
   views: number;
   createdAt: string;
+  isDemo?: boolean;
 }
 
 interface Group {
@@ -121,7 +122,7 @@ export function CommunityPageNew() {
                   : 'bg-slate-800/50 text-gray-400 hover:bg-slate-800'
               }`}
             >
-              📖 Real Stories
+              📖 Community Posts
             </button>
             <button
               onClick={() => setActiveTab('groups')}
@@ -167,7 +168,7 @@ export function CommunityPageNew() {
               {activeTab === 'stories' && (
                 <div>
                   <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6">
-                    Real Stories ({stories.length})
+                    Community Posts ({stories.length})
                   </h2>
                   {stories.length === 0 ? (
                     <p className="text-gray-400 text-center py-12">
@@ -185,7 +186,9 @@ export function CommunityPageNew() {
                             <span className="px-3 py-1 bg-purple-600/40 text-purple-200 rounded-full text-xs font-medium capitalize">
                               {story.category}
                             </span>
-                            <span className="text-2xl">📖</span>
+                            {story.isDemo
+                              ? <span className="rounded bg-amber-500/20 px-2 py-1 text-xs font-medium text-amber-100">FICTIONAL DEMO</span>
+                              : <span className="text-2xl">📖</span>}
                           </div>
                           <h3 className="text-lg font-bold text-white mb-3 group-hover:text-purple-300 transition-colors line-clamp-2">
                             {story.title}
@@ -193,6 +196,11 @@ export function CommunityPageNew() {
                           <p className="text-gray-400 text-sm mb-4 line-clamp-3">
                             {story.content}
                           </p>
+                          {story.isDemo && (
+                            <p className="mb-3 text-xs text-amber-200">
+                              Fictional presentation sample; not a real person’s experience.
+                            </p>
+                          )}
                           <div className="flex items-center justify-between text-gray-400 text-sm">
                             <span>{story.authorName}</span>
                             <div className="flex gap-4">

@@ -7,6 +7,7 @@ interface Therapist {
   firstName: string;
   lastName: string;
   hourlyRate: number | string;
+  isDemo?: boolean;
 }
 
 interface BookingModalProps {
@@ -104,7 +105,7 @@ export function BookingModal({ isOpen, therapist, onClose, onSuccess }: BookingM
         <div className="sticky top-0 flex items-center justify-between border-b border-purple-400/20 bg-purple-900/90 p-6 backdrop-blur">
           <div>
             <h2 className="text-2xl font-bold text-white">{booked ? 'Session booked' : 'Book a session'}</h2>
-            <p className="text-sm text-gray-300">with {therapist.firstName} {therapist.lastName}</p>
+            <p className="text-sm text-gray-300">with {therapist.isDemo ? 'Demo profile: ' : ''}{therapist.firstName} {therapist.lastName}</p>
           </div>
           <button type="button" onClick={close} disabled={loading} aria-label="Close booking dialog" className="rounded-lg p-2 text-gray-300 hover:bg-slate-800 disabled:opacity-50">
             <X className="h-6 w-6" />
@@ -115,10 +116,19 @@ export function BookingModal({ isOpen, therapist, onClose, onSuccess }: BookingM
           {booked ? (
             <div className="py-8 text-center">
               <CheckCircle className="mx-auto mb-4 h-14 w-14 text-green-400" />
-              <p className="text-lg text-white">Your booking is saved. You can find it in Sessions.</p>
+              <p className="text-lg text-white">
+                {therapist.isDemo
+                  ? 'Demo booking saved for this presentation. It is not a real appointment or care service.'
+                  : 'Your booking is saved. You can find it in Sessions.'}
+              </p>
             </div>
           ) : (
             <>
+              {therapist.isDemo && (
+                <div role="alert" className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-100">
+                  Demo booking only. This fictional profile is not a real clinician; no appointment, payment, or care service will be provided.
+                </div>
+              )}
               <fieldset>
                 <legend className="mb-3 font-semibold text-white">Session type</legend>
                 <div className="grid gap-3 sm:grid-cols-3">
@@ -182,7 +192,7 @@ export function BookingModal({ isOpen, therapist, onClose, onSuccess }: BookingM
               </label>
 
               <div className="flex items-center justify-between rounded-lg bg-slate-800/70 p-4">
-                <span className="text-gray-300">Estimated session fee</span>
+                <span className="text-gray-300">{therapist.isDemo ? 'Demo price estimate' : 'Estimated session fee'}</span>
                 <strong className="text-xl text-white">{estimatedPrice === null ? 'Rate unavailable' : `₹${estimatedPrice}`}</strong>
               </div>
 
@@ -192,7 +202,7 @@ export function BookingModal({ isOpen, therapist, onClose, onSuccess }: BookingM
                 <button type="button" onClick={close} disabled={loading} className="flex-1 rounded-lg border border-slate-700 px-4 py-3 text-gray-300 disabled:opacity-50">Cancel</button>
                 <button type="button" onClick={submitBooking} disabled={loading || !date || !time} className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-3 font-semibold text-white disabled:opacity-50">
                   {loading && <Loader className="h-4 w-4 animate-spin" />}
-                  {loading ? 'Booking...' : 'Confirm booking'}
+                  {loading ? 'Booking...' : therapist.isDemo ? 'Create demo booking' : 'Confirm booking'}
                 </button>
               </div>
             </>
