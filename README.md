@@ -215,6 +215,12 @@ the `RENDER_API_KEY` and `RENDER_SERVICE_ID` repository secrets. The frontend is
 deployed by the connected Vercel Git integration when changes are pushed to `main`;
 `VITE_API_URL` must point to the Render API.
 
+To add the non-destructive PostgreSQL starter library and peer-support groups to a
+database, run `npm run seed:starter` from `server/` after configuring that environment's
+database connection. The command is safe to repeat and does not create demo accounts,
+therapist credentials, personal stories, mood records, or appointments. Add only real,
+verified clinician profiles through the therapist registration and verification process.
+
 ## 📝 Architecture Decisions
 
 ### Database Choice: PostgreSQL + Sequelize

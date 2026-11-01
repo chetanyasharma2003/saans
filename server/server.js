@@ -129,7 +129,6 @@ app.use('/api/therapist-availability', require('./routes/therapist-availability.
 app.use('/api/subscriptions', require('./routes/subscriptions-pg.routes'));
 app.use('/api/2fa', require('./routes/2fa.routes'));
 app.use('/api/email-verification', require('./routes/email-verification.routes'));
-app.use('/api', require('./routes/seed.routes'));
 
 // 404 Handler
 app.use((req, res) => {
@@ -150,7 +149,13 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     // Try to connect to database (won't crash if it fails)
-    connectDB().catch(err => console.error('DB connection failed:', err.message));
+    connectDB()
+      .then(async (connected) => {
+        if (connected && process.env.NODE_ENV === 'production') {
+          await require('./seed-starter-content')();
+        }
+      })
+      .catch((error) => console.error('DB initialization failed:', error.message));
 
     // Start server regardless of DB connection
     const server = app.listen(PORT, () => {
