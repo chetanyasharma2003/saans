@@ -75,6 +75,10 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 // ============ ROUTES ============
 
 // Health Check
+app.get('/', (req, res) => {
+  res.json({ status: 'OK', message: 'SAANS Backend is running' });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'SAANS Backend is running' });
 });

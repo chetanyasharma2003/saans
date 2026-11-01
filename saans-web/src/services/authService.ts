@@ -44,15 +44,18 @@ const clearTokens = () => {
 // Refresh access token
 const refreshAccessToken = async () => {
   try {
-    const { refreshToken } = getTokens();
+    const { accessToken } = getTokens();
 
-    if (!refreshToken) {
+    if (!accessToken) {
       return false;
     }
 
     const response = await axios.post(`${API_URL}/api/auth/refresh`,
-      { refreshToken },
-      { withCredentials: true }
+      {},
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${accessToken}` }
+      }
     );
 
     if (response.data.token) {

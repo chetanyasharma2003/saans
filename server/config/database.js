@@ -1,14 +1,21 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
+const databaseUrl = process.env.DATABASE_URL;
+const databaseHost = process.env.DB_HOST || (databaseUrl ? new URL(databaseUrl).hostname : 'localhost');
+const isLocalDatabase = /^(localhost|127\.0\.0\.1|::1)$/.test(databaseHost);
+const useSSL = process.env.DB_SSL
+  ? process.env.DB_SSL.toLowerCase() === 'true'
+  : process.env.NODE_ENV === 'production' && !isLocalDatabase;
+
 // Support both DATABASE_URL (full connection string) and individual configs
-const sequelize = process.env.DATABASE_URL
-  ? new Sequelize(process.env.DATABASE_URL, {
+const sequelize = databaseUrl
+  ? new Sequelize(databaseUrl, {
       dialect: 'postgres',
       logging: process.env.NODE_ENV === 'development' ? console.log : false,
-      dialectOptions: {
-        ssl: { require: true, rejectUnauthorized: false },
-      },
+      dialectOptions: useSSL
+        ? { ssl: { require: true, rejectUnauthorized: false } }
+        : {},
       pool: {
         max: 5,
         min: 0,
@@ -18,15 +25,15 @@ const sequelize = process.env.DATABASE_URL
     })
   : new Sequelize({
       dialect: 'postgres',
-      host: process.env.DB_HOST || 'dpg-dao5miuk1f9s73ap16g0-a',
+      host: databaseHost,
       port: process.env.DB_PORT || 5432,
-      database: process.env.DB_NAME || 'for_saans',
-      username: process.env.DB_USER || 'for_saans_user',
+      database: process.env.DB_NAME || 'saans',
+      username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD,
       logging: process.env.NODE_ENV === 'development' ? console.log : false,
-      dialectOptions: {
-        ssl: process.env.NODE_ENV === 'production' ? { require: true, rejectUnauthorized: false } : false,
-      },
+      dialectOptions: useSSL
+        ? { ssl: { require: true, rejectUnauthorized: false } }
+        : {},
       pool: {
         max: 5,
         min: 0,

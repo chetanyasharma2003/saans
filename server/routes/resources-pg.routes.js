@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { Op } = require('sequelize');
 const { Resource } = require('../models/index');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -13,16 +14,13 @@ router.get('/', authenticateToken, async (req, res) => {
     if (category) where.category = category;
     if (difficulty) where.difficulty = difficulty;
     if (condition) {
-      where.conditions = require('sequelize').sequelize.where(
-        require('sequelize').sequelize.fn('jsonb_contains', require('sequelize').sequelize.col('conditions'), require('sequelize').sequelize.literal(`'"${condition}"'`)),
-        true
-      );
+      where.conditions = { [Op.contains]: [condition] };
     }
 
     if (search) {
-      where[require('sequelize').Op.or] = [
-        { title: { [require('sequelize').Op.iLike]: `%${search}%` } },
-        { description: { [require('sequelize').Op.iLike]: `%${search}%` } },
+      where[Op.or] = [
+        { title: { [Op.iLike]: `%${search}%` } },
+        { description: { [Op.iLike]: `%${search}%` } },
       ];
     }
 
@@ -68,7 +66,7 @@ router.get('/condition/:condition', authenticateToken, async (req, res) => {
       where: {
         status: 'published',
         conditions: {
-          [require('sequelize').Op.contains]: [req.params.condition]
+          [Op.contains]: [req.params.condition]
         }
       },
       order: [['rating', 'DESC']],

@@ -1,3 +1,4 @@
+
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 
@@ -88,7 +89,6 @@ const Resource = sequelize.define('Resource', {
   timestamps: true,
   indexes: [
     { fields: ['status', 'category'] },
-    { fields: ['conditions'] },
     { fields: ['rating'] },
   ],
 });
