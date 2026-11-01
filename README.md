@@ -210,13 +210,10 @@ npm run test:coverage
 
 ## 🔄 CI/CD Pipeline
 
-GitHub Actions workflow runs on every push:
-1. ✅ Unit Tests
-2. ✅ E2E Tests
-3. ✅ Security Scan (npm audit)
-4. ✅ Build Verification
-5. ✅ Deploy to Vercel (frontend)
-6. ✅ Deploy to Render (backend)
+GitHub Actions validates the backend build and deploys backend commits to Render using
+the `RENDER_API_KEY` and `RENDER_SERVICE_ID` repository secrets. The frontend is
+deployed by the connected Vercel Git integration when changes are pushed to `main`;
+`VITE_API_URL` must point to the Render API.
 
 ## 📝 Architecture Decisions
 
