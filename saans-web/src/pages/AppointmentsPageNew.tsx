@@ -3,20 +3,30 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Calendar, Clock, Plus, Loader, AlertCircle, RefreshCw } from 'lucide-react';
 import axios from 'axios';
+import { apiClient } from '../services/apiClient';
 import { JoinSessionModal } from '../components/Appointments/JoinSessionModal';
 import { RescheduleModal } from '../components/Appointments/RescheduleModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
+interface Appointment {
+  id: string;
+  therapist?: { firstName: string; lastName: string };
+  scheduledAt: string;
+  duration: number;
+  status: 'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
+  type: 'video' | 'audio' | 'chat';
+}
+
 export function AppointmentsPageNew() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [appointments, setAppointments] = useState([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedJoinAppointment, setSelectedJoinAppointment] = useState(null);
-  const [selectedRescheduleAppointment, setSelectedRescheduleAppointment] = useState(null);
+  const [selectedJoinAppointment, setSelectedJoinAppointment] = useState<Appointment | null>(null);
+  const [selectedRescheduleAppointment, setSelectedRescheduleAppointment] = useState<Appointment | null>(null);
 
   useEffect(() => {
     fetchAppointments();
@@ -49,8 +59,20 @@ export function AppointmentsPageNew() {
     fetchAppointments();
   };
 
+  const handleCancelAppointment = async (appointmentId: string) => {
+    if (!window.confirm('Cancel this appointment?')) return;
+    try {
+      await apiClient.post(`/api/appointments/${appointmentId}/cancel`, {});
+      await fetchAppointments();
+    } catch (cancelError) {
+      console.error('Error cancelling appointment:', cancelError);
+      setError('Unable to cancel this appointment. Please try again.');
+    }
+  };
+
   const upcomingAppointments = appointments.filter(a =>
-    (a.status === 'scheduled' || a.status === 'confirmed') && new Date(a.scheduledAt) > new Date()
+    a.status === 'in-progress'
+      || ((a.status === 'scheduled' || a.status === 'confirmed') && new Date(a.scheduledAt) > new Date())
   );
 
   const pastAppointments = appointments.filter(a => a.status === 'completed');
@@ -108,7 +130,10 @@ export function AppointmentsPageNew() {
                             <div className="text-4xl">👨‍⚕️</div>
                             <div>
                               <h3 className="text-white font-bold text-sm sm:text-lg">{apt.therapist?.firstName || 'Therapist'} {apt.therapist?.lastName || ''}</h3>
-                              <p className="text-purple-300 text-xs sm:text-sm capitalize">{apt.type} Call</p>
+                              <p className="text-purple-300 text-xs sm:text-sm capitalize">
+                                {apt.type === 'chat' ? 'Chat session' : `${apt.type} call`}
+                                {apt.status === 'in-progress' ? ' · In progress' : ''}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -125,14 +150,24 @@ export function AppointmentsPageNew() {
                             onClick={() => setSelectedJoinAppointment(apt)}
                             className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-all text-sm"
                           >
-                            Join
+                            {apt.type === 'chat' ? 'Open chat' : apt.status === 'in-progress' ? 'Rejoin' : 'Join'}
                           </button>
-                          <button
-                            onClick={() => setSelectedRescheduleAppointment(apt)}
-                            className="flex-1 px-4 py-2 bg-slate-700/50 text-gray-300 rounded-lg hover:bg-slate-700 transition-all text-sm font-medium"
-                          >
-                            Reschedule
-                          </button>
+                          {apt.status !== 'in-progress' && (
+                            <>
+                              <button
+                                onClick={() => setSelectedRescheduleAppointment(apt)}
+                                className="flex-1 px-4 py-2 bg-slate-700/50 text-gray-300 rounded-lg hover:bg-slate-700 transition-all text-sm font-medium"
+                              >
+                                Reschedule
+                              </button>
+                              <button
+                                onClick={() => handleCancelAppointment(apt.id)}
+                                className="flex-1 px-4 py-2 bg-red-900/50 text-red-200 rounded-lg hover:bg-red-800 transition-all text-sm font-medium"
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -172,6 +207,12 @@ export function AppointmentsPageNew() {
         isOpen={!!selectedJoinAppointment}
         appointment={selectedJoinAppointment}
         onClose={() => setSelectedJoinAppointment(null)}
+        onJoin={() => {
+          const appointmentId = selectedJoinAppointment?.id;
+          if (!appointmentId || !selectedJoinAppointment) return;
+          const route = selectedJoinAppointment.type === 'chat' ? '/messages' : '/video-call';
+          navigate(`${route}?appointmentId=${encodeURIComponent(appointmentId)}`);
+        }}
       />
       <RescheduleModal
         isOpen={!!selectedRescheduleAppointment}

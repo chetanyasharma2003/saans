@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { X, Clock, Video, Phone, User, AlertCircle, CheckCircle } from 'lucide-react';
+import { X, Clock, Video, Phone, MessageSquare, User, AlertCircle, CheckCircle } from 'lucide-react';
+
+interface Appointment {
+  scheduledAt: string;
+  duration: number;
+  status: 'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
+  type: 'video' | 'audio' | 'chat';
+  therapist?: { firstName?: string; lastName?: string };
+}
 
 interface JoinSessionModalProps {
   isOpen: boolean;
-  appointment: any;
+  appointment: Appointment | null;
   onClose: () => void;
+  onJoin: () => void;
 }
 
-export function JoinSessionModal({ isOpen, appointment, onClose }: JoinSessionModalProps) {
+export function JoinSessionModal({ isOpen, appointment, onClose, onJoin }: JoinSessionModalProps) {
   const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number; seconds: number }>({ hours: 0, minutes: 0, seconds: 0 });
   const [sessionStarted, setSessionStarted] = useState(false);
   const [joined, setJoined] = useState(false);
@@ -20,8 +29,10 @@ export function JoinSessionModal({ isOpen, appointment, onClose }: JoinSessionMo
       const now = new Date();
       const difference = appointmentTime.getTime() - now.getTime();
 
-      if (difference < 0) {
-        setSessionStarted(true);
+      const sessionWindowEnded = now.getTime() >= appointmentTime.getTime() + appointment.duration * 60_000;
+      setSessionStarted(difference <= 0 && !sessionWindowEnded);
+      if (difference <= 0 || sessionWindowEnded) {
+        setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
         return;
       }
 
@@ -40,8 +51,11 @@ export function JoinSessionModal({ isOpen, appointment, onClose }: JoinSessionMo
 
   if (!isOpen || !appointment) return null;
 
-  const canJoin = sessionStarted || (timeLeft.hours === 0 && timeLeft.minutes <= 15);
   const appointmentDate = new Date(appointment.scheduledAt);
+  const appointmentEnd = appointmentDate.getTime() + appointment.duration * 60_000;
+  const canJoin = ['scheduled', 'confirmed', 'in-progress'].includes(appointment.status)
+    && Date.now() >= appointmentDate.getTime() - 15 * 60_000
+    && Date.now() < appointmentEnd;
   const therapistName = appointment.therapist?.firstName + ' ' + appointment.therapist?.lastName;
 
   return (
@@ -116,16 +130,28 @@ export function JoinSessionModal({ isOpen, appointment, onClose }: JoinSessionMo
             <div className="p-4 bg-yellow-600/20 border border-yellow-500/50 rounded-lg flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-yellow-300 text-sm font-medium">Early Access</p>
-                <p className="text-yellow-300 text-xs mt-1">You can join 15 minutes before the session starts</p>
+                <p className="text-yellow-300 text-sm font-medium">
+                  {Date.now() < appointmentDate.getTime() - 15 * 60_000
+                    ? 'Early Access'
+                    : Date.now() >= appointmentEnd ? 'Session window ended' : 'Session unavailable'}
+                </p>
+                <p className="text-yellow-300 text-xs mt-1">
+                  {Date.now() < appointmentDate.getTime() - 15 * 60_000
+                    ? 'You can join 15 minutes before the session starts'
+                    : 'This appointment cannot be joined'}
+                </p>
               </div>
             </div>
           )}
 
           {/* Join Button */}
           <button
-            disabled={!canJoin && !joined}
-            onClick={() => setJoined(true)}
+            disabled={!canJoin || joined}
+            onClick={() => {
+              if (!canJoin || joined) return;
+              setJoined(true);
+              onJoin();
+            }}
             className={`w-full px-6 py-4 font-bold rounded-xl transition-all text-lg flex items-center justify-center gap-2 ${
               joined
                 ? 'bg-green-600 border border-green-500 text-white'
@@ -136,10 +162,16 @@ export function JoinSessionModal({ isOpen, appointment, onClose }: JoinSessionMo
           >
             {appointment.type === 'video' ? (
               <Video className="w-6 h-6" />
+            ) : appointment.type === 'chat' ? (
+              <MessageSquare className="w-6 h-6" />
             ) : (
               <Phone className="w-6 h-6" />
             )}
-            {joined ? '✓ Joined Session' : canJoin ? `Join ${appointment.type === 'video' ? 'Video' : 'Phone'} Call` : 'Not Ready Yet'}
+            {joined
+              ? '✓ Joined Session'
+              : canJoin
+                ? appointment.type === 'chat' ? 'Open Chat Session' : `Join ${appointment.type === 'video' ? 'Video' : 'Phone'} Call`
+                : 'Not Ready Yet'}
           </button>
 
           {/* Session Type Info */}
@@ -147,7 +179,9 @@ export function JoinSessionModal({ isOpen, appointment, onClose }: JoinSessionMo
             <p className="text-gray-400 text-sm mb-2">
               {appointment.type === 'video'
                 ? '🎥 Join via video call - Link will appear when you click Join'
-                : '📞 Phone call will be initiated immediately after clicking Join'}
+                : appointment.type === 'audio'
+                  ? '📞 Join the audio call when your session window opens'
+                  : '💬 Open the scheduled chat with your therapist'}
             </p>
           </div>
         </div>

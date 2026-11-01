@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, User, MapPin, Video, Phone, ChevronRight, Plus, Loader, AlertCircle, CheckCircle, MapCheck, Trash2, Edit2, Star } from 'lucide-react';
+import { Calendar, Clock, User, MapPin, Video, Phone, MessageSquare, ChevronRight, Plus, Loader, AlertCircle, CheckCircle, Trash2, Edit2, Star } from 'lucide-react';
 import { DashboardHeader } from '../components/DashboardHeader';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 interface Appointment {
-  _id: string;
-  therapistId: {
+  id: string;
+  therapist?: {
     firstName: string;
     lastName: string;
-    specialties?: string[];
+    specializations?: string[];
     rating?: number;
   };
   scheduledAt: string;
-  status: 'confirmed' | 'completed' | 'cancelled';
+  status: 'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
   type: 'video' | 'audio' | 'chat';
   price?: number;
   feedback?: {
@@ -54,7 +54,7 @@ export function SessionsPageNew() {
   };
 
   const upcomingAppointments = appointments
-    .filter(a => a.status === 'confirmed' && new Date(a.scheduledAt) > new Date())
+    .filter(a => a.status === 'in-progress' || (['scheduled', 'confirmed'].includes(a.status) && new Date(a.scheduledAt) > new Date()))
     .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
 
   const pastAppointments = appointments
@@ -64,13 +64,13 @@ export function SessionsPageNew() {
   const handleJoinSession = (appointment: Appointment) => {
     if (appointment.type === 'video') {
       // Navigate to video call page
-      navigate(`/video-call/${appointment._id}`);
+      navigate(`/video-call?appointmentId=${encodeURIComponent(appointment.id)}`);
     } else if (appointment.type === 'audio') {
       // Navigate to audio call page
-      navigate(`/audio-call/${appointment._id}`);
+      navigate(`/video-call?appointmentId=${encodeURIComponent(appointment.id)}`);
     } else {
       // Navigate to chat
-      navigate(`/chat/${appointment._id}`);
+      navigate(`/messages?appointmentId=${encodeURIComponent(appointment.id)}`);
     }
   };
 
@@ -116,7 +116,7 @@ export function SessionsPageNew() {
       case 'audio':
         return <Phone className="w-5 h-5 text-green-400" />;
       case 'chat':
-        return <MapCheck className="w-5 h-5 text-purple-400" />;
+        return <MessageSquare className="w-5 h-5 text-purple-400" />;
       default:
         return null;
     }
@@ -219,7 +219,7 @@ export function SessionsPageNew() {
                     <div className="space-y-6">
                       {upcomingAppointments.map((apt) => (
                         <div
-                          key={apt._id}
+                          key={apt.id}
                           className="bg-gradient-to-br from-purple-900/40 to-slate-900/40 border border-purple-500/30 rounded-2xl backdrop-blur-xl p-8 hover:border-purple-500/60 transition-all"
                         >
                           {/* Header */}
@@ -228,19 +228,19 @@ export function SessionsPageNew() {
                               <div className="text-4xl">👨‍⚕️</div>
                               <div className="flex-1">
                                 <h3 className="text-2xl font-bold text-white mb-2">
-                                  {apt.therapistId?.firstName} {apt.therapistId?.lastName}
+                                  {apt.therapist?.firstName} {apt.therapist?.lastName}
                                 </h3>
-                                {apt.therapistId?.specialties && (
+                                {apt.therapist?.specializations && (
                                   <p className="text-purple-300 text-sm mb-2">
-                                    {apt.therapistId?.specialties?.join(', ')}
+                                    {apt.therapist?.specializations?.join(', ')}
                                   </p>
                                 )}
                               </div>
                             </div>
-                            {apt.therapistId?.rating && (
+                            {apt.therapist?.rating && (
                               <div className="flex items-center gap-1 text-yellow-400">
                                 <Star className="w-4 h-4 fill-yellow-400" />
-                                <span className="font-bold">{apt.therapistId?.rating}</span>
+                                <span className="font-bold">{apt.therapist?.rating}</span>
                               </div>
                             )}
                           </div>
@@ -279,7 +279,7 @@ export function SessionsPageNew() {
                               Reschedule
                             </button>
                             <button
-                              onClick={() => handleCancelAppointment(apt._id)}
+                              onClick={() => handleCancelAppointment(apt.id)}
                               className="px-4 py-3 bg-slate-700 text-gray-300 font-bold rounded-lg hover:bg-red-900/50 transition-all flex items-center justify-center gap-2"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -307,7 +307,7 @@ export function SessionsPageNew() {
                     <div className="space-y-6">
                       {pastAppointments.map((apt) => (
                         <div
-                          key={apt._id}
+                          key={apt.id}
                           className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 border border-slate-600/30 rounded-2xl backdrop-blur-xl p-6 hover:border-slate-600/60 transition-all"
                         >
                           <div className="flex items-start justify-between mb-4">
@@ -315,7 +315,7 @@ export function SessionsPageNew() {
                               <div className="text-3xl">👨‍⚕️</div>
                               <div className="flex-1">
                                 <h3 className="text-xl font-bold text-white">
-                                  {apt.therapistId?.firstName} {apt.therapistId?.lastName}
+                                  {apt.therapist?.firstName} {apt.therapist?.lastName}
                                 </h3>
                                 <p className="text-gray-400 text-sm">
                                   {formatDate(apt.scheduledAt)}
@@ -370,7 +370,7 @@ export function SessionsPageNew() {
                     onClick={() => {
                       const input = document.querySelector('input[type="datetime-local"]') as HTMLInputElement;
                       if (selectedAppointment && input.value) {
-                        handleReschedule(selectedAppointment._id, input.value);
+                        handleReschedule(selectedAppointment.id, input.value);
                       }
                     }}
                     className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"

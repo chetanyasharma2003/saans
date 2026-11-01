@@ -3,18 +3,18 @@ let RtcRole = null;
 const logger = require('../utils/logger');
 
 try {
-  const agoraModule = require('agora-access-token');
+  const agoraModule = require('agora-token');
   RtcTokenBuilder = agoraModule.RtcTokenBuilder;
   RtcRole = agoraModule.RtcRole;
 } catch (e) {
-  logger.warn('agora-access-token not installed - video calls disabled for MVP');
+  logger.warn('agora-token not installed - video calls disabled for MVP');
 }
 
 class VideoCallService {
   constructor() {
     this.appId = process.env.AGORA_APP_ID;
     this.appCertificate = process.env.AGORA_APP_CERTIFICATE;
-    this.expirationTimeInSeconds = 3600; // 1 hour
+    this.expirationTimeInSeconds = 7200;
 
     // Validate Agora credentials
     if (!this.appId || !this.appCertificate) {
@@ -30,11 +30,14 @@ class VideoCallService {
 
   // ==================== TOKEN GENERATION ====================
 
-  generateToken(channelName, userId, role = 'publisher') {
+  generateToken(channelName, uid, role = 'publisher') {
     try {
       if (!RtcTokenBuilder || !RtcRole) {
-        logger.warn('Video calls disabled for MVP - Agora not installed');
-        return { success: false, message: 'Video calls not available' };
+        throw new Error('Agora token package is unavailable');
+      }
+      const numericUid = Number(uid);
+      if (!Number.isInteger(numericUid) || numericUid < 1 || numericUid > 0xffffffff) {
+        throw new Error('Agora UID must be an unsigned 32-bit integer');
       }
       const rtcRole = role === 'subscriber' ? RtcRole.SUBSCRIBER : RtcRole.PUBLISHER;
 
@@ -42,18 +45,19 @@ class VideoCallService {
         this.appId,
         this.appCertificate,
         channelName,
-        userId,
+        numericUid,
         rtcRole,
+        this.expirationTimeInSeconds,
         this.expirationTimeInSeconds
       );
 
-      logger.info('Video call token generated', { channelName, userId });
+      logger.info('Video call token generated', { channelName, uid: numericUid });
       return {
         success: true,
         token,
         channelName,
         appId: this.appId,
-        uid: userId
+        uid: numericUid
       };
     } catch (error) {
       logger.error('Token generation error', { error: error.message });

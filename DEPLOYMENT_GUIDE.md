@@ -1,7 +1,7 @@
 # 🚀 SAANS Platform - Deployment Guide
 
 **Last Updated:** 2026-09-25
-**Status:** Ready for Production ✅
+**Status:** Confirm the runtime configuration below before production.
 
 ---
 
@@ -15,7 +15,7 @@
 - [x] Environment variables documented
 
 ### Dependencies
-- [x] Backend: agora-access-token, twilio, stripe, razorpay
+- [x] Backend: agora-token, stripe, razorpay
 - [x] Frontend: agora-rtc-sdk-ng, stripe-js
 - [x] All peer dependencies resolved
 
@@ -41,13 +41,18 @@ npm install
 cp .env.example .env
 
 # Update .env with your credentials
-# Edit: MONGODB_URI, JWT_SECRET, STRIPE keys, RAZORPAY keys, etc.
+# Edit: PostgreSQL DATABASE_URL, JWT_SECRET, and any enabled integration credentials.
 nano .env
 
 # Test connection
 npm run dev
-# Should see: ✅ MongoDB Connected, 🚀 Server running on port 3001
+# Should see: ✅ PostgreSQL Connected via Sequelize, 🚀 Server running on port 3001
 ```
+
+### Booking and video session requirements
+
+- Booking requires an active, verified therapist profile that accepts new clients. Do not use fabricated therapist profiles for production.
+- Real-time audio/video sessions require `AGORA_APP_ID` and `AGORA_APP_CERTIFICATE` in the backend environment. The backend returns the App ID to the browser; do not expose the certificate or add it to frontend environment variables.
 
 ### 2. Frontend Setup
 

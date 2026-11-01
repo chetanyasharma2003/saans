@@ -7,16 +7,41 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
+interface Therapist {
+  id: string;
+  firstName: string;
+  lastName: string;
+  specializations?: string[];
+  languages?: string[];
+  hourlyRate: number | string;
+  rating: number | string;
+  totalRatings?: number;
+  bio?: string;
+  yearsOfExperience?: number;
+  responseTime?: string;
+  sessionsCompleted?: number;
+  acceptNewClients?: boolean;
+}
+
+type TherapistFilters = {
+  specialty: string | null;
+  language: string | null;
+  maxPrice: number | null;
+  minRating: number | null;
+};
+
+type SortOption = 'rating' | 'price-low' | 'price-high' | 'experience';
+
 export function FindTherapistPagePro() {
   const navigate = useNavigate();
-  const [therapists, setTherapists] = useState([]);
-  const [filteredTherapists, setFilteredTherapists] = useState([]);
+  const [therapists, setTherapists] = useState<Therapist[]>([]);
+  const [filteredTherapists, setFilteredTherapists] = useState<Therapist[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [sortBy, setSortBy] = useState('rating');
+  const [error, setError] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<SortOption>('rating');
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilters, setSelectedFilters] = useState({
+  const [selectedFilters, setSelectedFilters] = useState<TherapistFilters>({
     specialty: null,
     language: null,
     maxPrice: null,
@@ -24,9 +49,9 @@ export function FindTherapistPagePro() {
   });
 
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [selectedTherapist, setSelectedTherapist] = useState<any>(null);
+  const [selectedTherapist, setSelectedTherapist] = useState<Therapist | null>(null);
 
-  const handleOpenBooking = (therapist: any) => {
+  const handleOpenBooking = (therapist: Therapist) => {
     setSelectedTherapist(therapist);
     setShowBookingModal(true);
   };
@@ -53,7 +78,7 @@ export function FindTherapistPagePro() {
     try {
       setLoading(true);
       const token = localStorage.getItem('accessToken');
-      const response = await axios.get(`${API_URL}/api/therapists`, {
+      const response = await axios.get<{ data: Therapist[] }>(`${API_URL}/api/therapists`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -68,7 +93,7 @@ export function FindTherapistPagePro() {
     }
   };
 
-  const applyFiltersAndSort = (list) => {
+  const applyFiltersAndSort = (list: Therapist[]) => {
     let filtered = [...list];
 
     if (searchQuery) {
@@ -78,33 +103,37 @@ export function FindTherapistPagePro() {
       );
     }
 
-    if (selectedFilters.specialty) {
+    const specialty = selectedFilters.specialty;
+    if (specialty) {
       filtered = filtered.filter(t =>
-        (t.specializations || []).includes(selectedFilters.specialty)
+        (t.specializations || []).includes(specialty)
       );
     }
 
-    if (selectedFilters.language) {
+    const language = selectedFilters.language;
+    if (language) {
       filtered = filtered.filter(t =>
-        (t.languages || []).includes(selectedFilters.language)
+        (t.languages || []).includes(language)
       );
     }
 
     if (selectedFilters.maxPrice) {
-      filtered = filtered.filter(t => parseFloat(t.hourlyRate) <= selectedFilters.maxPrice);
+      const maxPrice = selectedFilters.maxPrice;
+      filtered = filtered.filter(t => Number(t.hourlyRate) <= maxPrice);
     }
 
     if (selectedFilters.minRating) {
-      filtered = filtered.filter(t => parseFloat(t.rating) >= selectedFilters.minRating);
+      const minRating = selectedFilters.minRating;
+      filtered = filtered.filter(t => Number(t.rating) >= minRating);
     }
 
     // Sort
     if (sortBy === 'rating') {
-      filtered.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
+      filtered.sort((a, b) => Number(b.rating) - Number(a.rating));
     } else if (sortBy === 'price-low') {
-      filtered.sort((a, b) => parseFloat(a.hourlyRate) - parseFloat(b.hourlyRate));
+      filtered.sort((a, b) => Number(a.hourlyRate) - Number(b.hourlyRate));
     } else if (sortBy === 'price-high') {
-      filtered.sort((a, b) => parseFloat(b.hourlyRate) - parseFloat(a.hourlyRate));
+      filtered.sort((a, b) => Number(b.hourlyRate) - Number(a.hourlyRate));
     } else if (sortBy === 'experience') {
       filtered.sort((a, b) => (b.yearsOfExperience || 0) - (a.yearsOfExperience || 0));
     }
@@ -112,11 +141,13 @@ export function FindTherapistPagePro() {
     setFilteredTherapists(filtered);
   };
 
-  const handleSort = (value) => {
-    setSortBy(value);
+  const handleSort = (value: string) => {
+    if (value === 'rating' || value === 'price-low' || value === 'price-high' || value === 'experience') {
+      setSortBy(value);
+    }
   };
 
-  const handleFilterChange = (filterType, value) => {
+  const handleFilterChange = <K extends keyof TherapistFilters>(filterType: K, value: TherapistFilters[K]) => {
     setSelectedFilters(prev => ({
       ...prev,
       [filterType]: value
@@ -127,10 +158,10 @@ export function FindTherapistPagePro() {
     applyFiltersAndSort(therapists);
   }, [searchQuery, selectedFilters, sortBy, therapists]);
 
-  const getInitial = (firstName) => (firstName || 'T')[0].toUpperCase();
+  const getInitial = (firstName: string) => (firstName || 'T')[0].toUpperCase();
 
-  const getSpecialtyColor = (specialty) => {
-    const colors = {
+  const getSpecialtyColor = (specialty: string) => {
+    const colors: Record<string, string> = {
       'Anxiety': 'bg-blue-500/20 text-blue-300',
       'Depression': 'bg-purple-500/20 text-purple-300',
       'PTSD': 'bg-red-500/20 text-red-300',
@@ -160,28 +191,9 @@ export function FindTherapistPagePro() {
               Find Your Perfect Therapist
             </h1>
             <p className="text-lg text-purple-200 mb-8">
-              Connect with 2,500+ verified mental health professionals tailored to your needs
+              Browse qualified professionals whose profiles are available on SAANS.
             </p>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-4 gap-4">
-              <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-4">
-                <div className="text-3xl font-bold text-purple-300">2,500+</div>
-                <div className="text-xs text-gray-400 mt-1">Verified Therapists</div>
-              </div>
-              <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-4">
-                <div className="text-3xl font-bold text-yellow-300">4.8/5</div>
-                <div className="text-xs text-gray-400 mt-1">Avg Rating</div>
-              </div>
-              <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-4">
-                <div className="text-3xl font-bold text-green-300">98%</div>
-                <div className="text-xs text-gray-400 mt-1">Satisfaction</div>
-              </div>
-              <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-4">
-                <div className="text-3xl font-bold text-blue-300">50k+</div>
-                <div className="text-xs text-gray-400 mt-1">Sessions</div>
-              </div>
-            </div>
           </div>
 
           {error && (
@@ -269,11 +281,6 @@ export function FindTherapistPagePro() {
               <h2 className="text-3xl font-bold text-white">
                 Available Therapists <span className="text-purple-400">({filteredTherapists.length})</span>
               </h2>
-              {filteredTherapists.length > 0 && (
-                <span className="px-4 py-2 bg-green-500/20 text-green-300 rounded-full text-sm font-medium">
-                  🔥 High Demand
-                </span>
-              )}
             </div>
 
             {loading ? (
@@ -283,8 +290,16 @@ export function FindTherapistPagePro() {
             ) : filteredTherapists.length === 0 ? (
               <div className="bg-gradient-to-br from-purple-900/50 to-slate-900/40 border border-purple-400/30 rounded-2xl p-12 text-center">
                 <AlertCircle className="w-12 h-12 text-purple-400/50 mx-auto mb-4" />
-                <p className="text-gray-400 text-lg">No therapists found matching your criteria</p>
-                <p className="text-gray-500 text-sm mt-2">Try adjusting your filters</p>
+                <p className="text-gray-400 text-lg">
+                  {therapists.length === 0
+                    ? 'There are no verified therapists listed yet.'
+                    : 'No therapists match your current filters.'}
+                </p>
+                <p className="text-gray-500 text-sm mt-2">
+                  {therapists.length === 0
+                    ? 'Please check back later while our team verifies professional profiles.'
+                    : 'Try adjusting your filters.'}
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -375,10 +390,12 @@ export function FindTherapistPagePro() {
                       </div>
 
                       {/* Availability */}
-                      <div className="flex items-center gap-2 text-sm text-green-400 mb-4">
-                        <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                        Available Today
-                      </div>
+                      {therapist.acceptNewClients && (
+                        <div className="flex items-center gap-2 text-sm text-green-400 mb-4">
+                          <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                          Accepting new clients
+                        </div>
+                      )}
                     </div>
 
                     {/* Card Footer */}
@@ -415,8 +432,7 @@ export function FindTherapistPagePro() {
         onClose={handleCloseBooking}
         onSuccess={() => {
           handleCloseBooking();
-          // Optional: redirect to appointments or show confirmation
-          setTimeout(() => window.location.href = '/appointments', 500);
+          navigate('/appointments');
         }}
       />
     </div>
