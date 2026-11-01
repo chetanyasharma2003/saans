@@ -1,9 +1,7 @@
 name: 🔧 Auto-Fix Issues
 
 on:
-  workflow_run:
-    workflows: ["🚀 Auto Deploy & Test", "🧪 Automated Testing"]
-    types: [completed]
+  workflow_dispatch:
 
 jobs:
   fix-code-quality:
