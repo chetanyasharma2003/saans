@@ -69,7 +69,6 @@ const StoriesPage: React.FC = () => {
         },
       ]);
     } catch (error) {
-      console.error('Failed to fetch stories:', error);
     } finally {
       setLoading(false);
     }

@@ -56,7 +56,6 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, the
       time: selectedTime,
       cost: sessionCosts[selectedType],
     };
-    console.log('Booking:', bookingData);
     // TODO: Send to backend API
     alert('Booking confirmed! (Demo - not connected to backend yet)');
     setStep('type');

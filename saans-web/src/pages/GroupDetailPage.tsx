@@ -41,7 +41,6 @@ export function GroupDetailPage() {
       });
       setGroup(response.data.data);
     } catch (err) {
-      console.error('Error fetching group:', err);
       setError('Failed to load group');
     } finally {
       setLoading(false);
@@ -53,7 +52,6 @@ export function GroupDetailPage() {
       const response = await axios.get(`${API_URL}/api/group-posts/group/${id}`);
       setPosts(response.data.data || []);
     } catch (err) {
-      console.error('Error fetching posts:', err);
     }
   };
 
@@ -79,7 +77,6 @@ export function GroupDetailPage() {
       setNewPost({ title: '', content: '' });
       setShowPostForm(false);
     } catch (err) {
-      console.error('Error creating post:', err);
       alert('Failed to create post');
     }
   };
@@ -94,7 +91,6 @@ export function GroupDetailPage() {
       );
       fetchPosts();
     } catch (err) {
-      console.error('Error:', err);
     }
   };
 

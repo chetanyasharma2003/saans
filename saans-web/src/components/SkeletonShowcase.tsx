@@ -213,9 +213,7 @@ function EmptyStatesSection() {
         <div className="bg-slate-800/30 p-6 rounded-lg">
           <NoAppointmentsEmptyState
             onScheduleClick={() =>
-              console.log('Schedule appointment clicked')
             }
-            onFindTherapistClick={() => console.log('Find therapist clicked')}
           />
         </div>
       </div>
@@ -232,8 +230,6 @@ function EmptyStatesSection() {
         </div>
         <div className="bg-slate-800/30 p-6 rounded-lg">
           <NoMessagesEmptyState
-            onStartChatClick={() => console.log('Start chat clicked')}
-            onInviteFriendsClick={() => console.log('Invite friends clicked')}
           />
         </div>
       </div>
@@ -250,8 +246,6 @@ function EmptyStatesSection() {
         </div>
         <div className="bg-slate-800/30 p-6 rounded-lg">
           <NoMoodEntriesEmptyState
-            onTrackMoodClick={() => console.log('Track mood clicked')}
-            onViewGuideClick={() => console.log('View guide clicked')}
           />
         </div>
       </div>
@@ -268,8 +262,6 @@ function EmptyStatesSection() {
         </div>
         <div className="bg-slate-800/30 p-6 rounded-lg">
           <NoCommunityPostsEmptyState
-            onCreatePostClick={() => console.log('Create post clicked')}
-            onExploreClick={() => console.log('Explore clicked')}
           />
         </div>
       </div>
@@ -287,7 +279,6 @@ function EmptyStatesSection() {
         <div className="bg-slate-800/30 p-6 rounded-lg">
           <EmptySearchState
             query="cognitive behavioral therapy"
-            onClearSearch={() => console.log('Clear search clicked')}
           />
         </div>
       </div>
@@ -313,7 +304,6 @@ function OtherStatesSection() {
           <ErrorState
             title="Failed to Load Appointments"
             description="There was an error retrieving your appointments. Please try again or contact support if the problem persists."
-            onRetryClick={() => console.log('Retry clicked')}
           />
         </div>
       </div>
@@ -333,7 +323,6 @@ function OtherStatesSection() {
             title="Appointment Scheduled!"
             description="Your appointment with Dr. Sarah has been scheduled for tomorrow at 2:00 PM."
             actionLabel="View Details"
-            onActionClick={() => console.log('View details clicked')}
           />
         </div>
       </div>
@@ -352,12 +341,10 @@ function OtherStatesSection() {
           <ErrorState
             title="Network Error"
             description="Unable to connect to the server. Check your internet connection and try again."
-            onRetryClick={() => console.log('Retry clicked')}
           />
           <ErrorState
             title="Unauthorized Access"
             description="You don't have permission to access this resource. Please contact an administrator."
-            onRetryClick={() => console.log('Retry clicked')}
           />
         </div>
       </div>
@@ -377,13 +364,11 @@ function OtherStatesSection() {
             title="Profile Updated"
             description="Your profile information has been saved successfully."
             actionLabel="Continue"
-            onActionClick={() => console.log('Continue clicked')}
           />
           <SuccessState
             title="Mood Entry Saved"
             description="Your mood entry has been recorded and will help us provide better insights."
             actionLabel="View Analytics"
-            onActionClick={() => console.log('View analytics clicked')}
           />
         </div>
       </div>

@@ -42,7 +42,6 @@ const WellnessResourcesPage: React.FC = () => {
       const response = await axios.get(url);
       setResources(response.data.data || []);
     } catch (error) {
-      console.error('Failed to fetch resources:', error);
     } finally {
       setLoading(false);
     }

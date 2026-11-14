@@ -34,7 +34,6 @@ export function StoryDetailPage() {
       const response = await axios.get(`${API_URL}/api/story-details/${id}`);
       setStory(response.data.data);
     } catch (err) {
-      console.error('Error fetching story:', err);
       setError('Failed to load story');
     } finally {
       setLoading(false);
@@ -46,7 +45,6 @@ export function StoryDetailPage() {
       const response = await axios.get(`${API_URL}/api/story-details/${id}/comments`);
       setComments(response.data.data || []);
     } catch (err) {
-      console.error('Error fetching comments:', err);
     }
   };
 
@@ -64,7 +62,6 @@ export function StoryDetailPage() {
       setComments([response.data.data, ...comments]);
       setNewComment('');
     } catch (err) {
-      console.error('Error posting comment:', err);
       alert('Failed to post comment');
     }
   };
@@ -79,7 +76,6 @@ export function StoryDetailPage() {
       );
       fetchComments();
     } catch (err) {
-      console.error('Error:', err);
     }
   };
 

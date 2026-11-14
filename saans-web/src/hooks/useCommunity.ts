@@ -110,7 +110,6 @@ export function useActivityFeed() {
         const response = await apiClient.get<CommunityPost[]>('/community/posts');
         return response.data || [];
       } catch (error) {
-        console.error('Failed to fetch activity feed:', error);
         return [];
       }
     },
@@ -127,7 +126,6 @@ export function useRecentActivity() {
         // Return most recent posts (assuming they're sorted by date)
         return (response.data || []).slice(0, 5);
       } catch (error) {
-        console.error('Failed to fetch recent activity:', error);
         return [];
       }
     },

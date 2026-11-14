@@ -31,7 +31,6 @@ class ErrorHandler {
    * Map API error responses to user-friendly messages
    */
   static mapApiError(error: unknown): MappedError {
-    console.error('API Error:', error);
 
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError<ApiErrorResponse>;
@@ -96,7 +95,6 @@ class ErrorHandler {
    */
   static handleNetworkError(): MappedError {
     const message = 'Network connection failed. Please check your internet connection.';
-    console.error('Network Error:', message);
 
     return {
       status: 0,
@@ -141,7 +139,6 @@ class ErrorHandler {
         // Special handling for 401 - redirect to login
         if (mappedError.status === 401) {
           // Dispatch logout action or redirect
-          console.warn('Authentication failed - user should be logged out');
           // window.location.href = '/login';
         }
 
@@ -155,14 +152,8 @@ class ErrorHandler {
    */
   static logToService(error: MappedError, context?: Record<string, any>): void {
     if (import.meta.env.DEV) {
-      console.group('Error Log');
-      console.error('Status:', error.status);
-      console.error('Message:', error.message);
-      console.error('User Message:', error.userMessage);
       if (context) {
-        console.error('Context:', context);
       }
-      console.groupEnd();
     }
   }
 

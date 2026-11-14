@@ -80,7 +80,6 @@ const ProfileCompletionPage: React.FC = () => {
         profileImage: null
       }));
     } catch (error) {
-      console.error('Error fetching profile:', error);
     }
   };
 
@@ -116,7 +115,6 @@ const ProfileCompletionPage: React.FC = () => {
         text: `2FA ${newStatus ? 'enabled' : 'disabled'} successfully!`
       });
     } catch (error: any) {
-      console.error('2FA toggle error:', error);
       setMessage({
         type: 'error',
         text: error.response?.data?.error || '2FA update failed'
@@ -152,7 +150,6 @@ const ProfileCompletionPage: React.FC = () => {
       setUploaded(true);
       setMessage({ type: 'success', text: 'Profile picture uploaded!' });
     } catch (error) {
-      console.error('Upload error:', error);
       setMessage({ type: 'error', text: 'Failed to upload image' });
     } finally {
       setLoading(false);
@@ -196,7 +193,6 @@ const ProfileCompletionPage: React.FC = () => {
         window.location.href = '/dashboard';
       }, 2000);
     } catch (error: any) {
-      console.error('Profile error:', error);
       const errorMsg = error.response?.data?.error || error.message || 'Failed to update profile';
       setMessage({ type: 'error', text: errorMsg });
     } finally {

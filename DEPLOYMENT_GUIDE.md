@@ -58,6 +58,20 @@ npm run dev
 
 For a presentation environment only, set `ENABLE_DEMO_DATA=true` in the backend environment and restart/redeploy. Startup seeds fictional therapist profiles, sample community posts, demo groups, and demo resources idempotently. Demo profiles are not verified clinicians, are visibly labelled fictional, and support simulated bookings only. Demo data remains in the database but is hidden from the app when the flag is turned off; no seeded demo rows are deleted automatically.
 
+### Free Render Postgres: encrypted backup and rotation
+
+Render's Free Postgres database expires 30 days after creation. Pings or application traffic do not extend that period, so a free database cannot be made permanent by keeping it active. Use this local workflow to preserve data and move it to a replacement database before expiry:
+
+1. Install PostgreSQL client tools (`pg_dump` and `pg_restore`) and GnuPG (`gpg`) on your computer. Keep them available on your `PATH`.
+2. From the repository root, run `python3 server/scripts/render-postgres-portability.py backup`.
+3. When prompted, paste the database's **External Database URL** from the Render Dashboard. The prompt hides input; do not put the URL in chat, source code, or a command.
+4. GnuPG will ask for an encryption passphrase. Choose a strong one and store it separately from the backup. The verified AES-256 encrypted backup is saved under `~/saans-db-backups/`, outside this repository.
+5. Repeat every two weeks and before any database change. Keep a second copy of the encrypted file in a private, secure location; do not commit it or upload it to a public service.
+6. Before the current database expires, use Render's Dashboard to create a replacement Free Postgres database when permitted by your workspace's limits. Restore only into a new, empty database by running `python3 server/scripts/render-postgres-portability.py restore` and providing its **External Database URL** when prompted.
+7. Verify the restored database and application. Then update the backend Render service's `DATABASE_URL` to the replacement database's **Internal Database URL** and redeploy. Keep the old database until the new deployment is confirmed healthy.
+
+The restore command does not drop existing objects, but a failed restore can leave the target partially populated; use a fresh empty database to retry. The encrypted backup contains the database's user and health-related data, so protect both the file and passphrase. This process requires a reminder and manual database rotation; it does not extend the 30-day expiry or automate Render account changes.
+
 ### 2. Frontend Setup
 
 ```bash

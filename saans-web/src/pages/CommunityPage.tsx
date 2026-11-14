@@ -240,7 +240,6 @@ export function CommunityPage() {
       setSupportGroups(response.groups || sampleGroups);
       setError(null);
     } catch (err: any) {
-      console.error('Failed to load groups:', err);
       // Use sample data as fallback
       setSupportGroups(sampleGroups);
       setError(null);
@@ -283,7 +282,6 @@ export function CommunityPage() {
       setCurrentPage(page);
       setError(null);
     } catch (err: any) {
-      console.error('Failed to load posts:', err);
       // Use sample posts as fallback
       const postsToShow = category === 'All' ? samplePosts : samplePosts.filter(p => p.category === category);
       if (page === 1) {
@@ -347,7 +345,6 @@ export function CommunityPage() {
       setNewPost('');
       setError(null);
     } catch (err: any) {
-      console.error('Failed to create post:', err);
       setError(err.message || 'Failed to create post');
     } finally {
       setLoading(false);
@@ -380,7 +377,6 @@ export function CommunityPage() {
 
       setError(null);
     } catch (err: any) {
-      console.error('Failed to add comment:', err);
       setError(err.message || 'Failed to add comment');
     } finally {
       setLoading(false);
@@ -407,7 +403,6 @@ export function CommunityPage() {
 
       setError(null);
     } catch (err: any) {
-      console.error('Failed to toggle like:', err);
       setError(err.message || 'Failed to update like');
     }
   };
@@ -432,7 +427,6 @@ export function CommunityPage() {
 
       setError(null);
     } catch (err: any) {
-      console.error('Failed to update group membership:', err);
       setError(err.message || 'Failed to update group membership');
     }
   };
@@ -448,7 +442,6 @@ export function CommunityPage() {
         [postId]: response.comments || [],
       }));
     } catch (err: any) {
-      console.error('Failed to load comments:', err);
       setError('Failed to load comments');
     }
   };

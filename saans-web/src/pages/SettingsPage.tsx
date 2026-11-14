@@ -22,7 +22,6 @@ const SettingsPage: React.FC = () => {
       });
       setTwoFAEnabled(res.data.data?.twoFAEnabled || false);
     } catch (error) {
-      console.error('Error checking 2FA status:', error);
     }
   };
 
@@ -35,7 +34,6 @@ const SettingsPage: React.FC = () => {
       setQrCode(res.data.data.qrCode);
       setShowQR(true);
     } catch (error) {
-      console.error('Error generating 2FA:', error);
       alert('Failed to generate 2FA');
     } finally {
       setLoading(false);
@@ -55,7 +53,6 @@ const SettingsPage: React.FC = () => {
       setShowQR(false);
       alert('2FA enabled successfully!');
     } catch (error) {
-      console.error('Verification error:', error);
       alert('Invalid verification code');
     } finally {
       setLoading(false);
@@ -72,7 +69,6 @@ const SettingsPage: React.FC = () => {
       setTwoFAEnabled(false);
       alert('2FA disabled');
     } catch (error) {
-      console.error('Disable error:', error);
     }
   };
 

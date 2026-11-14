@@ -37,7 +37,6 @@ export function ResourceDetailPage() {
       const response = await axios.get(`${API_URL}/api/resource-details/${id}`);
       setResource(response.data.data);
     } catch (err) {
-      console.error('Error fetching resource:', err);
       setError('Failed to load resource');
     } finally {
       setLoading(false);
@@ -49,7 +48,6 @@ export function ResourceDetailPage() {
       const response = await axios.get(`${API_URL}/api/resource-details/${id}/reviews`);
       setReviews(response.data.data || []);
     } catch (err) {
-      console.error('Error fetching reviews:', err);
     }
   };
 
@@ -62,7 +60,6 @@ export function ResourceDetailPage() {
       );
       setIsBookmarked(response.data.isBookmarked);
     } catch (err) {
-      console.error('Error checking bookmark:', err);
     }
   };
 
@@ -83,7 +80,6 @@ export function ResourceDetailPage() {
       }
       setIsBookmarked(!isBookmarked);
     } catch (err) {
-      console.error('Error:', err);
       alert('Failed to update bookmark');
     }
   };
@@ -106,7 +102,6 @@ export function ResourceDetailPage() {
       setNewReview({ rating: 5, title: '', content: '' });
       alert('Review submitted!');
     } catch (err) {
-      console.error('Error posting review:', err);
       alert('Failed to submit review');
     }
   };
@@ -121,7 +116,6 @@ export function ResourceDetailPage() {
       );
       fetchReviews();
     } catch (err) {
-      console.error('Error:', err);
     }
   };
 

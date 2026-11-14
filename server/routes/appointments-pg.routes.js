@@ -175,7 +175,6 @@ router.post('/', authenticateToken, async (req, res) => {
     res.status(201).json({ success: true, data: created });
   } catch (error) {
     const statusCode = error.statusCode || (error.name === 'SequelizeForeignKeyConstraintError' ? 404 : 500);
-    if (statusCode === 500) console.error('Create appointment failed:', error);
     res.status(statusCode).json({
       success: false,
       error: statusCode === 500 ? 'Unable to book appointment' : error.message,
@@ -256,7 +255,6 @@ async function rescheduleAppointment(req, res) {
     res.json({ success: true, data: result });
   } catch (error) {
     const statusCode = error.statusCode || 500;
-    if (statusCode === 500) console.error('Reschedule appointment failed:', error);
     res.status(statusCode).json({
       success: false,
       error: statusCode === 500 ? 'Unable to reschedule appointment' : error.message,
@@ -290,7 +288,6 @@ router.post('/:id/cancel', authenticateToken, async (req, res) => {
     });
     res.json({ success: true, data: appointment });
   } catch (error) {
-    console.error('Cancel appointment failed:', error);
     res.status(500).json({ success: false, error: 'Unable to cancel appointment' });
   }
 });

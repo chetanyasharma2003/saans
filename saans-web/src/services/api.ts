@@ -130,10 +130,8 @@ class ApiClient {
       return await response.json() as T;
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
-        console.error(`API request timeout: ${method} ${endpoint}`);
         throw new Error('Request timeout - server not responding');
       }
-      console.error(`API request failed: ${method} ${endpoint}`, error);
       throw error;
     } finally {
       clearTimeout(timeoutId);
@@ -159,7 +157,6 @@ class ApiClient {
       localStorage.setItem('accessToken', data.token);
       return true;
     } catch (error) {
-      console.error('Token refresh failed', error);
       return false;
     }
   }

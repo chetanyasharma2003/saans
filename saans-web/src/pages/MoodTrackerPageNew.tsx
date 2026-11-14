@@ -51,7 +51,6 @@ export function MoodTrackerPageNew() {
       });
       setMoodHistory(response.data.data || []);
     } catch (error) {
-      console.error('Error fetching mood history:', error);
     } finally {
       setLoading(false);
     }
@@ -95,7 +94,6 @@ export function MoodTrackerPageNew() {
 
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
-      console.error('Error saving mood:', error);
       setMessage({ type: 'error', text: error.response?.data?.error || 'Failed to save mood entry' });
     } finally {
       setSaving(false);

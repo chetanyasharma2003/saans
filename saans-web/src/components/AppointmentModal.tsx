@@ -61,7 +61,6 @@ export function AppointmentModal({ therapist, onClose, onBookingSuccess }: Appoi
       }
     } catch (error: any) {
       setBookingError(error.message || 'Failed to load available slots');
-      console.error('Error fetching slots:', error);
     } finally {
       setLoadingSlots(false);
     }
@@ -101,7 +100,6 @@ export function AppointmentModal({ therapist, onClose, onBookingSuccess }: Appoi
       }
     } catch (error: any) {
       setBookingError(error.message || 'Failed to book appointment');
-      console.error('Booking error:', error);
     } finally {
       setIsSubmitting(false);
     }

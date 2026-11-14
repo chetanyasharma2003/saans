@@ -46,7 +46,6 @@ export function SessionsPageNew() {
       });
       setAppointments(response.data.data || []);
     } catch (err) {
-      console.error('Error fetching appointments:', err);
       setError('Failed to load appointments');
     } finally {
       setLoading(false);
@@ -87,7 +86,6 @@ export function SessionsPageNew() {
       fetchAppointments();
       alert('Appointment cancelled');
     } catch (err) {
-      console.error('Error cancelling appointment:', err);
       alert('Failed to cancel appointment');
     }
   };
@@ -104,7 +102,6 @@ export function SessionsPageNew() {
       setShowRescheduleModal(false);
       alert('Appointment rescheduled!');
     } catch (err) {
-      console.error('Error rescheduling:', err);
       alert('Failed to reschedule');
     }
   };

@@ -75,7 +75,6 @@ export function ResourcesPageNew() {
       setResources(response.data.data || []);
       setError(null);
     } catch (err: any) {
-      console.error('Error fetching resources:', err);
       setError('Failed to load resources. Please try again.');
     } finally {
       setLoading(false);
@@ -277,7 +276,6 @@ export function ResourcesPageNew() {
                     );
                     setSelectedResource(prev => prev ? { ...prev, helpfulCount: prev.helpfulCount + 1 } : null);
                   } catch (err) {
-                    console.error('Error marking as helpful:', err);
                   }
                 }}
                 className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl transition-all text-lg flex items-center justify-center gap-2"

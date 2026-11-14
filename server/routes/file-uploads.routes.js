@@ -49,7 +49,6 @@ router.post('/profile-picture', authenticateToken, upload.single('file'), async 
       url: filePath
     });
   } catch (error) {
-    console.error('Upload error:', error);
     res.status(500).json({ success: false, error: error.message || 'Upload failed' });
   }
 });

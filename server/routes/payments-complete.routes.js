@@ -21,7 +21,6 @@ try {
     });
   }
 } catch (error) {
-  console.warn('⚠️  Razorpay initialization failed. Razorpay payments will be disabled.');
 }
 
 // Create Stripe payment intent
@@ -78,8 +77,8 @@ router.post('/stripe/confirm', authenticateToken, async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Payment not confirmed' });
     }
 
-    // Create payment record
-    const payment = new Payment({
+    // Create payment record (Sequelize)
+    const payment = await Payment.create({
       userId: req.userId,
       appointmentId,
       amount: paymentIntent.amount / 100,
@@ -89,10 +88,11 @@ router.post('/stripe/confirm', authenticateToken, async (req, res, next) => {
       status: 'completed'
     });
 
-    await payment.save();
-
-    // Update appointment
-    await Appointment.findByIdAndUpdate(appointmentId, { paymentStatus: 'completed' });
+    // Update appointment (Sequelize)
+    await Appointment.update(
+      { paymentStatus: 'completed' },
+      { where: { id: appointmentId } }
+    );
 
     res.json({ success: true, message: 'Payment confirmed', data: payment });
   } catch (error) {

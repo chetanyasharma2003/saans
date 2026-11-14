@@ -151,7 +151,6 @@ export function MyProfilePage() {
           setSubscriptionStatus(response.data.data);
         }
       } catch (error: any) {
-        console.error('Failed to fetch subscription status:', error);
         setSubscriptionStatus(null);
       } finally {
         setSubscriptionLoading(false);

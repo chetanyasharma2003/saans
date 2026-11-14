@@ -36,7 +36,6 @@ const MedicalRecordsPage: React.FC = () => {
       });
       setMedications(response.data.data || []);
     } catch (error) {
-      console.error('Failed to fetch medications:', error);
     } finally {
       setLoading(false);
     }
@@ -52,7 +51,6 @@ const MedicalRecordsPage: React.FC = () => {
       setShowAddForm(false);
       fetchMedications();
     } catch (error) {
-      console.error('Failed to add medication:', error);
     }
   };
 
@@ -63,7 +61,6 @@ const MedicalRecordsPage: React.FC = () => {
       });
       fetchMedications();
     } catch (error) {
-      console.error('Failed to delete medication:', error);
     }
   };
 

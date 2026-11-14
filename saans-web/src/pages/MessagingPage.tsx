@@ -49,7 +49,6 @@ export function MessagingPage() {
         setSelectedConversation(response.data.data[0]._id);
       }
     } catch (err) {
-      console.error('Error fetching conversations:', err);
       setError('Failed to load conversations');
     } finally {
       setLoading(false);
@@ -65,7 +64,6 @@ export function MessagingPage() {
       );
       setMessages(response.data.data || []);
     } catch (err) {
-      console.error('Error fetching messages:', err);
     }
   };
 
@@ -86,7 +84,6 @@ export function MessagingPage() {
       setMessages([...messages, response.data.data]);
       setNewMessage('');
     } catch (err) {
-      console.error('Error sending message:', err);
       alert('Failed to send message');
     }
   };

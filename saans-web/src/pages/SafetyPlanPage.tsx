@@ -41,7 +41,6 @@ const SafetyPlanPage: React.FC = () => {
       setSafetyPlan(response.data.data);
       setContacts(response.data.data?.contacts || []);
     } catch (error) {
-      console.error('Failed to fetch safety plan:', error);
     } finally {
       setLoading(false);
     }
@@ -57,7 +56,6 @@ const SafetyPlanPage: React.FC = () => {
       setShowAddContact(false);
       fetchSafetyPlan();
     } catch (error) {
-      console.error('Failed to add contact:', error);
     }
   };
 

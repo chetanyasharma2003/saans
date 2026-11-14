@@ -67,7 +67,6 @@ export function VideoCallPage() {
         appointmentId,
         duration: callDurationRef.current,
       }).catch((cleanupError) => {
-        console.error('Unable to end the session after leaving the call page:', cleanupError);
       });
       serverSessionStartedRef.current = false;
     }

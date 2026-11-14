@@ -87,7 +87,6 @@ export function FindTherapistPagePro() {
       setTherapists(therapistsData);
       applyFiltersAndSort(therapistsData);
     } catch (error) {
-      console.error('Error fetching therapists:', error);
       setError('Failed to load therapists');
     } finally {
       setLoading(false);

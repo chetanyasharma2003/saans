@@ -44,7 +44,6 @@ export function AdminDashboardNew() {
       setSubscriptions(subscriptionsRes.data.data);
       setAppointments(appointmentsRes.data.data);
     } catch (error) {
-      console.error('Error fetching admin data:', error);
       setError('Failed to load admin data');
     } finally {
       setLoading(false);

@@ -76,7 +76,6 @@ router.post('/generate-token', authenticateToken, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Generate video session token failed:', error);
     res.status(500).json({ success: false, error: 'Unable to prepare the session' });
   }
 });
@@ -111,7 +110,6 @@ router.post('/start', authenticateToken, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Start video session failed:', error);
     res.status(500).json({ success: false, error: 'Unable to start the session' });
   }
 });
@@ -134,7 +132,6 @@ router.post('/connected', authenticateToken, async (req, res) => {
     }
     res.json({ success: true, data: { appointmentId: appointment.id, status: 'in-progress' } });
   } catch (error) {
-    console.error('Mark session connected failed:', error);
     res.status(500).json({ success: false, error: 'Unable to mark the session as connected' });
   }
 });
@@ -162,7 +159,6 @@ router.post('/end', authenticateToken, async (req, res) => {
     await appointment.update({ status: 'completed' });
     res.json({ success: true, data: { appointmentId: appointment.id, status: 'completed', duration } });
   } catch (error) {
-    console.error('End video session failed:', error);
     res.status(500).json({ success: false, error: 'Unable to end the session' });
   }
 });
@@ -184,7 +180,6 @@ router.get('/active', authenticateToken, async (req, res) => {
     });
     res.json({ success: true, data: appointments });
   } catch (error) {
-    console.error('Get active sessions failed:', error);
     res.status(500).json({ success: false, error: 'Unable to load active sessions' });
   }
 });

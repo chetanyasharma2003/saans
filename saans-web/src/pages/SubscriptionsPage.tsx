@@ -17,7 +17,6 @@ const SubscriptionsPage: React.FC = () => {
       const res = await axios.get('/api/subscriptions/plans');
       setPlans(res.data.data || []);
     } catch (error) {
-      console.error('Error fetching plans:', error);
     }
   };
 
@@ -28,7 +27,6 @@ const SubscriptionsPage: React.FC = () => {
       });
       setActiveSubscription(res.data.data);
     } catch (error) {
-      console.error('Error fetching subscription:', error);
     } finally {
       setLoading(false);
     }
@@ -43,7 +41,6 @@ const SubscriptionsPage: React.FC = () => {
       alert('Subscription activated!');
       fetchActiveSubscription();
     } catch (error) {
-      console.error('Subscription error:', error);
       alert('Failed to subscribe');
     }
   };
@@ -57,7 +54,6 @@ const SubscriptionsPage: React.FC = () => {
       alert('Plan upgraded!');
       fetchActiveSubscription();
     } catch (error) {
-      console.error('Upgrade error:', error);
     }
   };
 
@@ -70,7 +66,6 @@ const SubscriptionsPage: React.FC = () => {
       alert('Subscription cancelled');
       setActiveSubscription(null);
     } catch (error) {
-      console.error('Cancel error:', error);
     }
   };
 

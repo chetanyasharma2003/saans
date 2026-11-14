@@ -41,7 +41,6 @@ export function AppointmentsPageNew() {
       setAppointments(response.data.data || []);
       setError(null);
     } catch (err) {
-      console.error('Error fetching appointments:', err);
       setError('Failed to load appointments');
     } finally {
       setLoading(false);
@@ -65,7 +64,6 @@ export function AppointmentsPageNew() {
       await apiClient.post(`/api/appointments/${appointmentId}/cancel`, {});
       await fetchAppointments();
     } catch (cancelError) {
-      console.error('Error cancelling appointment:', cancelError);
       setError('Unable to cancel this appointment. Please try again.');
     }
   };

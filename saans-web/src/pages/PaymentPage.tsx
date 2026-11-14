@@ -59,7 +59,6 @@ export function PaymentPage() {
       };
       document.body.appendChild(script);
     } catch (error) {
-      console.error('Payment error:', error);
       setStatus('error');
     } finally {
       setLoading(false);

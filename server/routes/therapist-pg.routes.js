@@ -75,7 +75,6 @@ router.get('/nearby', authenticateToken, async (req, res) => {
       userLocation: { lat: parseFloat(lat), lon: parseFloat(lon) }
     });
   } catch (error) {
-    console.error('Get nearby therapists error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -120,7 +119,6 @@ router.get('/', async (req, res) => {
       pages: Math.ceil(count / parseInt(limit))
     });
   } catch (error) {
-    console.error('Get therapists error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

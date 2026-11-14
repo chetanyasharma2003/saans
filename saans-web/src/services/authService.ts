@@ -65,7 +65,6 @@ const refreshAccessToken = async () => {
 
     return false;
   } catch (error) {
-    console.error('Token refresh failed:', error);
     clearTokens();
     return false;
   }

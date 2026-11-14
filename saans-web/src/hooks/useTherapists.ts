@@ -48,7 +48,6 @@ export function useRecommendedTherapists() {
         const response = await apiClient.get<Therapist[]>('/therapists');
         return response.data || [];
       } catch (error) {
-        console.error('Failed to fetch recommended therapists:', error);
         return [];
       }
     },
@@ -64,7 +63,6 @@ export function useNearbyTherapists() {
         const response = await apiClient.get<Therapist[]>('/therapists');
         return response.data || [];
       } catch (error) {
-        console.error('Failed to fetch nearby therapists:', error);
         return [];
       }
     },
@@ -80,7 +78,6 @@ export function useTherapistsBySpecialty() {
         const response = await apiClient.get<Therapist[]>('/therapists');
         return response.data || [];
       } catch (error) {
-        console.error('Failed to fetch therapists by specialty:', error);
         return [];
       }
     },

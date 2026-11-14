@@ -7,7 +7,6 @@ class NotificationService {
     try {
       const user = await User.findById(userId);
       if (!user || !user.fcmToken) {
-        console.log('No FCM token for user:', userId);
         return;
       }
 
@@ -21,10 +20,8 @@ class NotificationService {
       };
 
       const response = await admin.messaging().send(message);
-      console.log('Push notification sent:', response);
       return response;
     } catch (error) {
-      console.error('Push notification error:', error);
       throw error;
     }
   }
@@ -37,7 +34,6 @@ class NotificationService {
       );
       await Promise.allSettled(promises);
     } catch (error) {
-      console.error('Broadcast error:', error);
       throw error;
     }
   }
@@ -61,7 +57,6 @@ class NotificationService {
         }
       );
     } catch (error) {
-      console.error('Appointment reminder error:', error);
     }
   }
 
@@ -75,7 +70,6 @@ class NotificationService {
         { click_action: '/messages' }
       );
     } catch (error) {
-      console.error('Message notification error:', error);
     }
   }
 
@@ -89,7 +83,6 @@ class NotificationService {
         { click_action: '/community' }
       );
     } catch (error) {
-      console.error('Story approval notification error:', error);
     }
   }
 }

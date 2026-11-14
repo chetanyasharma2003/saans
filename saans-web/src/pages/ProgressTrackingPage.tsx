@@ -49,7 +49,6 @@ const ProgressTrackingPage: React.FC = () => {
       setMilestones(milestonesRes.data.data || []);
       setMoodTrend(trendRes.data.data);
     } catch (error) {
-      console.error('Failed to fetch progress data:', error);
     } finally {
       setLoading(false);
     }
@@ -65,7 +64,6 @@ const ProgressTrackingPage: React.FC = () => {
       setShowAddMilestone(false);
       fetchProgressData();
     } catch (error) {
-      console.error('Failed to add milestone:', error);
     }
   };
 

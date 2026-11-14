@@ -50,7 +50,6 @@ export function Navbar() {
     e.preventDefault();
     if (searchQuery.trim()) {
       // Handle search logic here
-      console.log('Searching for:', searchQuery);
       setSearchQuery('');
     }
   };

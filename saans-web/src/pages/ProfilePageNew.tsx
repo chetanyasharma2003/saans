@@ -41,7 +41,6 @@ export function ProfilePageNew() {
       });
       setUser(res.data.data);
     } catch (error) {
-      console.error('Error fetching profile:', error);
       setMessage({ type: 'error', text: 'Failed to load profile' });
     } finally {
       setLoading(false);

@@ -42,7 +42,6 @@ const refreshAccessToken = async (): Promise<string | null> => {
       return data.token;
     })
     .catch(() => {
-      console.warn('Session refresh failed; signing out.');
       return null;
     })
     .finally(() => {

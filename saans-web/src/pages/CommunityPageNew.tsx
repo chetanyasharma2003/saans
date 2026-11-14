@@ -87,7 +87,6 @@ export function CommunityPageNew() {
       }
       setError(null);
     } catch (err) {
-      console.error('Error fetching community data:', err);
       setError('Could not load community data');
     } finally {
       setLoading(false);

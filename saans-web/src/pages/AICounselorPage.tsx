@@ -71,7 +71,6 @@ export function AICounselorPage() {
 
       setMessages((prev) => [...prev, aiResponse]);
     } catch (err: any) {
-      console.error('Error:', err);
       setError('Failed to get response. Please try again.');
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),

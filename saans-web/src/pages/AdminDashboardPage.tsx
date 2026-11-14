@@ -39,7 +39,6 @@ export function AdminDashboardPage() {
       setAppointmentStats(appointmentRes.data.data);
       setResourceStats(resourceRes.data.data);
     } catch (err) {
-      console.error('Error fetching admin data:', err);
       setError('Failed to load admin data');
     } finally {
       setLoading(false);
@@ -57,7 +56,6 @@ export function AdminDashboardPage() {
       setPendingStories(pendingStories.filter(s => s._id !== storyId));
       alert('Story approved!');
     } catch (err) {
-      console.error('Error:', err);
       alert('Failed to approve story');
     }
   };
@@ -73,7 +71,6 @@ export function AdminDashboardPage() {
       setPendingStories(pendingStories.filter(s => s._id !== storyId));
       alert('Story rejected!');
     } catch (err) {
-      console.error('Error:', err);
       alert('Failed to reject story');
     }
   };

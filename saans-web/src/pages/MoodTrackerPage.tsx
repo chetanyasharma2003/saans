@@ -95,7 +95,6 @@ export function MoodTrackerPage() {
         setAnalytics(analyticsData.data);
       }
     } catch (err: any) {
-      console.error('Error loading mood data:', err);
       setError(err.message || 'Failed to load mood data');
     } finally {
       setIsLoading(false);
@@ -150,7 +149,6 @@ export function MoodTrackerPage() {
       // Reload analytics
       loadAnalytics();
     } catch (err: any) {
-      console.error('Error saving mood:', err);
       setError(err.message || 'Failed to save mood entry');
     } finally {
       setIsSaving(false);
@@ -175,7 +173,6 @@ export function MoodTrackerPage() {
         setAnalytics(data.data);
       }
     } catch (err) {
-      console.error('Error loading analytics:', err);
     }
   };
 

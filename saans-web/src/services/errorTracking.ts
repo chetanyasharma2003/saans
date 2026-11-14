@@ -28,7 +28,6 @@ export const captureException = (error: Error, context?: Record<string, any>) =>
       contexts: context ? { custom: context } : undefined,
     });
   } else {
-    console.error('Error:', error, context);
   }
 };
 
@@ -36,7 +35,6 @@ export const captureMessage = (message: string, level: Sentry.SeverityLevel = 'i
   if (import.meta.env.VITE_SENTRY_DSN) {
     Sentry.captureMessage(message, level);
   } else {
-    console.log(message);
   }
 };
 

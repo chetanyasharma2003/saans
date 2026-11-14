@@ -60,7 +60,6 @@ export function FindTherapistPageNew() {
           fetchNearbyTherapists(position.coords.latitude, position.coords.longitude);
         },
         (error) => {
-          console.log('Location access denied, using default location');
           // Default to Jaipur
           const defaultLoc = { lat: 26.9124, lon: 75.8058 };
           setUserLocation(defaultLoc);
@@ -92,7 +91,6 @@ export function FindTherapistPageNew() {
       setTherapists(response.data.data || []);
       applyLocalFilters(response.data.data || []);
     } catch (error) {
-      console.error('Error fetching therapists:', error);
       setError('Failed to load therapists. Please try again.');
     } finally {
       setLoading(false);
@@ -170,7 +168,6 @@ export function FindTherapistPageNew() {
       // Redirect to sessions page
       setTimeout(() => navigate('/appointments'), 1000);
     } catch (err) {
-      console.error('Booking error:', err);
       alert('Failed to book appointment. Please try again.');
     } finally {
       setBookingLoading(false);

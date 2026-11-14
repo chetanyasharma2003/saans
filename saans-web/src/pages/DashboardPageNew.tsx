@@ -37,7 +37,6 @@ export function DashboardPageNew() {
         });
         setUserData(userRes.data.data);
       } catch (e) {
-        console.error('User profile error:', e);
       }
 
       try {
@@ -46,7 +45,6 @@ export function DashboardPageNew() {
         });
         setAppointments(appointmentsRes.data.data || []);
       } catch (e) {
-        console.error('Appointments error:', e);
       }
 
       try {
@@ -55,7 +53,6 @@ export function DashboardPageNew() {
         });
         setMoodData(moodRes.data.data);
       } catch (e) {
-        console.error('Mood stats error:', e);
       }
 
       try {
@@ -126,7 +123,6 @@ export function DashboardPageNew() {
           setInsights([{ icon: '📊', text: 'Start logging mood to see insights!' }]);
         }
       } catch (e) {
-        console.error('Mood entries error:', e);
       }
 
       try {
@@ -135,12 +131,10 @@ export function DashboardPageNew() {
         });
         setSubscription(subRes.data.data);
       } catch (e) {
-        console.error('Subscription error:', e);
         // Set default subscription data if endpoint fails
         setSubscription({ status: 'active', plan: 'free', features: {} });
       }
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
       setError('Some dashboard data could not be loaded');
     } finally {
       setLoading(false);

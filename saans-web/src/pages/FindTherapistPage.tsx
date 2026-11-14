@@ -129,7 +129,6 @@ export function FindTherapistPage() {
         setTotalPages(response.pagination.pages);
       }
     } catch (err: any) {
-      console.error('Failed to fetch therapists:', err);
       setError(err.message || 'Failed to load therapists');
     } finally {
       setLoading(false);
