@@ -27,9 +27,21 @@ const PORT = process.env.PORT || 3001;
 // ============ MIDDLEWARE ============
 
 // ⚠️ CORS MUST BE FIRST - Before all other middleware
-// BULLETPROOF: Allow all origins for now (Vercel needs this)
+// SECURITY: Only allow frontend domain, NOT all origins
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:5173',
+  'https://saans.vercel.app',
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined
+].filter(Boolean);
+
 app.use(cors({
-  origin: true,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -43,11 +55,14 @@ app.options('*', cors());
 app.use(requestIdMiddleware);
 
 // Session configuration for OAuth
+if (!process.env.SESSION_SECRET) {
+  throw new Error('❌ SESSION_SECRET environment variable is required!');
+}
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'saans-session-secret',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production', httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }
+  cookie: { secure: process.env.NODE_ENV === 'production', httpOnly: true, sameSite: 'strict', maxAge: 24 * 60 * 60 * 1000 }
 }));
 
 // Passport configuration
@@ -105,7 +120,6 @@ app.use('/api/resources', require('./routes/resources-pg.routes'));
 app.use('/api/resource-details', require('./routes/resource-details.routes'));
 app.use('/api/admin/analytics', require('./routes/admin.analytics.routes'));
 app.use('/api/admin', require('./routes/admin-analytics.routes'));
-app.use('/api/payments-enhanced', require('./routes/payments.enhanced.routes'));
 app.use('/api/recommendations', require('./routes/recommendations.routes'));
 app.use('/api/ai', require('./routes/ai.routes'));
 app.use('/api/email', require('./routes/email.routes'));
@@ -114,9 +128,8 @@ app.use('/api/oauth', require('./routes/oauth.routes'));
 app.use('/api/audit', require('./routes/audit.routes'));
 app.use('/api/chat', require('./routes/chat.routes'));
 app.use('/api/notifications', require('./routes/notifications.routes'));
-app.use('/api/payments', require('./routes/payment.routes'));
 app.use('/api/payments', require('./routes/payments-complete.routes'));
-app.use('/api/video-calls', require('./routes/video-calls-complete.routes'));
+app.use('/api/video', require('./routes/video-calls-complete.routes'));
 app.use('/api/messaging', require('./routes/messaging-complete.routes'));
 app.use('/api/analytics', require('./routes/analytics.routes'));
 app.use('/api/stories', require('./routes/stories-pg.routes'));
@@ -150,11 +163,12 @@ const startServer = async () => {
     // Try to connect to database (won't crash if it fails)
     connectDB()
       .then(async (connected) => {
-        if (connected && process.env.NODE_ENV === 'production') {
-          await require('./seed-starter-content')();
-        }
-        if (connected && process.env.ENABLE_DEMO_DATA === 'true') {
-          await require('./seed-demo-content').seedDemoContent();
+        if (connected && process.env.NODE_ENV !== 'production') {
+          // Only seed demo data in development
+          if (process.env.ENABLE_DEMO_DATA === 'true') {
+            console.log('🌱 Seeding demo content in development...');
+            await require('./seed-demo-content').seedDemoContent();
+          }
         }
       })
       .catch((error) => console.error('DB initialization failed:', error.message));
