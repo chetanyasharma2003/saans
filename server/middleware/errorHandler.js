@@ -6,25 +6,27 @@
 const { AppError } = require('../utils/AppError');
 
 const errorHandler = (err, req, res, next) => {
-  // Log error with request ID
-  console.error(`[${req.id}] Error:`, {
-    message: err.message,
-    code: err.code || 'UNKNOWN',
-    statusCode: err.statusCode || 500,
-    path: req.path,
-    method: req.method,
-    userId: req.userId,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-  });
+  // Log error with request ID (use logger service in production)
+  if (process.env.NODE_ENV === 'development') {
+    console.error(`[${req.id}] Error:`, {
+      message: err.message,
+      code: err.code || 'UNKNOWN',
+      statusCode: err.statusCode || 500,
+      path: req.path,
+      method: req.method,
+      userId: req.userId,
+      stack: err.stack,
+    });
+  }
 
   // Handle AppError instances
   if (err instanceof AppError) {
     return res.status(err.statusCode).json(err.toJSON());
   }
 
-  // Handle Mongoose validation errors
-  if (err.name === 'ValidationError') {
-    const messages = Object.values(err.errors).map(e => e.message);
+  // Handle Sequelize validation errors
+  if (err.name === 'SequelizeValidationError') {
+    const messages = err.errors.map(e => e.message);
     return res.status(400).json({
       success: false,
       error: 'Validation failed',
@@ -35,26 +37,26 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Handle Mongoose cast errors (invalid ObjectId)
-  if (err.name === 'CastError') {
-    return res.status(400).json({
-      success: false,
-      error: 'Invalid ID format',
-      code: 'INVALID_ID',
-      statusCode: 400,
-      timestamp: new Date().toISOString(),
-    });
-  }
-
-  // Handle Mongoose duplicate key errors
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyPattern)[0];
+  // Handle Sequelize unique constraint errors
+  if (err.name === 'SequelizeUniqueConstraintError') {
+    const field = err.fields ? Object.keys(err.fields)[0] : 'unknown';
     return res.status(409).json({
       success: false,
       error: `${field} already exists`,
       code: 'DUPLICATE_KEY',
       statusCode: 409,
       field,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  // Handle Sequelize database errors
+  if (err.name === 'SequelizeDatabaseError') {
+    return res.status(500).json({
+      success: false,
+      error: 'Database error occurred',
+      code: 'DATABASE_ERROR',
+      statusCode: 500,
       timestamp: new Date().toISOString(),
     });
   }

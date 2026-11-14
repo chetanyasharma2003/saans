@@ -165,7 +165,7 @@ const startServer = async () => {
       .then(async (connected) => {
         if (connected && process.env.NODE_ENV !== 'production') {
           // Only seed demo data in development
-          if (process.env.ENABLE_DEMO_DATA === 'true') {
+          if (false) {
             console.log('🌱 Seeding demo content in development...');
             await require('./seed-demo-content').seedDemoContent();
           }
