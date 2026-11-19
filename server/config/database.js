@@ -52,8 +52,8 @@ const connectDB = async () => {
 
     // Sync models (development only - use migrations in production)
     if (process.env.NODE_ENV !== 'production') {
-      await sequelize.sync({ alter: true });
-      console.log('✅ Database schemas synced');
+      await sequelize.sync({ force: false, alter: false });
+      console.log('✅ Database schemas ready');
     }
     return true;
   } catch (error) {
