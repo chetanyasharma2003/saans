@@ -36,7 +36,10 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow localhost, specific domains, and all vercel.app subdomains
+    if (!origin ||
+        allowedOrigins.includes(origin) ||
+        (origin && origin.includes('vercel.app'))) {
       callback(null, true);
     } else {
       callback(new Error('CORS not allowed'));
